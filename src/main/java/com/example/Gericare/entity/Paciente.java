@@ -1,7 +1,6 @@
 package com.example.Gericare.entity;
 
-import com.example.Gericare.enums.TipoSangre;
-import com.example.Gericare.enums.TipoSangreConverter;
+import com.example.Gericare.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
