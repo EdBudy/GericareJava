@@ -29,6 +29,6 @@ public class Rol {
     private String descripcion;
 
     @OneToMany(mappedBy = "rolUsuario")
-    private Set<Paciente> rolUsuario = new HashSet<>();
+    private Set<Usuario> usuarios = new HashSet<>();
 
 }
