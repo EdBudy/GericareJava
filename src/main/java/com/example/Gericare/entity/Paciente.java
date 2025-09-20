@@ -3,14 +3,7 @@ package com.example.Gericare.entity;
 import com.example.Gericare.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-
-@Getter
-@Setter
-@NoArgsConstructor;
 @Entity
 @Table(name = "tb_paciente")
 
