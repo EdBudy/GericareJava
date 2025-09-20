@@ -75,11 +75,11 @@ public class Usuario {
     // m:1 muchos usuarios tienen un rol
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol") // Columna FK en la tabla 'tb_usuario' que apunta a 'tb_rol'
-    private Rol rol; // objeto Rol
+    private Rol rolUsuario; // objeto Rol
 
     // Relación Uno a Muchos con Paciente
     // Un usuario (familiar) puede tener varios pacientes asignados.
     // 'mappedBy' la relación es gestionada por la entidad Paciente (en su campo 'usuarioFamiliar')
     @OneToMany(mappedBy = "usuarioFamiliar")
-    private Set<Paciente> pacientes = new HashSet<>();
+    private Set<Paciente> pacienteUsuario = new HashSet<>();
 }

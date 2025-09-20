@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,5 +27,8 @@ public class Rol {
 
     @Column(name = "descripcion_rol")
     private String descripcion;
+
+    @OneToMany(mappedBy = "rolUsuario")
+    private Set<Paciente> rolUsuario = new HashSet<>();
 
 }
