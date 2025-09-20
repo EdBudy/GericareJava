@@ -5,7 +5,7 @@ import com.example.Gericare.Repository.RolRepository;
 import com.example.Gericare.entity.Rol;
 import com.example.Gericare.entity.Usuario;
 import com.example.Gericare.Repository.UsuarioRepository;
-import com.example.Gericare.service.UsuarioService;
+import com.example.Gericare.Service.UsuarioService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
