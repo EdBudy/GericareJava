@@ -3,6 +3,8 @@ package com.example.Gericare.entity;
 import com.example.Gericare.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +12,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor;
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_paciente")
 
@@ -18,10 +20,10 @@ public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_paciente")
-    private Integer id;
+    private Long id;
 
     @Column(name = "documento_identificacion", nullable = false, unique = true)
-    private Integer documentoIdentificacion;
+    private String documentoIdentificacion;
 
     @Column(nullable = false, length = 50)
     private String nombre;
@@ -55,8 +57,6 @@ public class Paciente {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoPaciente estado;
-
-    // --- Relación con Usuario (Familiar) ---
 
     // Relación Muchos a Uno: Muchos pacientes pueden estar asociados a un usuario familiar.
     @ManyToOne
