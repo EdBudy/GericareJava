@@ -1,15 +1,10 @@
 package com.example.Gericare.DTO;
 
-import com.example.Gericare.entity.Paciente;
-import com.example.Gericare.entity.Rol;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.TipoDocumento;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Setter
@@ -18,7 +13,7 @@ import java.util.Set;
 @NoArgsConstructor
 public class UsuarioDTO {
 
-    private Integer id;
+    private Long id;
     private TipoDocumento tipoDocumento;
     private String documentoIdentificacion;
     private String nombre;

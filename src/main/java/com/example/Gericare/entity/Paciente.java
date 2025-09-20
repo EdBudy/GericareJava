@@ -18,10 +18,10 @@ public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_paciente")
-    private Integer id;
+    private Long id;
 
     @Column(name = "documento_identificacion", nullable = false, unique = true)
-    private Integer documentoIdentificacion;
+    private String documentoIdentificacion;
 
     @Column(nullable = false, length = 50)
     private String nombre;

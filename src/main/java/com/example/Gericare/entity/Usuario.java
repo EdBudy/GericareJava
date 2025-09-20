@@ -21,7 +21,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Integer id;
+    private Long id;
 
     // Columnas de Información Personal
 
@@ -30,7 +30,7 @@ public class Usuario {
     private TipoDocumento tipoDocumento;
 
     @Column(name = "documento_identificacion", nullable = false, unique = true)
-    private Integer documentoIdentificacion;
+    private String documentoIdentificacion;
 
     @Column(nullable = false, length = 50)
     private String nombre;
@@ -86,135 +86,4 @@ public class Usuario {
     // 'mappedBy' la relación es gestionada por la entidad Paciente (en su campo 'usuarioFamiliar')
     @OneToMany(mappedBy = "usuarioFamiliar")
     private Set<Paciente> pacientes = new HashSet<>();
-
-    //-- Getters y Setters
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public TipoDocumento getTipoDocumento() {
-        return tipoDocumento;
-    }
-
-    public void setTipoDocumento(TipoDocumento tipoDocumento) {
-        this.tipoDocumento = tipoDocumento;
-    }
-
-    public Integer getDocumentoIdentificacion() {
-        return documentoIdentificacion;
-    }
-
-    public void setDocumentoIdentificacion(Integer documentoIdentificacion) {
-        this.documentoIdentificacion = documentoIdentificacion;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public LocalDate getFechaNacimiento() {
-        return fechaNacimiento;
-    }
-
-    public void setFechaNacimiento(LocalDate fechaNacimiento) {
-        this.fechaNacimiento = fechaNacimiento;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
-    public String getDireccion() {
-        return direccion;
-    }
-
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
-
-    public String getCorreoElectronico() {
-        return correoElectronico;
-    }
-
-    public void setCorreoElectronico(String correoElectronico) {
-        this.correoElectronico = correoElectronico;
-    }
-
-    public String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
-
-    public EstadoUsuario getEstado() {
-        return estado;
-    }
-
-    public void setEstado(EstadoUsuario estado) {
-        this.estado = estado;
-    }
-
-    public LocalDate getFechaContratacion() {
-        return fechaContratacion;
-    }
-
-    public void setFechaContratacion(LocalDate fechaContratacion) {
-        this.fechaContratacion = fechaContratacion;
-    }
-
-    public String getTipoContrato() {
-        return tipoContrato;
-    }
-
-    public void setTipoContrato(String tipoContrato) {
-        this.tipoContrato = tipoContrato;
-    }
-
-    public String getContactoEmergencia() {
-        return contactoEmergencia;
-    }
-
-    public void setContactoEmergencia(String contactoEmergencia) {
-        this.contactoEmergencia = contactoEmergencia;
-    }
-
-    public String getParentesco() {
-        return parentesco;
-    }
-
-    public void setParentesco(String parentesco) {
-        this.parentesco = parentesco;
-    }
-
-    public Set<Rol> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Rol> roles) {
-        this.roles = roles;
-    }
-
-    public Set<Paciente> getPacientes() {
-        return pacientes;
-    }
-
-    public void setPacientes(Set<Paciente> pacientes) {
-        this.pacientes = pacientes;
-    }
 }
