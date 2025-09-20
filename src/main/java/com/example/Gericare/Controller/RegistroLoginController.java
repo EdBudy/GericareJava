@@ -1,7 +1,7 @@
-package com.example.Gericare.controller;
+package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.UsuarioDTO;
-import com.example.Gericare.service.UsuarioService;
+import com.example.Gericare.Service.UsuarioService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
