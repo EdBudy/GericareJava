@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class UsuarioDTO {
 
-    private Long id;
+    private Long idUsuario;
     private TipoDocumento tipoDocumento;
     private String documentoIdentificacion;
     private String nombre;
