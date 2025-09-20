@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor;
+@NoArgsConstructor
 @Entity
 @Table(name = "tb_paciente")
 
