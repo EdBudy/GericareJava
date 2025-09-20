@@ -23,7 +23,7 @@ public class Usuario {
     @Column(name = "id_usuario")
     private Integer id;
 
-    // --- Columnas de Información Personal ---
+    // Columnas de Información Personal
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_documento", nullable = false)
@@ -39,24 +39,24 @@ public class Usuario {
     private String apellido;
 
     @Column(name = "fecha_nacimiento", nullable = false)
-    private LocalDate fechaNacimiento; // Usamos LocalDate para fechas sin hora
+    private LocalDate fechaNacimiento; // LocalDate: fechas sin hora
 
     @Column(nullable = false, length = 250)
     private String direccion;
 
-    // --- Columnas de Autenticación y Estado ---
+    // Columnas de Autenticación y Estado
 
     @Column(name = "correo_electronico", nullable = false, unique = true, length = 100)
     private String correoElectronico;
 
     @Column(name = "contraseña", nullable = false)
-    private String contrasena; // La lógica de hashing la manejará Spring Security
+    private String contrasena; // lógica de hashing la manejará Spring Security
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EstadoUsuario estado;
 
-    // --- Atributos específicos por Rol (pueden ser nulos) ---
+    // Atributos específicos por Rol (pueden ser nulos)
 
     @Column(name = "fecha_contratacion")
     private LocalDate fechaContratacion;
@@ -70,20 +70,20 @@ public class Usuario {
     @Column(length = 50)
     private String parentesco;
 
-    // --- Definición de Relaciones con otras Entidades ---
+    // Definición de Relaciones con otras Entidades
 
-    // Relación Muchos a Muchos con Rol, a través de una tabla intermedia
+    // Relación Muchos a Muchos con Rol a través de una tabla intermedia
     @ManyToMany(fetch = FetchType.EAGER) // EAGER para que los roles se carguen junto con el usuario
     @JoinTable(
-            name = "tb_usuario_rol", // Nombre de la tabla intermedia
-            joinColumns = @JoinColumn(name = "id_usuario"), // Columna que nos conecta en la tabla intermedia
-            inverseJoinColumns = @JoinColumn(name = "id_rol") // Columna que conecta a la otra entidad (Rol)
+            name = "tb_usuario_rol", // nombre tabla intermedia
+            joinColumns = @JoinColumn(name = "id_usuario"), // columna que conecta en la tabla intermedia
+            inverseJoinColumns = @JoinColumn(name = "id_rol") // columna que conecta a la entidad Rol
     )
     private Set<Rol> roles = new HashSet<>();
 
     // Relación Uno a Muchos con Paciente
     // Un usuario (familiar) puede tener varios pacientes asignados.
-    // 'mappedBy' indica que la relación es gestionada por la entidad Paciente (en su campo 'usuarioFamiliar')
+    // 'mappedBy' la relación es gestionada por la entidad Paciente (en su campo 'usuarioFamiliar')
     @OneToMany(mappedBy = "usuarioFamiliar")
     private Set<Paciente> pacientes = new HashSet<>();
 
