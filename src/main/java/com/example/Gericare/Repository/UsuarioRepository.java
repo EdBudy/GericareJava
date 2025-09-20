@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
-    // Spring Data JPA creará la consulta automáticamente por el nombre del método.
+    // Spring Data JPA creará la consulta automáticamente por el nombre del metodo.
     // Esto se traduce a: "SELECT * FROM tb_usuario WHERE correo_electronico = ?"
     Optional<Usuario> findByCorreoElectronico(String correo);
 }
