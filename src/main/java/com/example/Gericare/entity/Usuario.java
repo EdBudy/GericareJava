@@ -81,5 +81,5 @@ public class Usuario {
     // Un usuario (familiar) puede tener varios pacientes asignados.
     // 'mappedBy' la relación es gestionada por la entidad Paciente (en su campo 'usuarioFamiliar')
     @OneToMany(mappedBy = "usuarioFamiliar")
-    private Set<Paciente> pacienteUsuario = new HashSet<>();
+    private Set<Paciente> pacientes = new HashSet<>();
 }
