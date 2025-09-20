@@ -20,7 +20,7 @@ public class Rol {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "nombre_rol", nullable = false)
-    private String rolNombre;
+    private RolNombre rolNombre;
 
     @Column(name = "descripcion_rol")
     private String descripcion;

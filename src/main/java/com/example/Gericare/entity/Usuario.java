@@ -70,16 +70,12 @@ public class Usuario {
     @Column(length = 50)
     private String parentesco;
 
-    // Definición de Relaciones con otras Entidades
+    // Relaciones
 
-    // Relación Muchos a Muchos con Rol a través de una tabla intermedia
-    @ManyToMany(fetch = FetchType.EAGER) // EAGER para que los roles se carguen junto con el usuario
-    @JoinTable(
-            name = "tb_usuario_rol", // nombre tabla intermedia
-            joinColumns = @JoinColumn(name = "id_usuario"), // columna que conecta en la tabla intermedia
-            inverseJoinColumns = @JoinColumn(name = "id_rol") // columna que conecta a la entidad Rol
-    )
-    private Set<Rol> roles = new HashSet<>();
+    // m:1 muchos usuarios tienen un rol
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_rol") // Columna FK en la tabla 'tb_usuario' que apunta a 'tb_rol'
+    private Rol rol; // objeto Rol
 
     // Relación Uno a Muchos con Paciente
     // Un usuario (familiar) puede tener varios pacientes asignados.
