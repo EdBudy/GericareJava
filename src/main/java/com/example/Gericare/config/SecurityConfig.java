@@ -1,6 +1,6 @@
 package com.example.Gericare.config;
 
-import com.example.Gericare.service.UsuarioService;
+import com.example.Gericare.Service.UsuarioService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;

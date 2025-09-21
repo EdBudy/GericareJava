@@ -6,9 +6,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
-public interface UsuarioService {
+// La interfaz ahora extiende UserDetailsService para integrarse con Spring Security
+public interface UsuarioService extends UserDetailsService {
 
-    // Define un método para guardar un nuevo usuario a partir de un DTO
+    // Define un metodo para guardar un nuevo usuario a partir de un DTO
     Usuario guardar(UsuarioDTO usuarioDTO);
 
     List<UsuarioDTO> listarUsuarios();
