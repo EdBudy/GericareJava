@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a Gericare Connect</title>
+</head>
+<body>
+<h1>¡Bienvenido a Gericare Connect!</h1>
+<p>Has iniciado sesión correctamente.</p>
+
+<form th:action="@{/logout}" method="post">
+    <button type="submit">Cerrar Sesión</button>
+</form>
+</body>
+</html>
