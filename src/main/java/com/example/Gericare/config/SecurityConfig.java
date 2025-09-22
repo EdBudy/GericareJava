@@ -4,38 +4,58 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    // Definir el encriptador de contraseñas que usará toda la aplicación.
+    // BCrypt es el estándar de la industria.
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        // PERMISOS PÚBLICOS (Todos pueden acceder)
+                        // Permisos públicos
+                        // Permitir el acceso sin necesidad de login a estas URLs.
+                        // Página de inicio, login y archivos de estilo (CSS, JS).
                         .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**").permitAll()
 
-                        // PERMISOS PARA ADMINISTRADOR
-                        .requestMatchers("/admin/**", "/pacientes/nuevo", "/usuarios/nuevo-empleado").hasRole("ADMIN")
+                        // Permisos admin
+                        // Solo 'Administrador' podrá acceder a estas URLs.
+                        // Protege todas las operaciones de creación y gestión de usuarios, pacientes y asignaciones.
+                        .requestMatchers("/usuarios/**", "/pacientes/**", "/asignaciones/**").hasAuthority("Administrador")
 
-                        // PERMISOS PARA CUIDADOR
-                        .requestMatchers("/cuidador/**").hasRole("CUIDADOR")
+                        // Permisos cuidador
+                        // Solo 'Cuidador' podrá acceder a estas URLs.
+                        .requestMatchers("/cuidador/**").hasAuthority("Cuidador")
 
-                        // PERMISOS PARA FAMILIAR
-                        .requestMatchers("/familiar/**").hasRole("FAMILIAR")
+                        // Permisos familiar
+                        // Solo 'Familiar' podrá acceder a estas URLs.
+                        .requestMatchers("/familiar/**").hasAuthority("Familiar")
 
-                        // CUALQUIER OTRA PETICIÓN REQUIERE AUTENTICACIÓN
+                        /* Cualquier otra petición (URL) que no coincida con las reglas anteriores,
+                        pues tiene que ser de un usuario que haya iniciado sesión (esté autenticado). */
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
+                        // Indicar cuál es la página de login personalizada.
                         .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true) // URL a la que ir después de un login exitoso
+                        // Definir la página a la que se redirige al usuario tras un login exitoso.
+                        .defaultSuccessUrl("/dashboard", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
+                        // Definir URL que procesará el cierre de sesión.
                         .logoutUrl("/logout")
+                        // A dónde redirigir al usuario después de cerrar sesión.
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );

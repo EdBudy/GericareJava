@@ -1,7 +1,7 @@
 package com.example.Gericare.Controller;
 
-import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Service.UsuarioService;
+import com.example.Gericare.entity.Familiar; // ¡Importante! Ahora trabajamos con la entidad Familiar.
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping // Este controlador manejará rutas como /login, /registro
+@RequestMapping // Manejo rutas raíz como /login y /registro.
 public class RegistroLoginController {
 
     private final UsuarioService usuarioService;
@@ -19,37 +19,43 @@ public class RegistroLoginController {
         this.usuarioService = usuarioService;
     }
 
-    // --- LOGIN ---
+    // Login
 
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
-        // Simplemente retorna el nombre del archivo HTML que mostraremos
+        // Esto solo muestra la página de login
         return "login";
     }
 
-    // --- REGISTRO ---
+    // Registro familiares
 
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
-        // Creamos un objeto DTO vacío para que el formulario lo pueda llenar
-        model.addAttribute("usuario", new UsuarioDTO());
-        // Retornamos el nombre del archivo HTML del formulario de registro
+        // En lugar de un DTO genérico se prepara un objeto Familiar vacío
+        // El formulario de la vista (HTML) se llenará con los datos de este objeto
+        model.addAttribute("familiar", new Familiar());
         return "registro";
     }
 
     @PostMapping("/registro")
-    public String registrarCuentaDeUsuario(@ModelAttribute("usuario") UsuarioDTO registroDTO) {
-        // Usamos el servicio para guardar el nuevo usuario
-        usuarioService.guardar(registroDTO);
-        // Redirigimos al usuario a una página de éxito
-        return "redirect:/registro?exito";
+    public String registrarCuentaDeFamiliar(@ModelAttribute("familiar") Familiar familiar) {
+        // Recibir el objeto Familiar ya con los datos del formulario
+        // Llamar al método específico y correcto en nuestro servicio
+        try {
+            usuarioService.crearFamiliar(familiar);
+            // Si el registro es exitoso, redirigir a la página de login con un mensaje de éxito
+            return "redirect:/login?registroExitoso";
+        } catch (Exception e) {
+            // Si no redirigir de vuelta al formulario de registro con un mensaje de error
+            return "redirect:/registro?error";
+        }
     }
 
-    // --- PÁGINA DE INICIO ---
+    // Página principal después del login
 
     @GetMapping("/")
     public String verPaginaDeInicio() {
-        // Esta será la página principal a la que se accede después del login
+        // Pag principal a la que se accede después del login
         return "index";
     }
 }
