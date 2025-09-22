@@ -3,83 +3,54 @@ package com.example.Gericare.entity;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.TipoDocumento;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.Set;
-import java.util.HashSet;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 
+@Entity
+@Table(name = "usuarios")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "rol_tipo", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Table(name = "tb_usuario")
+@AllArgsConstructor
+public abstract class Usuario {
 
-public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
     private Long idUsuario;
-
-    // Columnas de Información Personal
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_documento", nullable = false)
-    private TipoDocumento tipoDocumento;
-
-    @Column(name = "documento_identificacion", nullable = false, unique = true)
-    private String documentoIdentificacion;
-
-    @Column(nullable = false, length = 50)
-    private String nombre;
-
-    @Column(nullable = false, length = 50)
-    private String apellido;
-
-    @Column(name = "fecha_nacimiento", nullable = false)
-    private LocalDate fechaNacimiento; // LocalDate: fechas sin hora
-
-    @Column(nullable = false, length = 250)
-    private String direccion;
-
-    // Columnas de Autenticación y Estado
-
-    @Column(name = "correo_electronico", nullable = false, unique = true, length = 100)
-    private String correoElectronico;
-
-    @Column(name = "contraseña", nullable = false)
-    private String contrasena; // lógica de hashing la manejará Spring Security
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoUsuario estado;
+    private TipoDocumento tipoDocumento;
 
-    // Atributos específicos por Rol (pueden ser nulos)
+    @Column(nullable = false, unique = true)
+    private String documentoIdentificacion;
 
-    @Column(name = "fecha_contratacion")
-    private LocalDate fechaContratacion;
+    @Column(nullable = false)
+    private String nombre;
 
-    @Column(name = "tipo_contrato", length = 50)
-    private String tipoContrato;
+    @Column(nullable = false)
+    private String apellido;
 
-    @Column(name = "contacto_emergencia", length = 20)
-    private String contactoEmergencia;
+    @Column(nullable = false)
+    private String direccion;
 
-    @Column(length = 50)
-    private String parentesco;
+    @Column(nullable = false, unique = true)
+    private String correoElectronico;
 
-    // Relaciones
+    @Column(nullable = false)
+    private String contrasena;
 
-    // m:1 muchos usuarios tienen un rol
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_rol") // Columna FK en la tabla 'tb_usuario' que apunta a 'tb_rol'
-    private Rol rolUsuario; // objeto Rol
+    @Enumerated(EnumType.STRING)
+    private EstadoUsuario estado = EstadoUsuario.Activo;
 
-    // Relación Uno a Muchos con Paciente
-    // Un usuario (familiar) puede tener varios pacientes asignados.
-    // 'mappedBy' la relación es gestionada por la entidad Paciente (en su campo 'usuarioFamiliar')
-    @OneToMany(mappedBy = "usuarioFamiliar")
-    private Set<Paciente> pacientes = new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "id_rol", nullable = false)
+    private Rol rol;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Telefono> telefonos = new ArrayList<>();
 }
