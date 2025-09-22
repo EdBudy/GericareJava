@@ -1,10 +1,14 @@
 package com.example.Gericare.entity;
 
+import com.example.Gericare.enums.EstadoAsignacion;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "paciente_asignado")
+@Where(clause = "estado = 'Activo'")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,21 +19,35 @@ public class PacienteAsignado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAsignacion;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_paciente", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Paciente paciente;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_cuidador", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Usuario cuidador;
+    private Cuidador cuidador;
 
-    @ManyToOne
-    @JoinColumn(name = "id_familiar", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_familiar") // Puede ser nulo
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Usuario familiar;
+    private Familiar familiar;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EstadoAsignacion estado = EstadoAsignacion.Activo; // Borrado lógico
+
+    @Column(name = "fecha_creacion", nullable = false)
+    private LocalDateTime fechaCreacion = LocalDateTime.now(); // Registro de cuándo se creó
+
+    // Guardar quién realizó la asignación (admin).
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_admin_creador", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Administrador adminCreador;
 }

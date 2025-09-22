@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class PacienteDTO {
 
-    private Long id;
+    private Long idPaciente;
     private String documentoIdentificacion;
     private String nombre;
     private String apellido;
