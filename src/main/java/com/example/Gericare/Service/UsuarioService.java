@@ -1,24 +1,18 @@
 package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.UsuarioDTO;
-import com.example.Gericare.entity.Usuario;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import com.example.Gericare.entity.Cuidador;
+import com.example.Gericare.entity.Familiar;
 
 import java.util.List;
+import java.util.Optional;
 
-// La interfaz extiende UserDetailsService para integrarse con Spring Security
-public interface UsuarioService extends UserDetailsService {
+public interface UsuarioService {
 
-    // Define un metodo para guardar un nuevo usuario a partir de un DTO
-    Usuario guardar(UsuarioDTO usuarioDTO);
-
-    List<UsuarioDTO> listarUsuarios();
-
-    UsuarioDTO obtenerUsuarioPorId(Long idUsuario);
-
-    UsuarioDTO crearUsuario(UsuarioDTO usuarioDTO);
-
-    UsuarioDTO actualizarUsuario(Long idUsuario, UsuarioDTO usuarioDTO);
-
-    void eliminarUsuario(Long idUsuario);
+    UsuarioDTO crearCuidador(Cuidador cuidador);
+    UsuarioDTO crearFamiliar(Familiar familiar);
+    List<UsuarioDTO> listarTodosLosUsuarios();
+    Optional<UsuarioDTO> obtenerUsuarioPorId(Long id);
+    void eliminarUsuario(Long id);
+    Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO);
 }

@@ -56,7 +56,7 @@ public class Paciente {
     @Column(nullable = false)
     private EstadoPaciente estado;
 
-    // --- Relación con Usuario (Familiar) ---
+    // Relación con Usuario (Familiar)
 
     // Relación Muchos a Uno: Muchos pacientes pueden estar asociados a un usuario familiar.
     @ManyToOne

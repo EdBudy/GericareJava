@@ -17,7 +17,7 @@ public class Telefono {
 
     private String numero;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario", nullable = false)
     @ToString.Exclude // Excluir para evitar bucles
     @EqualsAndHashCode.Exclude // Excluir para evitar bucles

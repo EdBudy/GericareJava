@@ -51,8 +51,12 @@ public abstract class Usuario {
 
     @ManyToOne
     @JoinColumn(name = "id_rol", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Rol rol;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Telefono> telefonos = new ArrayList<>();
 }

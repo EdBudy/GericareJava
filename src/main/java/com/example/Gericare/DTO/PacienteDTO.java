@@ -6,7 +6,6 @@ import com.example.Gericare.enums.EstadoPaciente;
 import lombok.*;
 import java.time.LocalDate;
 
-@Data
 @Setter
 @Getter
 @AllArgsConstructor
@@ -25,5 +24,6 @@ public class PacienteDTO {
     private String seguroMedico;
     private String numeroSeguro;
     private EstadoPaciente estado;
+    private String nombreFamiliarAsociado;
 
 }
