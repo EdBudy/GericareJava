@@ -1,13 +1,9 @@
 package com.example.Gericare.config;
 
-import com.example.Gericare.Service.UsuarioService; // Corregido el nombre del paquete
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -15,31 +11,31 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider(UsuarioService usuarioService) {
-        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
-        auth.setUserDetailsService(usuarioService);
-        auth.setPasswordEncoder(passwordEncoder());
-        return auth;
-    }
-
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/js/**", "/css/**", "/img/**").permitAll()
-                        .requestMatchers("/registro").permitAll()
+                        // PERMISOS PÚBLICOS (Todos pueden acceder)
+                        .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**").permitAll()
+
+                        // PERMISOS PARA ADMINISTRADOR
+                        .requestMatchers("/admin/**", "/pacientes/nuevo", "/usuarios/nuevo-empleado").hasRole("ADMIN")
+
+                        // PERMISOS PARA CUIDADOR
+                        .requestMatchers("/cuidador/**").hasRole("CUIDADOR")
+
+                        // PERMISOS PARA FAMILIAR
+                        .requestMatchers("/familiar/**").hasRole("FAMILIAR")
+
+                        // CUALQUIER OTRA PETICIÓN REQUIERE AUTENTICACIÓN
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .defaultSuccessUrl("/dashboard", true) // URL a la que ir después de un login exitoso
                         .permitAll()
                 )
                 .logout(logout -> logout
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );

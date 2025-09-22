@@ -4,12 +4,14 @@ import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.TipoDocumento;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Where;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
+@Where(clause = "estado = 'Activo'")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "rol_tipo", discriminatorType = DiscriminatorType.STRING)
 @Getter
