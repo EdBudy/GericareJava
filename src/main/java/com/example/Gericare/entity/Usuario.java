@@ -49,7 +49,7 @@ public abstract class Usuario {
     @Enumerated(EnumType.STRING)
     private EstadoUsuario estado = EstadoUsuario.Activo;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
