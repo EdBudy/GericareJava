@@ -125,6 +125,25 @@ public class UsuarioServiceImpl implements UsuarioService {
         });
     }
 
+    @Override
+    public UsuarioDTO crearAdministrador(Administrador administrador) {
+        // Encriptar la contraseña para seguridad.
+        administrador.setContrasena(passwordEncoder.encode(administrador.getContrasena()));
+
+        // Buscar y asignar el rol de Administrador.
+        Rol rolAdmin = rolRepository.findByRolNombre(RolNombre.Administrador)
+                .orElseThrow(() -> new RuntimeException("Error: Rol 'Administrador' no encontrado."));
+        administrador.setRol(rolAdmin);
+
+        // Guardar la nueva entidad en la base de datos.
+        Administrador adminGuardado = usuarioRepository.save(administrador);
+
+        // Convertir y devolver el DTO.
+        return toDTO(adminGuardado);
+    }
+
+
+
     // Métodos privados para traducción (entidad a DTO)
     // Esta es la lógica que convierte los objetos de la base de datos (Entidades)
     // en objetos seguros para mostrar (DTOs).

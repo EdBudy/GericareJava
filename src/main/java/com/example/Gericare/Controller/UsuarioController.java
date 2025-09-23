@@ -4,6 +4,7 @@ import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.entity.Cuidador;
 import com.example.Gericare.entity.Familiar;
+import com.example.Gericare.entity.Administrador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity; // Para respuestas HTTP
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +51,13 @@ public class UsuarioController {
     @PostMapping("/familiar")
     public UsuarioDTO crearFamiliar(@RequestBody Familiar familiar) {
         return usuarioService.crearFamiliar(familiar);
+    }
+
+    // Crear un nuevo administrador.
+    // POST http://localhost:8080/usuarios/administrador
+    @PostMapping("/administrador")
+    public UsuarioDTO crearAdministrador(@RequestBody Administrador administrador) {
+        return usuarioService.crearAdministrador(administrador);
     }
 
     // Actualizar datos (PUT)
