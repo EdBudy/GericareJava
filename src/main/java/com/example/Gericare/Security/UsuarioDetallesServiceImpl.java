@@ -30,7 +30,8 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
 
         // Creamos un conjunto de "permisos" (roles) para Spring Security
         Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority(usuario.getRol().getRolNombre().name()));
+        // Añadir el prefijo "ROLE_" para seguir la convención de Spring Security.
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getRolNombre().name()));
 
         // Devolvemos un objeto "User" que Spring Security entiende,
         // con el correo, la contraseña (ya encriptada) y sus roles.

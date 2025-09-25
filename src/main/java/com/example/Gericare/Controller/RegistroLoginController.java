@@ -24,7 +24,7 @@ public class RegistroLoginController {
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
         // Esto solo muestra la página de login
-        return "login";
+        return "publico/login";
     }
 
     // Registro familiares
@@ -34,7 +34,7 @@ public class RegistroLoginController {
         // En lugar de un DTO genérico se prepara un objeto Familiar vacío
         // El formulario de la vista (HTML) se llenará con los datos de este objeto
         model.addAttribute("familiar", new Familiar());
-        return "registro";
+        return "publico/registro";
     }
 
     @PostMapping("/registro")

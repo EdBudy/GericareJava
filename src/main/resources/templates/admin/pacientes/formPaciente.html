@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/mainLayout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Registrar Paciente</title>
+</head>
+<body>
+<section>
+    <div class="pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Formulario de Paciente</h1>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form th:action="@{/pacientes/crear}" th:object="${paciente}" method="post">
+                <div class="row g-3">
+                    <div class="col-sm-6"><label for="nombre" class="form-label">Nombre</label><input type="text" class="form-control" id="nombre" th:field="*{nombre}" required></div>
+                    <div class="col-sm-6"><label for="apellido" class="form-label">Apellido</label><input type="text" class="form-control" id="apellido" th:field="*{apellido}" required></div>
+                    <div class="col-12"><label for="documentoIdentificacion" class="form-label">Documento</label><input type="text" class="form-control" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" required></div>
+                    <div class="col-12"><label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label><input type="date" class="form-control" id="fechaNacimiento" th:field="*{fechaNacimiento}" required></div>
+                    <div class="col-md-6"><label for="genero" class="form-label">Género</label><select class="form-select" id="genero" th:field="*{genero}" required><option value="" selected>Elegir...</option><option th:each="g : ${T(com.example.Gericare.enums.Genero).values()}" th:value="${g}" th:text="${g}"></option></select></div>
+                    <div class="col-md-6"><label for="tipoSangre" class="form-label">Tipo de Sangre</label><select class="form-select" id="tipoSangre" th:field="*{tipoSangre}" required><option value="" selected>Elegir...</option><option th:each="ts : ${T(com.example.Gericare.enums.TipoSangre).values()}" th:value="${ts}" th:text="${ts.displayValue}"></option></select></div>
+                </div>
+                <hr class="my-4">
+                <button class="btn btn-primary btn-lg" type="submit">Guardar Paciente</button>
+                <a th:href="@{/pacientes/lista}" class="btn btn-secondary btn-lg">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

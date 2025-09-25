@@ -7,6 +7,7 @@ import com.example.Gericare.entity.Familiar;
 import com.example.Gericare.entity.Administrador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity; // Para respuestas HTTP
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +23,13 @@ public class UsuarioController {
 
     // Obtener la lista de todos los usuarios
     // GET http://localhost:8080/usuarios
-    @GetMapping
-    public List<UsuarioDTO> listarTodosLosUsuarios() {
-        return usuarioService.listarTodosLosUsuarios();
+
+    @GetMapping("/lista")
+    public String listarUsuarios(Model model) {
+        List<UsuarioDTO> usuarios = usuarioService.listarTodosLosUsuarios();
+        model.addAttribute("usuarios", usuarios);
+
+        return "admin/usuarios/gestionUsuarios";
     }
 
     // Obtener un usuario específico por su ID

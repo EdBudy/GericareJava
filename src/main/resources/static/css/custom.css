@@ -1,0 +1,82 @@
+/*
+  Estilos personalizados para Gericare.
+  Esto nos permite modificar la apariencia de Bootstrap
+  para que la aplicación tenga una identidad propia.
+*/
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f7f6; /* Un gris muy suave para el fondo */
+}
+
+/* --- Login y Registro --- */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #0d6efd, #004aad); /* Gradiente azul */
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+}
+
+/* --- Layout Principal --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 56px 0 0; /* Altura del navbar */
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+}
+
+.sidebar-sticky {
+    position: relative;
+    top: 0;
+    height: calc(100vh - 56px);
+    padding-top: .5rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.sidebar .nav-link {
+    font-weight: 500;
+    color: #333;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.sidebar .nav-link:hover, .sidebar .nav-link.active {
+    color: #0d6efd;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+main {
+    padding-top: 1.5rem;
+}
+
+/* --- Componentes --- */
+.card {
+    border: none;
+    border-radius: .75rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.table {
+    border-radius: .5rem;
+    overflow: hidden; /* Para que el borde redondeado afecte a la tabla */
+}
+
+.table thead {
+    background-color: #343a40;
+    color: white;
+}
+
