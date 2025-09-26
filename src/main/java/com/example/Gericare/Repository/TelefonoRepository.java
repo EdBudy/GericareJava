@@ -1,6 +1,6 @@
-package com.example.Gericare.Repository;
+package com.example.gericare.Repository;
 
-import com.example.Gericare.entity.Telefono;
+import com.example.gericare.entity.Telefono;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

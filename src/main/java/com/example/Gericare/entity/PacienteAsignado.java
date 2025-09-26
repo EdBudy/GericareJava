@@ -1,6 +1,6 @@
-package com.example.Gericare.entity;
+package com.example.gericare.entity;
 
-import com.example.Gericare.enums.EstadoAsignacion;
+import com.example.gericare.enums.EstadoAsignacion;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;

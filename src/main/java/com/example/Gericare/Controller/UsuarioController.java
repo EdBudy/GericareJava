@@ -1,9 +1,9 @@
-package com.example.Gericare.Controller;
+package com.example.gericare.Controller;
 
-import com.example.Gericare.DTO.UsuarioDTO;
-import com.example.Gericare.Service.UsuarioService;
-import com.example.Gericare.entity.Cuidador;
-import com.example.Gericare.entity.Familiar;
+import com.example.gericare.DTO.UsuarioDTO;
+import com.example.gericare.Service.UsuarioService;
+import com.example.gericare.entity.Cuidador;
+import com.example.gericare.entity.Familiar;
 import com.example.Gericare.entity.Administrador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity; // Para respuestas HTTP
@@ -88,6 +88,7 @@ public class UsuarioController {
         }
         // Si existe, se elimina (desactivar)
         usuarioService.eliminarUsuario(id);
-        return ResponseEntity.noContent().build(); // Devolver 204 No Content, osea: "todo OK, pero no hay nada que mostrar".
+        return ResponseEntity.noContent().build(); // Devolver 204 No Content, osea: "todo OK, pero no hay nada que
+                                                   // mostrar".
     }
 }

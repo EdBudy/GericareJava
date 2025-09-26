@@ -1,6 +1,6 @@
-package com.example.Gericare.DTO;
+package com.example.gericare.DTO;
 
-import com.example.Gericare.enums.RolNombre;
+import com.example.gericare.enums.RolNombre;
 import lombok.*;
 
 @Data

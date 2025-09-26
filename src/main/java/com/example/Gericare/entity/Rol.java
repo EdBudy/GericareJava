@@ -28,7 +28,7 @@ public class Rol {
     @Column(name = "descripcion_rol")
     private String descripcion;
 
-//    @OneToMany(mappedBy = "rolUsuario")
-//    private Set<Usuario> usuarios = new HashSet<>();
+    @OneToMany(mappedBy = "rolUsuario")
+    private Set<Usuario> usuarios = new HashSet<>();
 
 }

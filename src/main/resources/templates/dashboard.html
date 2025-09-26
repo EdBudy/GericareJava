@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gericare Connect</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+
+<div class="container">
+    <h1>Dashboard</h1>
+    <p style="margin-bottom: 2rem;">
+        ¡Bienvenido, <strong sec:authentication="name">Usuario</strong>!
+    </p>
+
+    <!-- Contenido del Dashboard iría aquí -->
+    <div style="min-height: 150px;">
+        <p>Aquí se mostrará el contenido principal para el usuario.</p>
+    </div>
+
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit" class="btn">Cerrar Sesión</button>
+    </form>
+</div>
+
+</body>
+</html>

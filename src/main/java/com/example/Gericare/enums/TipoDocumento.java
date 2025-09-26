@@ -1,4 +1,4 @@
-package com.example.Gericare.enums;
+package com.example.gericare.enums;
 
 public enum TipoDocumento {
     CC,

@@ -1,13 +1,12 @@
-package com.example.Gericare.entity;
+package com.example.gericare.entity;
 
-import com.example.Gericare.enums.*;
+import com.example.gericare.enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
-
 
 @Getter
 @Setter
@@ -59,7 +58,8 @@ public class Paciente {
 
     // Relación con Usuario (Familiar)
 
-    // Relación Muchos a Uno: Muchos pacientes pueden estar asociados a un usuario familiar.
+    // Relación Muchos a Uno: Muchos pacientes pueden estar asociados a un usuario
+    // familiar.
     @ManyToOne
     @JoinColumn(name = "id_usuario_familiar") // Esta es la columna FK en la tabla 'tb_paciente'
     private Usuario usuarioFamiliar; // Este es el campo que 'mappedBy' esperaba en 'Usuario.java'

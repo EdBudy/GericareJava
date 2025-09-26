@@ -1,7 +1,7 @@
-package com.example.Gericare.DTO;
+package com.example.gericare.DTO;
 
-import com.example.Gericare.enums.EstadoUsuario;
-import com.example.Gericare.enums.TipoDocumento;
+import com.example.gericare.enums.EstadoUsuario;
+import com.example.gericare.enums.TipoDocumento;
 import lombok.*;
 
 import java.time.LocalDate;

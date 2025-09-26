@@ -1,4 +1,4 @@
-package com.example.Gericare.DTO;
+package com.example.gericare.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

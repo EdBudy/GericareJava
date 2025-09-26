@@ -1,10 +1,7 @@
 package com.example.Gericare.config;
 
-import com.example.Gericare.Security.UsuarioDetallesServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,49 +12,54 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // --- BEANS ESENCIALES ---
-
-    // 1. Definir el encriptador de contraseñas.
+    // Definir el encriptador de contraseñas que usará toda la aplicación.
+    // BCrypt es el estándar de la industria.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // 2. Definir el SecurityFilterChain (las reglas de acceso a las URLs).
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/registro", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/usuarios/**", "/pacientes/**", "/asignaciones/**").hasRole("Administrador")
-                        .requestMatchers("/cuidador/**").hasRole("Cuidador")
-                        .requestMatchers("/familiar/**").hasRole("Familiar")
+                        // Permisos públicos
+                        // Permitir el acceso sin necesidad de login a estas URLs.
+                        // Página de inicio, login y archivos de estilo (CSS, JS).
+                        .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**").permitAll()
+
+                        // Permisos admin
+                        // Solo 'Administrador' podrá acceder a estas URLs.
+                        // Protege todas las operaciones de creación y gestión de usuarios, pacientes y asignaciones.
+                        .requestMatchers("/usuarios/**", "/pacientes/**", "/asignaciones/**").hasAuthority("Administrador")
+
+                        // Permisos cuidador
+                        // Solo 'Cuidador' podrá acceder a estas URLs.
+                        .requestMatchers("/cuidador/**").hasAuthority("Cuidador")
+
+                        // Permisos familiar
+                        // Solo 'Familiar' podrá acceder a estas URLs.
+                        .requestMatchers("/familiar/**").hasAuthority("Familiar")
+
+                        /* Cualquier otra petición (URL) que no coincida con las reglas anteriores,
+                        pues tiene que ser de un usuario que haya iniciado sesión (esté autenticado). */
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
+                        // Indicar cuál es la página de login personalizada.
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true) // Redirigir a la página de inicio
+                        // Definir la página a la que se redirige al usuario tras un login exitoso.
+                        .defaultSuccessUrl("/dashboard", true)
                         .permitAll()
                 )
                 .logout(logout -> logout
+                        // Definir URL que procesará el cierre de sesión.
                         .logoutUrl("/logout")
+                        // A dónde redirigir al usuario después de cerrar sesión.
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
+
         return http.build();
-    }
-
-    // --- CONFIGURACIÓN DEL AUTHENTICATION MANAGER ---
-
-    // 3. Crear el "gestor de autenticación" que une el encriptador y el servicio de usuarios.
-    // Esta es la forma moderna y segura de evitar dependencias circulares.
-    @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http, UsuarioDetallesServiceImpl userDetailsService) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder =
-                http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder
-                .userDetailsService(userDetailsService)
-                .passwordEncoder(passwordEncoder());
-        return authenticationManagerBuilder.build();
     }
 }

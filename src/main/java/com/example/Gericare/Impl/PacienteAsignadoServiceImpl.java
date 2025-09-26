@@ -1,16 +1,16 @@
-package com.example.Gericare.Impl;
+package com.example.gericare.Impl;
 
-import com.example.Gericare.DTO.EmpleadoDTO;
-import com.example.Gericare.DTO.FamiliarDTO;
-import com.example.Gericare.DTO.PacienteAsignadoDTO;
-import com.example.Gericare.DTO.PacienteDTO;
-import com.example.Gericare.DTO.UsuarioDTO;
-import com.example.Gericare.Repository.PacienteAsignadoRepository;
-import com.example.Gericare.Repository.PacienteRepository;
-import com.example.Gericare.Repository.UsuarioRepository;
-import com.example.Gericare.Service.PacienteAsignadoService;
-import com.example.Gericare.entity.*;
-import com.example.Gericare.enums.EstadoAsignacion;
+import com.example.gericare.DTO.EmpleadoDTO;
+import com.example.gericare.DTO.FamiliarDTO;
+import com.example.gericare.DTO.PacienteAsignadoDTO;
+import com.example.gericare.DTO.PacienteDTO;
+import com.example.gericare.DTO.UsuarioDTO;
+import com.example.gericare.Repository.PacienteAsignadoRepository;
+import com.example.gericare.Repository.PacienteRepository;
+import com.example.gericare.Repository.UsuarioRepository;
+import com.example.gericare.Service.PacienteAsignadoService;
+import com.example.gericare.entity.*;
+import com.example.gericare.enums.EstadoAsignacion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // Importante para transacciones
@@ -53,7 +53,8 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         }
 
         // --- 2. Aplicar la lógica de negocio ---
-        // Antes de crear una nueva, desactivar cualquier asignación activa que este paciente ya tenga.
+        // Antes de crear una nueva, desactivar cualquier asignación activa que este
+        // paciente ya tenga.
         desactivarAsignacionesAnteriores(paciente);
 
         // --- 3. Crear la nueva entidad ---
@@ -92,8 +93,10 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
     // --- MÉTODOS PRIVADOS ---
 
     private void desactivarAsignacionesAnteriores(Paciente paciente) {
-        // Buscar todas las asignaciones que actualmente estén activas para este paciente.
-        List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteAndEstado(paciente, EstadoAsignacion.Activo);
+        // Buscar todas las asignaciones que actualmente estén activas para este
+        // paciente.
+        List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteAndEstado(paciente,
+                EstadoAsignacion.Activo);
 
         // Iterar sobre ellas y marcarlas como inactivas.
         for (PacienteAsignado asignacion : asignacionesActivas) {
@@ -122,8 +125,7 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
                 familiarDTO,
                 asignacion.getEstado(),
                 asignacion.getFechaCreacion(),
-                asignacion.getAdminCreador().getNombre() + " " + asignacion.getAdminCreador().getApellido()
-        );
+                asignacion.getAdminCreador().getNombre() + " " + asignacion.getAdminCreador().getApellido());
     }
 
     private PacienteDTO toPacienteDTO(Paciente paciente) {
@@ -132,7 +134,8 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         // Comprobación para evitar un error si el familiar es nulo.
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
-            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " " + paciente.getUsuarioFamiliar().getApellido();
+            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
+                    + paciente.getUsuarioFamiliar().getApellido();
         }
 
         return new PacienteDTO(
@@ -148,8 +151,7 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
                 paciente.getSeguroMedico(),
                 paciente.getNumeroSeguro(),
                 paciente.getEstado(),
-                nombreFamiliar
-        );
+                nombreFamiliar);
     }
 
     private UsuarioDTO toUsuarioDTO(Usuario usuario) {

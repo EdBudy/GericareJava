@@ -1,6 +1,6 @@
-package com.example.Gericare.DTO;
+package com.example.gericare.DTO;
 
-import com.example.Gericare.enums.EstadoAsignacion;
+import com.example.gericare.enums.EstadoAsignacion;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

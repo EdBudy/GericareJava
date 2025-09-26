@@ -1,4 +1,4 @@
-package com.example.Gericare;
+package com.example.gericare;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

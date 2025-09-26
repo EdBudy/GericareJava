@@ -1,8 +1,8 @@
-package com.example.Gericare.DTO;
+package com.example.gericare.DTO;
 
-import com.example.Gericare.enums.TipoSangre;
-import com.example.Gericare.enums.Genero;
-import com.example.Gericare.enums.EstadoPaciente;
+import com.example.gericare.enums.TipoSangre;
+import com.example.gericare.enums.Genero;
+import com.example.gericare.enums.EstadoPaciente;
 import lombok.*;
 import java.time.LocalDate;
 
