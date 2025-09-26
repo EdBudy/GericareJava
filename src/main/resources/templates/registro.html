@@ -8,63 +8,72 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>Crear una Cuenta</h1>
+<!--
+  SOLUCIÓN:
+  Se aplica la misma estructura de contenedores que en la página de login
+  para asegurar que el formulario de registro también esté centrado.
+-->
+<div class="container-login">
+    <div class="form-container">
+        <h1>Crear una Cuenta</h1>
 
-    <form th:action="@{/registro}" th:object="${familiar}" method="post">
+        <form th:action="@{/registro}" th:object="${familiar}" method="post">
 
-        <div th:if="${param.error}" class="alert alert-error">
-            Ocurrió un error durante el registro. Inténtalo de nuevo.
+            <div th:if="${param.error}" class="alert alert-error">
+                Ocurrió un error durante el registro. Inténtalo de nuevo.
+            </div>
+
+            <!-- Se han añadido clases de Bootstrap para consistencia, pero los estilos
+                 principales vienen de .form-container en styles.css -->
+            <div class="form-group">
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="apellido">Apellido:</label>
+                <input type="text" id="apellido" th:field="*{apellido}" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="tipoDocumento">Tipo de Documento:</label>
+                <select id="tipoDocumento" th:field="*{tipoDocumento}" class="form-select" required>
+                    <option th:each="tipo : ${T(com.example.Gericare.enums.TipoDocumento).values()}"
+                            th:value="${tipo}" th:text="${tipo}"></option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="documentoIdentificacion">Documento de Identificación:</label>
+                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" th:field="*{direccion}" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="parentesco">Parentesco:</label>
+                <input type="text" id="parentesco" th:field="*{parentesco}" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="correoElectronico">Correo Electrónico:</label>
+                <input type="email" id="correoElectronico" th:field="*{correoElectronico}" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label for="contrasena">Contraseña:</label>
+                <input type="password" id="contrasena" th:field="*{contrasena}" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Registrar</button>
+        </form>
+
+        <div class="form-link">
+            <p>¿Ya tienes una cuenta? <a th:href="@{/login}">Inicia sesión</a></p>
         </div>
-
-        <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" th:field="*{nombre}" required />
-        </div>
-
-        <div class="form-group">
-            <label for="apellido">Apellido:</label>
-            <input type="text" id="apellido" th:field="*{apellido}" required />
-        </div>
-
-        <div class="form-group">
-            <label for="tipoDocumento">Tipo de Documento:</label>
-            <select id="tipoDocumento" th:field="*{tipoDocumento}" required>
-                <option th:each="tipo : ${T(com.example.Gericare.enums.TipoDocumento).values()}"
-                        th:value="${tipo}" th:text="${tipo}"></option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="documentoIdentificacion">Documento de Identificación:</label>
-            <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" required />
-        </div>
-
-        <div class="form-group">
-            <label for="direccion">Dirección:</label>
-            <input type="text" id="direccion" th:field="*{direccion}" required />
-        </div>
-
-        <div class="form-group">
-            <label for="parentesco">Parentesco:</label>
-            <input type="text" id="parentesco" th:field="*{parentesco}" required />
-        </div>
-
-        <div class="form-group">
-            <label for="correoElectronico">Correo Electrónico:</label>
-            <input type="email" id="correoElectronico" th:field="*{correoElectronico}" required />
-        </div>
-
-        <div class="form-group">
-            <label for="contrasena">Contraseña:</label>
-            <input type="password" id="contrasena" th:field="*{contrasena}" required />
-        </div>
-
-        <button type="submit" class="btn">Registrar</button>
-    </form>
-
-    <div class="form-link">
-        <p>¿Ya tienes una cuenta? <a th:href="@{/login}">Inicia sesión</a></p>
     </div>
 </div>
 

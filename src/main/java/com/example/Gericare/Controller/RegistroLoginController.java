@@ -58,11 +58,6 @@ public class RegistroLoginController {
     public String verPaginaDeInicio() {
         // Redirigir la página raíz a la página de login
         return "redirect:/login";
-    }
 
-    @GetMapping("/dashboard")
-    public String mostrarDashboard() {
-        // Muestra la página dashboard.html después de un login exitoso
-        return "dashboard";
     }
 }

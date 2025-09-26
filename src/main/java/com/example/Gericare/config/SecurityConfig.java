@@ -34,15 +34,15 @@ public class SecurityConfig {
                         // Protege todas las operaciones de creación y gestión de usuarios,
                         // pacientes y asignaciones.
                         .requestMatchers("/usuarios/**", "/pacientes/**", "/asignaciones/**")
-                        .hasAuthority("Administrador")
+                        .hasRole("Administrador") // Se usa hasRole para que coincida con "ROLE_Administrador"
 
                         // Permisos cuidador
                         // Solo 'Cuidador' podrá acceder a estas URLs.
-                        .requestMatchers("/cuidador/**").hasAuthority("Cuidador")
+                        .requestMatchers("/cuidador/**").hasRole("Cuidador") // Se usa hasRole
 
                         // Permisos familiar
                         // Solo 'Familiar' podrá acceder a estas URLs.
-                        .requestMatchers("/familiar/**").hasAuthority("Familiar")
+                        .requestMatchers("/familiar/**").hasRole("Familiar") // Se usa hasRole
 
                         /*
                          * Cualquier otra petición (URL) que no coincida con las reglas
@@ -68,3 +68,4 @@ public class SecurityConfig {
         return http.build();
     }
 }
+

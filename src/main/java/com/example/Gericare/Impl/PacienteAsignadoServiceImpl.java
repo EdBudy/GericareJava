@@ -107,7 +107,7 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         pacienteAsignadoRepository.saveAll(asignacionesActivas);
     }
 
-    private PacienteAsignadoDTO toDTO(PacienteAsignado asignacion) {
+    public PacienteAsignadoDTO toDTO(PacienteAsignado asignacion) {
         // Convertir cada entidad anidada a su DTO correspondiente.
         PacienteDTO pacienteDTO = toPacienteDTO(asignacion.getPaciente());
         UsuarioDTO cuidadorDTO = toUsuarioDTO(asignacion.getCuidador());

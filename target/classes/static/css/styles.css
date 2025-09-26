@@ -1,5 +1,9 @@
+/* ========= BASE STYLES & LOGIN/REGISTER PAGE ========= */
+
+/* Importamos la fuente personalizada */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
+/* Mantenemos tus variables de color personalizadas */
 :root {
     --primary-color: #007bff;
     --primary-color-hover: #0056b3;
@@ -12,19 +16,26 @@
     --shadow-color: rgba(0, 0, 0, 0.1);
 }
 
+/* Estilos generales para el body */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
     padding: 0;
+    /* Eliminamos el flexbox de aquí para que no afecte al dashboard */
+}
+
+/* Contenedor específico para las páginas de Login y Registro */
+.container-login {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
 }
 
-.container {
+/* El contenedor del formulario en sí */
+.form-container {
     background-color: var(--form-background);
     padding: 2.5rem;
     border-radius: 10px;
@@ -34,25 +45,26 @@ body {
     text-align: center;
 }
 
-h1 {
+.form-container h1 {
     margin-bottom: 1.5rem;
     color: var(--primary-color);
 }
 
-.form-group {
+.form-container .form-group {
     margin-bottom: 1.5rem;
     text-align: left;
 }
 
-label {
+.form-container label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 600;
 }
 
-input[type="email"],
-input[type="password"],
-input[type="text"] {
+/* Estilos para los inputs, compatibles con Bootstrap */
+.form-container input[type="email"],
+.form-container input[type="password"],
+.form-container input[type="text"] {
     width: 100%;
     padding: 0.75rem;
     border: 1px solid var(--border-color);
@@ -61,14 +73,13 @@ input[type="text"] {
     transition: border-color 0.3s;
 }
 
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="text"]:focus {
+.form-container input:focus {
     outline: none;
     border-color: var(--primary-color);
 }
 
-.btn {
+/* Botón principal para formularios */
+.form-container .btn {
     width: 100%;
     padding: 0.85rem;
     border: none;
@@ -81,10 +92,11 @@ input[type="text"]:focus {
     transition: background-color 0.3s;
 }
 
-.btn:hover {
+.form-container .btn:hover {
     background-color: var(--primary-color-hover);
 }
 
+/* Alertas personalizadas */
 .alert {
     padding: 1rem;
     margin-bottom: 1.5rem;
@@ -103,6 +115,7 @@ input[type="text"]:focus {
     border: 1px solid var(--success-color);
 }
 
+/* Enlaces en formularios */
 .form-link {
     margin-top: 1.5rem;
 }
@@ -116,3 +129,15 @@ input[type="text"]:focus {
 .form-link a:hover {
     text-decoration: underline;
 }
+
+
+/* ========= NUEVOS ESTILOS PARA EL DASHBOARD ========= */
+
+/* Estilo para el formulario de filtros del admin */
+.filter-form {
+    background-color: #f8f9fa; /* Un gris un poco más claro */
+    padding: 1.5rem;
+    border-radius: .375rem; /* Usando el radio de Bootstrap */
+    border: 1px solid var(--border-color);
+}
+
