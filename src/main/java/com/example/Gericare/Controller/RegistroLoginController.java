@@ -24,7 +24,7 @@ public class RegistroLoginController {
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
         // Esto solo muestra la página de login
-        return "publico/login";
+        return "login";
     }
 
     // Registro familiares
@@ -34,7 +34,7 @@ public class RegistroLoginController {
         // En lugar de un DTO genérico se prepara un objeto Familiar vacío
         // El formulario de la vista (HTML) se llenará con los datos de este objeto
         model.addAttribute("familiar", new Familiar());
-        return "publico/registro";
+        return "registro";
     }
 
     @PostMapping("/registro")
@@ -43,7 +43,8 @@ public class RegistroLoginController {
         // Llamar al método específico y correcto en nuestro servicio
         try {
             usuarioService.crearFamiliar(familiar);
-            // Si el registro es exitoso, redirigir a la página de login con un mensaje de éxito
+            // Si el registro es exitoso, redirigir a la página de login con un mensaje de
+            // éxito
             return "redirect:/login?registroExitoso";
         } catch (Exception e) {
             // Si no redirigir de vuelta al formulario de registro con un mensaje de error
@@ -55,7 +56,13 @@ public class RegistroLoginController {
 
     @GetMapping("/")
     public String verPaginaDeInicio() {
-        // Pag principal a la que se accede después del login
-        return "index";
+        // Redirigir la página raíz a la página de login
+        return "redirect:/login";
+    }
+
+    @GetMapping("/dashboard")
+    public String mostrarDashboard() {
+        // Muestra la página dashboard.html después de un login exitoso
+        return "dashboard";
     }
 }

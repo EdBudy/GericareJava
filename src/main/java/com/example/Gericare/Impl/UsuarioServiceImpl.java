@@ -80,7 +80,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public List<UsuarioDTO> listarTodosLosUsuarios() {
         // Obtener todas las entidades de la base de datos.
-        // La anotación @Where en la entidad Usuario ya filtra automáticamente por estado 'Activo'.
+        // La anotación @Where en la entidad Usuario ya filtra automáticamente por
+        // estado 'Activo'.
         return usuarioRepository.findAll()
                 .stream()
                 // Convertir cada entidad encontrada a su DTO correspondiente.
@@ -91,7 +92,8 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Optional<UsuarioDTO> obtenerUsuarioPorId(Long id) {
-        // Buscar un usuario por su ID. Devuelve un Optional para manejar si no se encuentra.
+        // Buscar un usuario por su ID. Devuelve un Optional para manejar si no se
+        // encuentra.
         return usuarioRepository.findById(id)
                 // Si el Optional contiene un usuario, convertirlo a DTO.
                 .map(this::toDTO);
@@ -124,25 +126,6 @@ public class UsuarioServiceImpl implements UsuarioService {
             return toDTO(usuarioActualizado);
         });
     }
-
-    @Override
-    public UsuarioDTO crearAdministrador(Administrador administrador) {
-        // Encriptar la contraseña para seguridad.
-        administrador.setContrasena(passwordEncoder.encode(administrador.getContrasena()));
-
-        // Buscar y asignar el rol de Administrador.
-        Rol rolAdmin = rolRepository.findByRolNombre(RolNombre.Administrador)
-                .orElseThrow(() -> new RuntimeException("Error: Rol 'Administrador' no encontrado."));
-        administrador.setRol(rolAdmin);
-
-        // Guardar la nueva entidad en la base de datos.
-        Administrador adminGuardado = usuarioRepository.save(administrador);
-
-        // Convertir y devolver el DTO.
-        return toDTO(adminGuardado);
-    }
-
-
 
     // Métodos privados para traducción (entidad a DTO)
     // Esta es la lógica que convierte los objetos de la base de datos (Entidades)

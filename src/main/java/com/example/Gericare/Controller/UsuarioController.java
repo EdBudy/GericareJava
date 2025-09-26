@@ -4,10 +4,8 @@ import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.entity.Cuidador;
 import com.example.Gericare.entity.Familiar;
-import com.example.Gericare.entity.Administrador;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity; // Para respuestas HTTP
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,13 +21,9 @@ public class UsuarioController {
 
     // Obtener la lista de todos los usuarios
     // GET http://localhost:8080/usuarios
-
-    @GetMapping("/lista")
-    public String listarUsuarios(Model model) {
-        List<UsuarioDTO> usuarios = usuarioService.listarTodosLosUsuarios();
-        model.addAttribute("usuarios", usuarios);
-
-        return "admin/usuarios/gestionUsuarios";
+    @GetMapping
+    public List<UsuarioDTO> listarTodosLosUsuarios() {
+        return usuarioService.listarTodosLosUsuarios();
     }
 
     // Obtener un usuario específico por su ID
@@ -58,13 +52,6 @@ public class UsuarioController {
         return usuarioService.crearFamiliar(familiar);
     }
 
-    // Crear un nuevo administrador.
-    // POST http://localhost:8080/usuarios/administrador
-    @PostMapping("/administrador")
-    public UsuarioDTO crearAdministrador(@RequestBody Administrador administrador) {
-        return usuarioService.crearAdministrador(administrador);
-    }
-
     // Actualizar datos (PUT)
 
     // Actualizar un usuario existente
@@ -88,6 +75,7 @@ public class UsuarioController {
         }
         // Si existe, se elimina (desactivar)
         usuarioService.eliminarUsuario(id);
-        return ResponseEntity.noContent().build(); // Devolver 204 No Content, osea: "todo OK, pero no hay nada que mostrar".
+        return ResponseEntity.noContent().build(); // Devolver 204 No Content, osea: "todo OK, pero no hay nada que
+        // mostrar".
     }
 }

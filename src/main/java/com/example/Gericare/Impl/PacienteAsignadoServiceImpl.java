@@ -53,7 +53,8 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         }
 
         // --- 2. Aplicar la lógica de negocio ---
-        // Antes de crear una nueva, desactivar cualquier asignación activa que este paciente ya tenga.
+        // Antes de crear una nueva, desactivar cualquier asignación activa que este
+        // paciente ya tenga.
         desactivarAsignacionesAnteriores(paciente);
 
         // --- 3. Crear la nueva entidad ---
@@ -92,8 +93,10 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
     // --- MÉTODOS PRIVADOS ---
 
     private void desactivarAsignacionesAnteriores(Paciente paciente) {
-        // Buscar todas las asignaciones que actualmente estén activas para este paciente.
-        List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteAndEstado(paciente, EstadoAsignacion.Activo);
+        // Buscar todas las asignaciones que actualmente estén activas para este
+        // paciente.
+        List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteAndEstado(paciente,
+                EstadoAsignacion.Activo);
 
         // Iterar sobre ellas y marcarlas como inactivas.
         for (PacienteAsignado asignacion : asignacionesActivas) {
@@ -122,8 +125,7 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
                 familiarDTO,
                 asignacion.getEstado(),
                 asignacion.getFechaCreacion(),
-                asignacion.getAdminCreador().getNombre() + " " + asignacion.getAdminCreador().getApellido()
-        );
+                asignacion.getAdminCreador().getNombre() + " " + asignacion.getAdminCreador().getApellido());
     }
 
     private PacienteDTO toPacienteDTO(Paciente paciente) {
@@ -132,7 +134,8 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         // Comprobación para evitar un error si el familiar es nulo.
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
-            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " " + paciente.getUsuarioFamiliar().getApellido();
+            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
+                    + paciente.getUsuarioFamiliar().getApellido();
         }
 
         return new PacienteDTO(
@@ -148,8 +151,7 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
                 paciente.getSeguroMedico(),
                 paciente.getNumeroSeguro(),
                 paciente.getEstado(),
-                nombreFamiliar
-        );
+                nombreFamiliar);
     }
 
     private UsuarioDTO toUsuarioDTO(Usuario usuario) {

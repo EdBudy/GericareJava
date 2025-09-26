@@ -33,7 +33,8 @@ public class PacienteAsignadoController {
 
     // Los IDs se pasan como parámetros en la URL
     @PostMapping
-    public PacienteAsignadoDTO crearAsignacion(@RequestParam Long pacienteId, @RequestParam Long cuidadorId, @RequestParam(required = false) Long familiarId, @RequestParam Long adminId) {
+    public PacienteAsignadoDTO crearAsignacion(@RequestParam Long pacienteId, @RequestParam Long cuidadorId,
+                                               @RequestParam(required = false) Long familiarId, @RequestParam Long adminId) {
         return pacienteAsignadoService.crearAsignacion(pacienteId, cuidadorId, familiarId, adminId);
     }
 

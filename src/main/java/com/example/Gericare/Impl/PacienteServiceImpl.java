@@ -74,7 +74,8 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteDTO toDTO(Paciente paciente) {
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
-            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " " + paciente.getUsuarioFamiliar().getApellido();
+            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
+                    + paciente.getUsuarioFamiliar().getApellido();
         }
 
         return new PacienteDTO(
@@ -90,8 +91,7 @@ public class PacienteServiceImpl implements PacienteService {
                 paciente.getSeguroMedico(),
                 paciente.getNumeroSeguro(),
                 paciente.getEstado(),
-                nombreFamiliar
-        );
+                nombreFamiliar);
     }
 
     private Paciente toEntity(PacienteDTO dto) {
@@ -106,7 +106,8 @@ public class PacienteServiceImpl implements PacienteService {
         paciente.setTipoSangre(dto.getTipoSangre());
         paciente.setSeguroMedico(dto.getSeguroMedico());
         paciente.setNumeroSeguro(dto.getNumeroSeguro());
-        // El estado y el familiar asociado se manejan por separado en la lógica de negocio.
+        // El estado y el familiar asociado se manejan por separado en la lógica de
+        // negocio.
         return paciente;
     }
 }
