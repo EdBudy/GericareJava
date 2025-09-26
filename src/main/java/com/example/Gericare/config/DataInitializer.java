@@ -1,13 +1,13 @@
-package com.example.gericare.config;
+package com.example.Gericare.config;
 
-import com.example.gericare.Repository.RolRepository;
-import com.example.gericare.Repository.UsuarioRepository;
-import com.example.gericare.entity.Administrador;
-import com.example.gericare.entity.Cuidador;
-import com.example.gericare.entity.Familiar;
-import com.example.gericare.entity.Rol;
-import com.example.gericare.enums.RolNombre;
-import com.example.gericare.enums.TipoDocumento;
+import com.example.Gericare.Repository.RolRepository;
+import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.entity.Administrador;
+import com.example.Gericare.entity.Cuidador;
+import com.example.Gericare.entity.Familiar;
+import com.example.Gericare.entity.Rol;
+import com.example.Gericare.enums.RolNombre;
+import com.example.Gericare.enums.TipoDocumento;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

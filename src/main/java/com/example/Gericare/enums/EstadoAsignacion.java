@@ -1,4 +1,4 @@
-package com.example.gericare.enums;
+package com.example.Gericare.enums;
 
 public enum EstadoAsignacion {
     Activo,

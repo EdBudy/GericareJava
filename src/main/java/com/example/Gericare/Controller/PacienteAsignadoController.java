@@ -1,7 +1,7 @@
-package com.example.gericare.Controller;
+package com.example.Gericare.Controller;
 
-import com.example.gericare.DTO.PacienteAsignadoDTO;
-import com.example.gericare.Service.PacienteAsignadoService;
+import com.example.Gericare.DTO.PacienteAsignadoDTO;
+import com.example.Gericare.Service.PacienteAsignadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +33,7 @@ public class PacienteAsignadoController {
 
     // Los IDs se pasan como parámetros en la URL
     @PostMapping
-    public PacienteAsignadoDTO crearAsignacion(@RequestParam Long pacienteId, @RequestParam Long cuidadorId,
-            @RequestParam(required = false) Long familiarId, @RequestParam Long adminId) {
+    public PacienteAsignadoDTO crearAsignacion(@RequestParam Long pacienteId, @RequestParam Long cuidadorId, @RequestParam(required = false) Long familiarId, @RequestParam Long adminId) {
         return pacienteAsignadoService.crearAsignacion(pacienteId, cuidadorId, familiarId, adminId);
     }
 

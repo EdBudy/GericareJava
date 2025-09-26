@@ -1,7 +1,7 @@
-package com.example.gericare.Security;
+package com.example.Gericare.Security;
 
-import com.example.gericare.Repository.UsuarioRepository;
-import com.example.gericare.entity.Usuario;
+import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,8 +26,7 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String correoElectronico) throws UsernameNotFoundException {
         // Buscamos al usuario por su correo electrónico en la base de datos
         Usuario usuario = usuarioRepository.findByCorreoElectronico(correoElectronico)
-                .orElseThrow(() -> new UsernameNotFoundException(
-                        "No se encontró usuario con el correo: " + correoElectronico));
+                .orElseThrow(() -> new UsernameNotFoundException("No se encontró usuario con el correo: " + correoElectronico));
 
         // Creamos un conjunto de "permisos" (roles) para Spring Security
         Set<GrantedAuthority> authorities = new HashSet<>();

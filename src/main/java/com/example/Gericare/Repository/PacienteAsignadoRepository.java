@@ -1,8 +1,8 @@
-package com.example.gericare.Repository;
+package com.example.Gericare.Repository;
 
-import com.example.gericare.entity.Paciente;
-import com.example.gericare.entity.PacienteAsignado;
-import com.example.gericare.enums.EstadoAsignacion;
+import com.example.Gericare.entity.Paciente;
+import com.example.Gericare.entity.PacienteAsignado;
+import com.example.Gericare.enums.EstadoAsignacion;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

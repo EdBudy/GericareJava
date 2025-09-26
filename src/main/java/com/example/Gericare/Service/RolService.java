@@ -1,6 +1,6 @@
-package com.example.gericare.Service;
+package com.example.Gericare.Service;
 
-import com.example.gericare.DTO.RolDTO;
+import com.example.Gericare.DTO.RolDTO;
 import java.util.List;
 
 public interface RolService {

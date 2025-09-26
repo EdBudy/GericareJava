@@ -1,10 +1,10 @@
-package com.example.gericare.Impl;
+package com.example.Gericare.Impl;
 
-import com.example.gericare.DTO.PacienteDTO;
-import com.example.gericare.Repository.PacienteRepository;
-import com.example.gericare.Service.PacienteService;
-import com.example.gericare.entity.Paciente;
-import com.example.gericare.enums.EstadoPaciente;
+import com.example.Gericare.DTO.PacienteDTO;
+import com.example.Gericare.Repository.PacienteRepository;
+import com.example.Gericare.Service.PacienteService;
+import com.example.Gericare.entity.Paciente;
+import com.example.Gericare.enums.EstadoPaciente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -74,8 +74,7 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteDTO toDTO(Paciente paciente) {
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
-            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
-                    + paciente.getUsuarioFamiliar().getApellido();
+            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " " + paciente.getUsuarioFamiliar().getApellido();
         }
 
         return new PacienteDTO(
@@ -91,7 +90,8 @@ public class PacienteServiceImpl implements PacienteService {
                 paciente.getSeguroMedico(),
                 paciente.getNumeroSeguro(),
                 paciente.getEstado(),
-                nombreFamiliar);
+                nombreFamiliar
+        );
     }
 
     private Paciente toEntity(PacienteDTO dto) {
@@ -106,8 +106,7 @@ public class PacienteServiceImpl implements PacienteService {
         paciente.setTipoSangre(dto.getTipoSangre());
         paciente.setSeguroMedico(dto.getSeguroMedico());
         paciente.setNumeroSeguro(dto.getNumeroSeguro());
-        // El estado y el familiar asociado se manejan por separado en la lógica de
-        // negocio.
+        // El estado y el familiar asociado se manejan por separado en la lógica de negocio.
         return paciente;
     }
 }

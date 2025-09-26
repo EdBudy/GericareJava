@@ -1,4 +1,4 @@
-package com.example.gericare.entity;
+package com.example.Gericare.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

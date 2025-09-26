@@ -1,14 +1,14 @@
-package com.example.gericare.Impl;
+package com.example.Gericare.Impl;
 
-import com.example.gericare.DTO.EmpleadoDTO;
-import com.example.gericare.DTO.FamiliarDTO;
-import com.example.gericare.DTO.UsuarioDTO;
-import com.example.gericare.Repository.RolRepository;
-import com.example.gericare.Service.UsuarioService;
-import com.example.gericare.Repository.UsuarioRepository;
-import com.example.gericare.entity.*;
-import com.example.gericare.enums.EstadoUsuario;
-import com.example.gericare.enums.RolNombre;
+import com.example.Gericare.DTO.EmpleadoDTO;
+import com.example.Gericare.DTO.FamiliarDTO;
+import com.example.Gericare.DTO.UsuarioDTO;
+import com.example.Gericare.Repository.RolRepository;
+import com.example.Gericare.Service.UsuarioService;
+import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.entity.*;
+import com.example.Gericare.enums.EstadoUsuario;
+import com.example.Gericare.enums.RolNombre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -80,8 +80,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public List<UsuarioDTO> listarTodosLosUsuarios() {
         // Obtener todas las entidades de la base de datos.
-        // La anotación @Where en la entidad Usuario ya filtra automáticamente por
-        // estado 'Activo'.
+        // La anotación @Where en la entidad Usuario ya filtra automáticamente por estado 'Activo'.
         return usuarioRepository.findAll()
                 .stream()
                 // Convertir cada entidad encontrada a su DTO correspondiente.
@@ -92,8 +91,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Optional<UsuarioDTO> obtenerUsuarioPorId(Long id) {
-        // Buscar un usuario por su ID. Devuelve un Optional para manejar si no se
-        // encuentra.
+        // Buscar un usuario por su ID. Devuelve un Optional para manejar si no se encuentra.
         return usuarioRepository.findById(id)
                 // Si el Optional contiene un usuario, convertirlo a DTO.
                 .map(this::toDTO);

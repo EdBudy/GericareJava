@@ -1,7 +1,7 @@
-package com.example.gericare.Controller;
+package com.example.Gericare.Controller;
 
-import com.example.gericare.Service.UsuarioService;
-import com.example.gericare.entity.Familiar; // ¡Importante! Ahora trabajamos con la entidad Familiar.
+import com.example.Gericare.Service.UsuarioService;
+import com.example.Gericare.entity.Familiar; // ¡Importante! Ahora trabajamos con la entidad Familiar.
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,8 +43,7 @@ public class RegistroLoginController {
         // Llamar al método específico y correcto en nuestro servicio
         try {
             usuarioService.crearFamiliar(familiar);
-            // Si el registro es exitoso, redirigir a la página de login con un mensaje de
-            // éxito
+            // Si el registro es exitoso, redirigir a la página de login con un mensaje de éxito
             return "redirect:/login?registroExitoso";
         } catch (Exception e) {
             // Si no redirigir de vuelta al formulario de registro con un mensaje de error
@@ -56,13 +55,7 @@ public class RegistroLoginController {
 
     @GetMapping("/")
     public String verPaginaDeInicio() {
-        // Redirigir la página raíz a la página de login
-        return "redirect:/login";
-    }
-
-    @GetMapping("/dashboard")
-    public String mostrarDashboard() {
-        // Muestra la página dashboard.html después de un login exitoso
-        return "dashboard";
+        // Pag principal a la que se accede después del login
+        return "index";
     }
 }
