@@ -170,5 +170,29 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setParentesco(familiar.getParentesco());
         return dto;
     }
+
+    /*
+    //exportar al excel
+    public void exportarUsuariosAExcel(OutputStream outputStream) throws IDEexception {
+        //Libro
+        Workbook workbook = new XSSFWorkbook();
+        //Hoja
+        Sheet sheet = workbook.createSheet("Usuarios");
+        //Fila de encabezado
+        Row headerRow = sheet.createRow(0);
+        //Columna de encabezado
+        headerRow.createCell(0).setCellValue("ID");
+        headerRow.createCell(1).setCellValue("Tipo Documento");
+        headerRow.createCell(2).setCellValue("Documento Identificación");
+        headerRow.createCell(3).setCellValue("Nombre");
+        headerRow.createCell(4).setCellValue("Apellido");
+        headerRow.createCell(5).setCellValue("Dirección");
+        headerRow.createCell(6).setCellValue("Correo Electrónico");
+        headerRow.createCell(7).setCellValue("Rol");
+
+
+    }
+
+     */
 }
 
