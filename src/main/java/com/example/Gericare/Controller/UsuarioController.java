@@ -82,11 +82,28 @@ public class UsuarioController {
     //Implemetar exportar a Excel
     @GetMapping("/exportar")
     public ResponseEntity<InputStreamResource> exportarUsuariosAExcel() throws IOException {
+        //Flujo de salida
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        //Cabeceras
         usuarioService.exportarUsuariosAExcel(outputStream);
+        //Tipo de Contenido
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet \n" +
+                "\n"));
+
+        //Indicarle el tipo de archivo de descarga
+        headers.setContentDispotitionFormatData("attachment", "usuarios.xlsx")
+
+        //Crear y devolvemos la respuesta HTTPS
+        return new ResponseEntity<>(
+                new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())),
+                headers,
+                HttpStatus.OK
+        );
 
         return null;
 
     }
+
+
 
 }
