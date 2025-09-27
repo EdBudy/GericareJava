@@ -170,8 +170,11 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setParentesco(familiar.getParentesco());
         return dto;
     }
+    //listar todos los usuarios
+    public Listz<Usuarios> listarUsuarios() {
+        return usuarioRepository.findAll();
+    }
 
-    /*
     //exportar al excel
     public void exportarUsuariosAExcel(OutputStream outputStream) throws IDEexception {
         //Libro
@@ -190,9 +193,23 @@ public class UsuarioServiceImpl implements UsuarioService {
         headerRow.createCell(6).setCellValue("Correo Electrónico");
         headerRow.createCell(7).setCellValue("Rol");
 
+        //Listar todos
+        List<Usuario> usuarios = listarUsuarios();
+
+        //Llenar filas
+        int rowNum = 1;
+        for (Usuario usuario : usuarios) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(usuario.getIdUsuario());
+            row.createCell(1).setCellValue(usuario.getTipoDocumento().toString());
+            row.createCell(2).setCellValue(usuario.getDocumentoIdentificacion());
+            row.createCell(3).setCellValue(usuario.getNombre());
+            row.createCell(4).setCellValue(usuario.getApellido());
+            row.createCell(5).setCellValue(usuario.getDireccion());
+            row.createCell(6).setCellValue(usuario.getCorreoElectronico());
+            row.createCell(7).setCellValue(usuario.getRol().getRolNombre().toString());
+        }
 
     }
-
-     */
 }
 
