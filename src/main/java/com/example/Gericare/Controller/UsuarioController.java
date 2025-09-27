@@ -79,30 +79,30 @@ public class UsuarioController {
         // mostrar".
     }
 
-    //Implemetar exportar a Excel
-    @GetMapping("/exportar")
-    public ResponseEntity<InputStreamResource> exportarUsuariosAExcel() throws IOException {
-        //Flujo de salida
+    //Método para el implement de Excel
+    @GetMapping("/users/exportExcel")
+    public ResponseEntity<InputStreamResource> exportarExcel() throws IOException {
+        //Creamos el flujo de salida en memoria (Array de bytes)
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        //Cabeceras
-        usuarioService.exportarUsuariosAExcel(outputStream);
-        //Tipo de Contenido
-        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet \n" +
-                "\n"));
 
-        //Indicarle el tipo de archivo de descarga
-        headers.setContentDispotitionFormatData("attachment", "usuarios.xlsx")
+        //Llamamos al servicio para que escriba en el flujo de salida
+        userServiceImpl.exportUsersToExcel(outputStream);
 
-        //Crear y devolvemos la respuesta HTTPS
-        return new ResponseEntity<>(
-                new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())),
-                headers,
-                HttpStatus.OK
-        );
+        // Configuramos las cabeceras HTTP de la respuesta
+        HttpHeaders headers = new HttpHeaders();
 
-        return null;
+        //Definimos el tipo de contenido para el archivo Excel
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
 
+        //Indicamos al navegador que debe tratar la respuesta como un archivo adjunto para su descarga
+        headers.setContentDispositionFormData("attachment", "users.xlsx");
+
+        //Creamos y devolvemos la respuesta HTTP
+        //Creamos un InputStream a partir del array de bytes
+        return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
     }
+
+
 
 
 
