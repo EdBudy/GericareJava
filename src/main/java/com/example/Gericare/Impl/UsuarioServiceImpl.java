@@ -170,7 +170,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setParentesco(familiar.getParentesco());
         return dto;
     }
-    ------
+    // ------
     //listar todos los usuarios
     public Listz<Usuarios> listarUsuarios() {
         return usuarioRepository.findAll();
@@ -210,6 +210,14 @@ public class UsuarioServiceImpl implements UsuarioService {
             row.createCell(6).setCellValue(usuario.getCorreoElectronico());
             row.createCell(7).setCellValue(usuario.getRol().getRolNombre().toString());
         }
+
+        //Ajustar tamaño de las columnas
+        for (int i = 0; i < 8; i++) {
+            sheet.autoSizeColumn(i);
+        }
+        //Escribir en el OutputStream
+        workbook.write(outputStream);
+        workbook.close();
 
     }
 }
