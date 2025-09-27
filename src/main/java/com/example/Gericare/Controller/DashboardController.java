@@ -26,22 +26,22 @@ public class DashboardController {
                                    @RequestParam(required = false) String documento,
                                    @RequestParam(required = false) RolNombre rol) {
 
-        // Obtener el rol del usuario autenticado
         String userRole = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
 
-        // Cargar datos en el modelo según el rol
         if (userRole != null) {
             if (userRole.equals("ROLE_Administrador")) {
                 model.addAttribute("usuarios", usuarioService.findUsuariosByCriteria(nombre, documento, rol));
-                model.addAttribute("roles", RolNombre.values()); // Para el dropdown de filtro
+                model.addAttribute("roles", RolNombre.values());
             } else if (userRole.equals("ROLE_Cuidador")) {
-                model.addAttribute("asignaciones", usuarioService.findPacientesByCuidadorEmail(authentication.getName()));
+                // CORRECCIÓN 1: Cambiar "asignaciones" a "pacientesAsignados"
+                model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(authentication.getName()));
             } else if (userRole.equals("ROLE_Familiar")) {
+                // CORRECCIÓN 2: Cambiar "asignacion" a "pacienteAsignado"
                 usuarioService.findPacientesByFamiliarEmail(authentication.getName())
-                        .ifPresent(asignacion -> model.addAttribute("asignacion", asignacion));
+                        .ifPresent(asignacion -> model.addAttribute("pacienteAsignado", asignacion));
             }
         }
 

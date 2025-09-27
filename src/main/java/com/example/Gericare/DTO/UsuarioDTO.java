@@ -1,5 +1,6 @@
 package com.example.Gericare.DTO;
 
+import com.example.Gericare.entity.Rol;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.TipoDocumento;
 import lombok.*;
@@ -28,5 +29,6 @@ public class UsuarioDTO {
     private String contactoEmergencia;
     private String parentesco;
     private Long idRol;
+    private Rol rol;
 
 }

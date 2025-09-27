@@ -143,7 +143,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
     // --- MÉTODOS PRIVADOS DE CONVERSIÓN (Sin cambios) ---
-
     private UsuarioDTO toDTO(Usuario usuario) {
         if (usuario instanceof Empleado) {
             return toEmpleadoDTO((Empleado) usuario);
@@ -151,18 +150,28 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (usuario instanceof Familiar) {
             return toFamiliarDTO((Familiar) usuario);
         }
-        throw new IllegalArgumentException("Tipo de usuario desconocido: " + usuario.getClass().getName());
+        // Puedes añadir un mapeo base para otros tipos de Usuario si es necesario
+        UsuarioDTO dto = new UsuarioDTO();
+        setCommonProperties(usuario, dto);
+        return dto;
+    }
+
+    // Método para asignar propiedades comunes
+    private void setCommonProperties(Usuario usuario, UsuarioDTO dto) {
+        dto.setIdUsuario(usuario.getIdUsuario());
+        dto.setTipoDocumento(usuario.getTipoDocumento());
+        dto.setDocumentoIdentificacion(usuario.getDocumentoIdentificacion());
+        dto.setNombre(usuario.getNombre());
+        dto.setApellido(usuario.getApellido());
+        dto.setDireccion(usuario.getDireccion());
+        dto.setCorreoElectronico(usuario.getCorreoElectronico());
+        dto.setEstado(usuario.getEstado());
+        dto.setRol(usuario.getRol()); // <-- ASIGNACIÓN CLAVE
     }
 
     private EmpleadoDTO toEmpleadoDTO(Empleado empleado) {
         EmpleadoDTO dto = new EmpleadoDTO();
-        dto.setIdUsuario(empleado.getIdUsuario());
-        dto.setTipoDocumento(empleado.getTipoDocumento());
-        dto.setDocumentoIdentificacion(empleado.getDocumentoIdentificacion());
-        dto.setNombre(empleado.getNombre());
-        dto.setApellido(empleado.getApellido());
-        dto.setDireccion(empleado.getDireccion());
-        dto.setCorreoElectronico(empleado.getCorreoElectronico());
+        setCommonProperties(empleado, dto); // Usa el método común
         dto.setFechaContratacion(empleado.getFechaContratacion());
         dto.setTipoContrato(empleado.getTipoContrato());
         dto.setContactoEmergencia(empleado.getContactoEmergencia());
@@ -172,16 +181,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private FamiliarDTO toFamiliarDTO(Familiar familiar) {
         FamiliarDTO dto = new FamiliarDTO();
-        dto.setIdUsuario(familiar.getIdUsuario());
-        dto.setTipoDocumento(familiar.getTipoDocumento());
-        dto.setDocumentoIdentificacion(familiar.getDocumentoIdentificacion());
-        dto.setNombre(familiar.getNombre());
-        dto.setApellido(familiar.getApellido());
-        dto.setDireccion(familiar.getDireccion());
-        dto.setCorreoElectronico(familiar.getCorreoElectronico());
+        setCommonProperties(familiar, dto); // Usa el método común
         dto.setParentesco(familiar.getParentesco());
         return dto;
     }
+
     // ------
     //listar todos los usuarios
     public List<Usuario> listarUsuarios() {
