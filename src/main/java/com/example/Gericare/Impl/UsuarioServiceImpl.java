@@ -11,6 +11,9 @@ import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.RolNombre;
 import com.example.Gericare.specification.UsuarioSpecification;
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -19,6 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.lowagie.text.pdf.PdfWriter;
+
+
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -233,14 +239,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         Document document = new Document();
 
         //Acosiar al OutputStream
-        PdfWtriter.getInstance(documento, outputStream);
+        PdfWriter.getInstance(document, outputStream);
 
         //Abrir documento
-        documento.open();
+        document.open();
 
         //Agregar contenido
-        documento.add(new Paragraph("Lista de Usuarios"));
-        documento.add(new Paragraph(" ")); // Línea en blanco
+        document.add(new Paragraph("Lista de Usuarios"));
+        document.add(new Paragraph(" ")); // Línea en blanco
 
         //Crear tabla con 8 columnas
         PdfPTable table = new PdfPTable(8);

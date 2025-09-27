@@ -78,4 +78,15 @@ public class UsuarioController {
         return ResponseEntity.noContent().build(); // Devolver 204 No Content, osea: "todo OK, pero no hay nada que
         // mostrar".
     }
+
+    //Implemetar exportar a Excel
+    @GetMapping("/exportar")
+    public ResponseEntity<InputStreamResource> exportarUsuariosAExcel() throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        usuarioService.exportarUsuariosAExcel(outputStream);
+
+        return null;
+
+    }
+
 }
