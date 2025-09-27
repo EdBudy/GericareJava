@@ -1,6 +1,7 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.UsuarioDTO;
+import com.example.Gericare.Impl.UsuarioServiceImpl;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.entity.Cuidador;
 import com.example.Gericare.entity.Familiar;
@@ -23,6 +24,7 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+    private UsuarioServiceImpl usuarioServiceImpl;
 
     // Obtener datos (GET)
 
@@ -93,7 +95,7 @@ public class UsuarioController {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         //Llamamos al servicio para que escriba en el flujo de salida
-        userServiceImpl.exportUsersToExcel(outputStream);
+        usuarioServiceImpl.exportarUsuariosAExcel(outputStream);
 
         // Configuramos las cabeceras HTTP de la respuesta
         HttpHeaders headers = new HttpHeaders();
@@ -108,9 +110,5 @@ public class UsuarioController {
         //Creamos un InputStream a partir del array de bytes
         return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
     }
-
-
-
-
 
 }
