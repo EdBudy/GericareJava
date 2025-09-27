@@ -11,11 +11,17 @@ import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.RolNombre;
 import com.example.Gericare.specification.UsuarioSpecification;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -172,12 +178,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
     // ------
     //listar todos los usuarios
-    public Listz<Usuarios> listarUsuarios() {
+    public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
 
     //exportar al excel
-    public void exportarUsuariosAExcel(OutputStream outputStream) throws IDEexception {
+    public void exportarUsuariosAExcel(OutputStream outputStream) throws IOException {
         //Libro
         Workbook workbook = new XSSFWorkbook();
         //Hoja
@@ -220,5 +226,36 @@ public class UsuarioServiceImpl implements UsuarioService {
         workbook.close();
 
     }
-}
 
+    //Exportar a PDF
+    public void exportarUsuariosAPDF(OutputStream outputStream) throws IOException {
+        //Crear documento PDF
+        Documento documento = new Documento();
+
+        //Acosiar al OutputStream
+        PdfWtriter.getInstance(documento, outputStream);
+
+        //Abrir documento
+        documento.open();
+
+        //Agregar contenido
+        documento.add(new Paragraph("Lista de Usuarios"));
+        documento.add(new Paragraph(" ")); // Línea en blanco
+
+        //Crear tabla con 8 columnas
+        PdfPTable table = new PdfPTable(8);
+
+        //Agregar encabezados
+        table.addCell("ID");
+        table.addCell("Tipo Documento");
+        table.addCell("Documento Identificación");
+        table.addCell("Nombre");
+        table.addCell("Apellido");
+        table.addCell("Dirección");
+        table.addCell("Correo Electrónico");
+        table.addCell("Rol");
+
+        //Listar todos
+        List<Usuario> usuarios = listarUsuarios();
+    }
+}
