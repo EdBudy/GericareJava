@@ -89,7 +89,7 @@ public class UsuarioController {
     }
 
     //Método para el implement de Excel
-    @GetMapping("/users/exportExcel")
+    @GetMapping("/usuarios/exportExcel")
     public ResponseEntity<InputStreamResource> exportarExcel() throws IOException {
         //Creamos el flujo de salida en memoria (Array de bytes)
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -111,4 +111,21 @@ public class UsuarioController {
         return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
     }
 
+    //Metodo para el implement de PDF
+    @GetMapping("/usuarios/exportPdf")
+    public ResponseEntity<InputStreamResource> exportarPdf() throws IOException {
+        //Creamos el flujo de salida en memoria (Array de bytes)
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        //Llamamos al servicio para que escriba en el flujo de salida
+        usuarioServiceImpl.exportarUsuariosAPDF(outputStream);
+        // Configuramos las cabeceras HTTP de la respuesta
+        HttpHeaders headers = new HttpHeaders();
+        //Definimos el tipo de contenido para el archivo PDF
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        //Indicamos al navegador que debe tratar la respuesta como un archivo adjunto para su descarga
+        headers.setContentDispositionFormData("attachment", "users.pdf");
+        //Creamos y devolvemos la respuesta HTTP
+        //Creamos un InputStream a partir del array de bytes
+        return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
+    }
 }
