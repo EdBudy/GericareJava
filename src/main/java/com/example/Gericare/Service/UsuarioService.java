@@ -5,6 +5,8 @@ import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.entity.Cuidador;
 import com.example.Gericare.entity.Familiar;
 import com.example.Gericare.enums.RolNombre;
+import java.io.IOException;
+import java.io.OutputStream;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,4 +31,8 @@ public interface UsuarioService {
     List<PacienteAsignadoDTO> findPacientesByCuidadorEmail(String email);
 
     Optional<PacienteAsignadoDTO> findPacientesByFamiliarEmail(String email);
+
+    // Nuevos métodos para exportar
+    void exportarUsuariosAExcel(OutputStream outputStream) throws IOException;
+    void exportarUsuariosAPDF(OutputStream outputStream) throws IOException;
 }

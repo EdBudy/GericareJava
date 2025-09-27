@@ -278,5 +278,9 @@ public class UsuarioServiceImpl implements UsuarioService {
             table.addCell(usuario.getCorreoElectronico());
             table.addCell(usuario.getRol().getRolNombre().toString());
         }
+        //Agregar tabla al documento
+        document.add(table);
+        //Cerrar documento
+        document.close();
     }
 }
