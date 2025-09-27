@@ -170,6 +170,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setParentesco(familiar.getParentesco());
         return dto;
     }
+    ------
     //listar todos los usuarios
     public Listz<Usuarios> listarUsuarios() {
         return usuarioRepository.findAll();
