@@ -3,80 +3,84 @@
 <body>
 
 <!--
-  Fragmento reutilizable para mostrar la tabla de usuarios.
-  Recibe dos parámetros:
-  - usuarios: La lista de usuarios a mostrar.
-  - roles: La lista de roles para el filtro desplegable.
+  Fragmento reutilizable para la tabla de usuarios del administrador.
+  Recibe la lista de 'usuarios' como parámetro desde el dashboard.html.
 -->
-<div th:fragment="tabla_usuarios(usuarios, roles, nombreFiltro, documentoFiltro, rolFiltro)">
+<div th:fragment="tabla(usuarios)">
+
+    <h2>Gestión de Usuarios del Sistema</h2>
+    <p>Filtra y gestiona los usuarios registrados en la plataforma.</p>
 
     <!-- Formulario de Filtros -->
-    <form th:action="@{/dashboard}" method="get" class="filter-form mb-4">
-        <div class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label for="nombre" class="form-label">Filtrar por Nombre</label>
-                <!-- CORRECCIÓN: Se usa name y th:value en lugar de th:field -->
-                <input type="text" id="nombre" name="nombre" th:value="${nombreFiltro}" class="form-control" placeholder="Ej: Juan">
-            </div>
-            <div class="col-md-3">
-                <label for="documento" class="form-label">Filtrar por Documento</label>
-                <!-- CORRECCIÓN: Se usa name y th:value en lugar de th:field -->
-                <input type="text" id="documento" name="documento" th:value="${documentoFiltro}" class="form-control" placeholder="Ej: 123456">
-            </div>
-            <div class="col-md-3">
-                <label for="rol" class="form-label">Filtrar por Rol</label>
-                <!-- CORRECCIÓN: Se usa name y th:value/th:selected en lugar de th:field -->
-                <select id="rol" name="rol" class="form-select">
-                    <option value="">Todos</option>
-                    <option th:each="rolOpt : ${roles}"
-                            th:value="${rolOpt}"
-                            th:text="${rolOpt.name()}"
-                            th:selected="${rolOpt == rolFiltro}"></option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">Filtrar</button>
-            </div>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Filtrar Usuarios</h5>
+            <form th:action="@{/dashboard}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="nombre" class="form-label">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" th:value="${param.nombre}">
+                </div>
+                <div class="col-md-3">
+                    <label for="documento" class="form-label">Documento</label>
+                    <input type="text" id="documento" name="documento" class="form-control" th:value="${param.documento}">
+                </div>
+                <div class="col-md-3">
+                    <label for="rol" class="form-label">Rol</label>
+                    <select id="rol" name="rol" class="form-select">
+                        <option value="">Todos</option>
+                        <option th:each="rolOpt : ${T(com.example.Gericare.enums.RolNombre).values()}"
+                                th:value="${rolOpt}"
+                                th:text="${#strings.capitalize(rolOpt.toString().toLowerCase())}"
+                                th:selected="${param.rol != null and rolOpt.name() == param.rol[0]}"></option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+                </div>
+            </form>
         </div>
-    </form>
-
-    <!-- Tabla de Resultados -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
-            <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Nombre Completo</th>
-                <th>Documento</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <!-- Solo el admin ve las acciones -->
-                <th th:if="${#authorization.expression('hasRole(''ADMINISTRADOR'')')}">Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="usuario : ${usuarios}">
-                <td th:text="${usuario.idUsuario}">1</td>
-                <td th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Apellido</td>
-                <td th:text="${usuario.tipoDocumento + ' - ' + usuario.documentoIdentificacion}">CC - 12345</td>
-                <td th:text="${usuario.correoElectronico}">correo@ejemplo.com</td>
-                <td>
-                    <span th:if="${#strings.contains(usuario.getClass().simpleName, 'Administrador')}" class="badge bg-danger">Administrador</span>
-                    <span th:if="${#strings.contains(usuario.getClass().simpleName, 'Cuidador')}" class="badge bg-info">Cuidador</span>
-                    <span th:if="${#strings.contains(usuario.getClass().simpleName, 'Familiar')}" class="badge bg-success">Familiar</span>
-                </td>
-                <!-- Botones de acción solo para el rol de Administrador -->
-                <td th:if="${#authorization.expression('hasRole(''ADMINISTRADOR'')')}">
-                    <a href="#" class="btn btn-sm btn-warning me-2">Editar</a>
-                    <form th:action="@{/usuarios/{id}(id=${usuario.idUsuario})}" th:method="delete" style="display:inline;">
-                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
     </div>
 
+    <!-- Tabla de Usuarios -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre Completo</th>
+                        <th>Documento</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="usuario : ${usuarios}">
+                        <td th:text="${usuario.idUsuario}"></td>
+                        <td th:text="${usuario.nombre + ' ' + usuario.apellido}"></td>
+                        <td th:text="${usuario.documentoIdentificacion}"></td>
+                        <td th:text="${usuario.correoElectronico}"></td>
+                        <td>
+                             <span th:text="${usuario.rol.rolNombre}" class="badge"
+                                   th:classappend="${usuario.rol.rolNombre.toString() == 'Administrador'} ? 'bg-danger' : (${usuario.rol.rolNombre.toString() == 'Cuidador'} ? 'bg-info' : 'bg-success')">
+                             </span>
+                        </td>
+                        <td>
+                            <a href="#" class="btn btn-warning btn-sm" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <a href="#" class="btn btn-danger btn-sm" title="Eliminar">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 </body>

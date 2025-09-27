@@ -11,6 +11,7 @@ import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.RolNombre;
 import com.example.Gericare.specification.UsuarioSpecification;
+import com.lowagie.text.Document;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -229,33 +230,46 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     //Exportar a PDF
     public void exportarUsuariosAPDF(OutputStream outputStream) throws IOException {
-        //Crear documento PDF
-        Documento documento = new Documento();
-
-        //Acosiar al OutputStream
-        PdfWtriter.getInstance(documento, outputStream);
-
-        //Abrir documento
-        documento.open();
-
-        //Agregar contenido
-        documento.add(new Paragraph("Lista de Usuarios"));
-        documento.add(new Paragraph(" ")); // Línea en blanco
-
-        //Crear tabla con 8 columnas
-        PdfPTable table = new PdfPTable(8);
-
-        //Agregar encabezados
-        table.addCell("ID");
-        table.addCell("Tipo Documento");
-        table.addCell("Documento Identificación");
-        table.addCell("Nombre");
-        table.addCell("Apellido");
-        table.addCell("Dirección");
-        table.addCell("Correo Electrónico");
-        table.addCell("Rol");
-
-        //Listar todos
-        List<Usuario> usuarios = listarUsuarios();
+        Document document = new Document();
     }
+
+        try {
+            PdfWriter.getInstance(document, outputStream);
+            document.open();
+
+            document.add(new Paragraph("Lista de Usuarios"));
+            document.add(new Paragraph(" "));
+
+            PdfPTable table = new PdfPTable(8);
+            table.setWidthPercentage(100);
+
+            // Encabezados
+            table.addCell("ID");
+            table.addCell("Tipo Documento");
+            table.addCell("Documento Identificación");
+            table.addCell("Nombre");
+            table.addCell("Apellido");
+            table.addCell("Dirección");
+            table.addCell("Correo Electrónico");
+            table.addCell("Rol");
+
+            List<Usuario> usuarios = listarUsuarios();
+
+            for (Usuario usuario : usuarios) {
+                table.addCell(String.valueOf(usuario.getIdUsuario()));
+                table.addCell(usuario.getTipoDocumento().name());
+                table.addCell(usuario.getDocumentoIdentificacion());
+                table.addCell(usuario.getNombre());
+                table.addCell(usuario.getApellido());
+                table.addCell(usuario.getDireccion());
+                table.addCell(usuario.getCorreoElectronico());
+                table.addCell(usuario.getRol().getRolNombre());
+            }
+
+            document.add(table);
+        } catch (DocumentException e) {
+            throw new IOException("Error al generar el PDF", e);
+        } finally {
+            document.close();
+        }
 }

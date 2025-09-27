@@ -1,37 +1,52 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
-
-<!-- Fragmento para el <head> de la página -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<!-- El head contiene todas las hojas de estilo y metadatos. Es reutilizable. -->
 <head th:fragment="head">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle} ?: 'Gericare'">Gericare</title>
-    <!-- CSS de Bootstrap 5 -->
+    <title th:text="${pageTitle} ?: 'Gericare Connect'"></title>
+
+    <!-- Google Fonts y Bootstrap para un diseño moderno -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- CSS Personalizado (asegúrate que la ruta sea correcta) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <!-- Tu hoja de estilos personalizada -->
     <link th:href="@{/css/styles.css}" rel="stylesheet">
 </head>
-
 <body>
 
-<!-- Fragmento para la barra de navegación (header) -->
-<header th:fragment="header" class="bg-dark text-white p-3 mb-4">
-    <div class="container d-flex justify-content-between align-items-center">
-        <a class="navbar-brand text-white fs-4" th:href="@{/dashboard}">Gericare Connect</a>
-        <nav>
-            <!-- Formulario para cerrar sesión -->
-            <form th:action="@{/logout}" method="post">
-                <button type="submit" class="btn btn-outline-light">Cerrar Sesión</button>
-            </form>
+<!-- La cabecera es reutilizable y muestra enlaces según el rol del usuario -->
+<header th:fragment="header" class="dashboard-header">
+    <a th:href="@{/dashboard}" class="navbar-brand">
+        <h1>Gericare Connect</h1>
+    </a>
+    <div class="user-info">
+        <span><i class="bi bi-person-circle me-2"></i><strong sec:authentication="name">Usuario</strong></span>
+
+        <!-- Menú de navegación para el Administrador -->
+        <nav sec:authorize="hasRole('Administrador')" class="ms-4">
+            <a class="nav-link" th:href="@{/dashboard}">Gestión Usuarios</a>
+            <a class="nav-link" th:href="@{/pacientes}">Gestión Pacientes</a>
+            <!-- Futuro enlace para asignaciones -->
         </nav>
+
+        <form th:action="@{/logout}" method="post" class="ms-4">
+            <button type="submit" class="btn btn-outline-light btn-logout">
+                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
+            </button>
+        </form>
     </div>
 </header>
 
-
-<!-- Fragmento para el pie de página (footer) -->
-<footer th:fragment="footer" class="container mt-5 py-3 text-center text-muted border-top">
-    <p>&copy; 2025 Gericare Connect. Todos los derechos reservados.</p>
-    <!-- Scripts de Bootstrap 5 -->
+<!-- El footer también es reutilizable -->
+<footer th:fragment="footer" class="bg-light text-center text-lg-start mt-auto">
+    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
+        © 2025 Gericare Connect
+    </div>
+    <!-- Scripts de Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </footer>
 

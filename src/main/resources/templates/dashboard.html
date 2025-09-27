@@ -1,127 +1,82 @@
 <!DOCTYPE html>
-<!--
-  Este es el archivo principal del Dashboard.
-  Utiliza Thymeleaf y Spring Security para mostrar contenido dinámico
-  basado en el rol del usuario autenticado.
--->
 <html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="es">
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard - Gericare</title>
-    <!--
-      Se inserta el fragmento 'head' desde layout.html.
-      Esto nos trae todos los enlaces a CSS (Bootstrap y styles.css) y el viewport.
-    -->
+    <title>Dashboard</title>
+    <!-- Incluimos la cabecera del layout que tiene los estilos y metadatos -->
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
 </head>
 <body>
 
-<!--
-  Se inserta la barra de navegación (header) desde layout.html.
-  Esto mantiene la cabecera consistente en toda la aplicación.
--->
+<!-- Incluimos el header reutilizable que tiene la barra de navegación -->
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<!-- Contenido principal de la página -->
-<main class="container mt-5">
+<main class="container mt-5 mb-5">
 
-    <!-- Banner de bienvenida que se muestra a todos los usuarios logueados -->
-    <div class="p-5 mb-4 bg-light rounded-3">
-        <div class="container-fluid py-5">
-            <h1 class="display-5 fw-bold">Bienvenido a Gericare</h1>
-            <p class="col-md-8 fs-4">
-                Has iniciado sesión como <strong sec:authentication="name">Usuario</strong>.
-                Tu rol es:
-                <!-- Se muestra una insignia de color diferente según el rol del usuario -->
-                <span sec:authorize="hasRole('ADMINISTRADOR')" class="badge bg-danger">Administrador</span>
-                <span sec:authorize="hasRole('CUIDADOR')" class="badge bg-info">Cuidador</span>
-                <span sec:authorize="hasRole('FAMILIAR')" class="badge bg-success">Familiar</span>
-            </p>
-        </div>
+    <!-- Sección para el Administrador -->
+    <!-- Este bloque solo se renderizará si el usuario tiene el rol 'Administrador' -->
+    <div sec:authorize="hasRole('Administrador')">
+        <!-- Reemplazamos este div con el contenido del fragmento de la tabla,
+             pasándole la lista de usuarios que viene del controlador. -->
+        <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios})}"></div>
     </div>
 
-    <!-- ====================================================== -->
-    <!-- Sección del Dashboard para el Administrador -->
-    <!-- Visible únicamente si el usuario tiene el rol 'ADMINISTRADOR' -->
-    <!-- ====================================================== -->
-    <div sec:authorize="hasRole('ADMINISTRADOR')">
-        <h2>Gestión de Usuarios</h2>
-        <p>Desde aquí puedes ver, filtrar y gestionar todos los usuarios del sistema.</p>
-        <!--
-          Se reemplaza este div con el contenido del fragmento 'tabla_usuarios'
-          que se encuentra en 'fragments/tabla-usuarios.html'.
-          Se le pasan todos los datos necesarios que el controlador ha puesto en el modelo.
-        -->
-        <div th:replace="~{fragments/tabla-usuarios :: tabla_usuarios(usuarios=${usuarios}, roles=${roles}, nombreFiltro=${nombre}, documentoFiltro=${documento}, rolFiltro=${rol})}">
-            <!-- El contenido de la tabla de usuarios se insertará aquí -->
-        </div>
-    </div>
-
-    <!-- ====================================================== -->
-    <!-- Sección del Dashboard para el Cuidador -->
-    <!-- Visible únicamente si el usuario tiene el rol 'CUIDADOR' -->
-    <!-- ====================================================== -->
-    <div sec:authorize="hasRole('CUIDADOR')">
+    <!-- Sección para el Cuidador -->
+    <!-- Este bloque solo se renderizará si el usuario tiene el rol 'Cuidador' -->
+    <div sec:authorize="hasRole('Cuidador')">
         <h2>Mis Pacientes Asignados</h2>
-        <p>Esta es la lista de los pacientes que tienes actualmente a tu cargo.</p>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                <tr>
-                    <th>Paciente</th>
-                    <th>Documento</th>
-                    <th>Contacto de Emergencia</th>
-                    <th>Familiar Asociado</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- Se itera sobre la lista de pacientes asignados y se muestra cada uno en una fila -->
-                <tr th:each="asignacion : ${pacientesAsignados}">
-                    <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
-                    <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
-                    <td th:text="${asignacion.paciente.contactoEmergencia}"></td>
-                    <!-- Se comprueba si el familiar es nulo antes de mostrar su nombre -->
-                    <td th:text="${asignacion.familiar != null ? asignacion.familiar.nombre + ' ' + asignacion.familiar.apellido : 'No asignado'}"></td>
-                </tr>
-                </tbody>
-            </table>
+        <div th:if="${pacientesAsignados.isEmpty()}">
+            <div class="alert alert-info mt-4">Aún no tienes pacientes asignados.</div>
+        </div>
+        <div th:if="${not pacientesAsignados.isEmpty()}" class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID Paciente</th>
+                            <th>Nombre Paciente</th>
+                            <th>Documento</th>
+                            <th>Familiar Asignado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="asignacion : ${pacientesAsignados}">
+                            <td th:text="${asignacion.paciente.idPaciente}"></td>
+                            <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
+                            <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
+                            <td th:text="${asignacion.familiar != null ? asignacion.familiar.nombre + ' ' + asignacion.familiar.apellido : 'N/A'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- ====================================================== -->
-    <!-- Sección del Dashboard para el Familiar -->
-    <!-- Visible únicamente si el usuario tiene el rol 'FAMILIAR' -->
-    <!-- ====================================================== -->
-    <div sec:authorize="hasRole('FAMILIAR')">
-        <h2>Información de mi Familiar</h2>
-        <!-- Se muestra esta tarjeta solo si el familiar tiene un paciente asignado -->
-        <div th:if="${pacienteAsignado != null}" class="card">
-            <div class="card-header fs-5 fw-bold" th:text="${pacienteAsignado.paciente.nombre + ' ' + pacienteAsignado.paciente.apellido}">
-                Nombre del Paciente
+    <!-- Sección para el Familiar -->
+    <!-- Este bloque solo se renderizará si el usuario tiene el rol 'Familiar' -->
+    <div sec:authorize="hasRole('Familiar')">
+        <h2>Información del Paciente Asignado</h2>
+        <div th:if="${pacienteAsignado.isPresent()}">
+            <div class="patient-card mt-4">
+                <h3 th:text="${pacienteAsignado.get().paciente.nombre + ' ' + pacienteAsignado.get().paciente.apellido}"></h3>
+                <hr>
+                <p><strong>Documento:</strong> <span th:text="${pacienteAsignado.get().paciente.documentoIdentificacion}"></span></p>
+                <p><strong>Cuidador Asignado:</strong> <span th:text="${pacienteAsignado.get().cuidador.nombre + ' ' + pacienteAsignado.get().cuidador.apellido}"></span></p>
+                <p><strong>Fecha de Asignación:</strong> <span th:text="${#temporals.format(pacienteAsignado.get().fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></p>
             </div>
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item"><b>Cuidador Asignado:</b> <span th:text="${pacienteAsignado.cuidador.nombre + ' ' + pacienteAsignado.cuidador.apellido}"></span></li>
-                <li class="list-group-item"><b>Contacto de Emergencia:</b> <span th:text="${pacienteAsignado.paciente.contactoEmergencia}"></span></li>
-                <li class="list-group-item"><b>Seguro Médico:</b> <span th:text="${pacienteAsignado.paciente.seguroMedico}"></span></li>
-                <li class="list-group-item"><b>Número de Seguro:</b> <span th:text="${pacienteAsignado.paciente.numeroSeguro}"></span></li>
-            </ul>
         </div>
-        <!-- Se muestra esta alerta si el familiar NO tiene un paciente asignado -->
-        <div th:if="${pacienteAsignado == null}" class="alert alert-warning">
-            Aún no tienes un familiar asignado en el sistema.
+        <div th:if="${pacienteAsignado.isEmpty()}">
+            <div class="alert alert-warning mt-4">Usted aún no ha sido asignado a ningún paciente.</div>
         </div>
     </div>
 
 </main>
 
-<!--
-  Se inserta el pie de página (footer) desde layout.html.
-  Esto también nos trae los scripts de JavaScript de Bootstrap.
--->
+<!-- Incluimos el footer reutilizable -->
 <footer th:insert="~{fragments/layout :: footer}"></footer>
-
 </body>
 </html>
 
