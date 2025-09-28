@@ -49,19 +49,6 @@
                             </a>
                         </td>
                     </tr>
-                    <tr th:each="paciente : ${pacientes}">
-                        <td>
-                            <a th:href="@{/pacientes/editar/{id}(id=${paciente.idPaciente})}" class="btn btn-warning btn-sm" title="Editar">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
-
-                            <form th:action="@{/pacientes/eliminar/{id}(id=${paciente.idPaciente})}" method="post" style="display:inline;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este paciente?');">
-                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
                     </tbody>
                 </table>
             </div>

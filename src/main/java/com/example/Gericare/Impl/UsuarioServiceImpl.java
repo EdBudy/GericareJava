@@ -35,14 +35,12 @@ import java.util.stream.Collectors;
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
-    // --- DEPENDENCIAS INYECTADAS ---
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
     private RolRepository rolRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
-    // --- NUEVAS DEPENDENCIAS AÑADIDAS ---
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
     @Autowired
@@ -50,7 +48,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PacienteAsignadoService pacienteAsignadoService;
 
 
-    // --- MÉTODOS DE CREACIÓN (Sin cambios) ---
     @Override
     public UsuarioDTO crearCuidador(Cuidador cuidador) {
         cuidador.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
@@ -77,7 +74,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         return toDTO(familiarGuardado);
     }
 
-    // --- MÉTODOS DE CONSULTA (Sin cambios) ---
     @Override
     public List<UsuarioDTO> listarTodosLosUsuarios() {
         return usuarioRepository.findAll()
@@ -91,7 +87,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.findById(id).map(this::toDTO);
     }
 
-    // --- MÉTODOS DE GESTIÓN (Sin cambios) ---
     @Override
     public void eliminarUsuario(Long id) {
         usuarioRepository.findById(id).ifPresent(usuario -> {
@@ -103,16 +98,27 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
+
+            // Actualiza los campos comunes
             usuarioExistente.setNombre(usuarioDTO.getNombre());
             usuarioExistente.setApellido(usuarioDTO.getApellido());
             usuarioExistente.setDireccion(usuarioDTO.getDireccion());
+
+            // Actualiza campos específicos si es un Empleado
+            if (usuarioExistente instanceof Empleado) {
+                Empleado empleadoExistente = (Empleado) usuarioExistente;
+                empleadoExistente.setTipoContrato(usuarioDTO.getTipoContrato());
+                empleadoExistente.setContactoEmergencia(usuarioDTO.getContactoEmergencia());
+            }
+
+            // Guarda la entidad actualizada en la base de datos
             Usuario usuarioActualizado = usuarioRepository.save(usuarioExistente);
+
+            // Convierte la entidad de vuelta a DTO para retornarla
             return toDTO(usuarioActualizado);
         });
     }
 
-
-    // --- NUEVOS MÉTODOS PARA EL DASHBOARD Y FILTROS ---
 
     @Override
     public List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol) {
@@ -142,21 +148,24 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
 
-    // --- MÉTODOS PRIVADOS DE CONVERSIÓN (Sin cambios) ---
     private UsuarioDTO toDTO(Usuario usuario) {
-        if (usuario instanceof Empleado) {
-            return toEmpleadoDTO((Empleado) usuario);
-        }
-        if (usuario instanceof Familiar) {
-            return toFamiliarDTO((Familiar) usuario);
-        }
-        // Puedes añadir un mapeo base para otros tipos de Usuario si es necesario
         UsuarioDTO dto = new UsuarioDTO();
         setCommonProperties(usuario, dto);
+
+        if (usuario instanceof Empleado) {
+            Empleado empleado = (Empleado) usuario;
+            dto.setFechaContratacion(empleado.getFechaContratacion());
+            dto.setTipoContrato(empleado.getTipoContrato());
+            dto.setContactoEmergencia(empleado.getContactoEmergencia());
+            dto.setFechaNacimiento(empleado.getFechaNacimiento());
+        } else if (usuario instanceof Familiar) {
+            Familiar familiar = (Familiar) usuario;
+            dto.setParentesco(familiar.getParentesco());
+        }
+
         return dto;
     }
 
-    // Método para asignar propiedades comunes
     private void setCommonProperties(Usuario usuario, UsuarioDTO dto) {
         dto.setIdUsuario(usuario.getIdUsuario());
         dto.setTipoDocumento(usuario.getTipoDocumento());
@@ -166,12 +175,12 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setDireccion(usuario.getDireccion());
         dto.setCorreoElectronico(usuario.getCorreoElectronico());
         dto.setEstado(usuario.getEstado());
-        dto.setRol(usuario.getRol()); // <-- ASIGNACIÓN CLAVE
+        dto.setRol(usuario.getRol());
     }
 
     private EmpleadoDTO toEmpleadoDTO(Empleado empleado) {
         EmpleadoDTO dto = new EmpleadoDTO();
-        setCommonProperties(empleado, dto); // Usa el método común
+        setCommonProperties(empleado, dto);
         dto.setFechaContratacion(empleado.getFechaContratacion());
         dto.setTipoContrato(empleado.getTipoContrato());
         dto.setContactoEmergencia(empleado.getContactoEmergencia());
@@ -181,7 +190,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private FamiliarDTO toFamiliarDTO(Familiar familiar) {
         FamiliarDTO dto = new FamiliarDTO();
-        setCommonProperties(familiar, dto); // Usa el método común
+        setCommonProperties(familiar, dto);
         dto.setParentesco(familiar.getParentesco());
         return dto;
     }
