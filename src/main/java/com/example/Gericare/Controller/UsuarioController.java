@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity; // Para respuestas HTTP
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
@@ -18,12 +19,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/usuarios") // Todas las URLs aquí empiezan con "/usuarios"
 public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
     private UsuarioServiceImpl usuarioServiceImpl;
 
     // Obtener datos (GET)
@@ -65,31 +67,24 @@ public class UsuarioController {
 
     // Actualizar un usuario existente
     // PUT http://localhost:8080/usuarios/1
-    @PutMapping("/{id}")
-    public ResponseEntity<UsuarioDTO> actualizarUsuario(@PathVariable Long id, @RequestBody UsuarioDTO usuarioDTO) {
-        return usuarioService.actualizarUsuario(id, usuarioDTO)
-                .map(usuarioActualizado -> ResponseEntity.ok(usuarioActualizado))
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping("/eliminar/{id}")
+    public String eliminarUsuario(@PathVariable Long id) {
+        usuarioService.eliminarUsuario(id);
+        return "redirect:/dashboard";
     }
 
     // Eliminar datos (DELETE)
 
     // Desactivar un usuario (borrado lógico)
     // DELETE http://localhost:8080/usuarios/1
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
-        // Verificar si el usuario existe.
-        if (usuarioService.obtenerUsuarioPorId(id).isEmpty()) {
-            return ResponseEntity.notFound().build(); // Si no existe, 404 Not Found.
-        }
-        // Si existe, se elimina (desactivar)
-        usuarioService.eliminarUsuario(id);
-        return ResponseEntity.noContent().build(); // Devolver 204 No Content, osea: "todo OK, pero no hay nada que
-        // mostrar".
+    @GetMapping("/eliminar/{id}")
+    public String eliminarUsuarioPorGet(@PathVariable Long id) {
+        usuarioService.eliminarUsuario(id); // Este método ya hace el borrado lógico
+        return "redirect:/dashboard?delete=success";
     }
 
     //Método para el implement de Excel
-    @GetMapping("/usuarios/exportExcel")
+    @GetMapping("/exportExcel")
     public ResponseEntity<InputStreamResource> exportarExcel() throws IOException {
         //Creamos el flujo de salida en memoria (Array de bytes)
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -112,7 +107,7 @@ public class UsuarioController {
     }
 
     //Metodo para el implement de PDF
-    @GetMapping("/usuarios/exportPdf")
+    @GetMapping("/exportPdf")
     public ResponseEntity<InputStreamResource> exportarPdf() throws IOException {
         //Creamos el flujo de salida en memoria (Array de bytes)
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
