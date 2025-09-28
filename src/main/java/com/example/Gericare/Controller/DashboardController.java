@@ -42,8 +42,8 @@ public class DashboardController {
             } else if (userRole.equals("ROLE_Cuidador")) {
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(authentication.getName()));
             } else if (userRole.equals("ROLE_Familiar")) {
-                usuarioService.findPacientesByFamiliarEmail(authentication.getName())
-                        .ifPresent(asignacion -> model.addAttribute("pacienteAsignado", asignacion));
+                // Thymeleaf sabe cómo manejar un Optional vacío
+                model.addAttribute("pacienteAsignado", usuarioService.findPacientesByFamiliarEmail(authentication.getName()));
             }
         }
 
