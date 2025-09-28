@@ -29,12 +29,14 @@ public class UsuarioController {
     // Metodos para las vistas
 
     // Formulario para editar un usuario
+    // En UsuarioController.java
+
     @GetMapping("/editar/{id}")
     public String mostrarFormularioDeEdicion(@PathVariable Long id, Model model) {
         usuarioService.obtenerUsuarioPorId(id).ifPresent(usuario -> {
             model.addAttribute("usuario", usuario);
         });
-        // Devuelve la vista que se creo
+        model.addAttribute("adminMode", true);
         return "formulario-usuario-editar";
     }
 

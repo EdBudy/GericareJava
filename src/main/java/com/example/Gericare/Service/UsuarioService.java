@@ -25,8 +25,10 @@ public interface UsuarioService {
 
     Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO);
 
+    Optional<UsuarioDTO> findByEmail(String email);
+
     // Nuevos métodos para el dashboard y filtros
-    List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol);
+    List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude);
 
     List<PacienteAsignadoDTO> findPacientesByCuidadorEmail(String email);
 

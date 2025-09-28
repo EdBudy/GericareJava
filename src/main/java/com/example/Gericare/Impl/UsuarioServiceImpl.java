@@ -96,6 +96,11 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    public Optional<UsuarioDTO> findByEmail(String email) {
+        return usuarioRepository.findByCorreoElectronico(email).map(this::toDTO);
+    }
+
+    @Override
     public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
 
@@ -119,11 +124,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         });
     }
 
-
     @Override
-    public List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol) {
-        // Usa la clase Specification para construir una consulta con los filtros proporcionados.
-        return usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol))
+    public List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude) {
+        return usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, emailToExclude))
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());

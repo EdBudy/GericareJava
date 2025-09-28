@@ -31,20 +31,23 @@ public class DashboardController {
                 .findFirst()
                 .orElse(null);
 
+        // ¡VERSIÓN CORREGIDA Y SIMPLIFICADA!
         if (userRole != null) {
             if (userRole.equals("ROLE_Administrador")) {
-                model.addAttribute("usuarios", usuarioService.findUsuariosByCriteria(nombre, documento, rol));
+                // Obtener el email del usuario logueado
+                String adminEmail = authentication.getName();
+                // Pasar email al servicio para que sea excluido de la lista
+                model.addAttribute("usuarios", usuarioService.findUsuariosByCriteria(nombre, documento, rol, adminEmail));
                 model.addAttribute("roles", RolNombre.values());
             } else if (userRole.equals("ROLE_Cuidador")) {
-                // CORRECCIÓN 1: Cambiar "asignaciones" a "pacientesAsignados"
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(authentication.getName()));
             } else if (userRole.equals("ROLE_Familiar")) {
-                // CORRECCIÓN 2: Cambiar "asignacion" a "pacienteAsignado"
                 usuarioService.findPacientesByFamiliarEmail(authentication.getName())
                         .ifPresent(asignacion -> model.addAttribute("pacienteAsignado", asignacion));
             }
         }
 
+        // Este return se ejecuta siempre, asegurando que el método siempre devuelva un String.
         return "dashboard";
     }
 }
