@@ -4,7 +4,7 @@
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
     <title>Formulario de Paciente</title>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
@@ -77,7 +77,9 @@
     </div>
 </main>
 
-<footer th:insert="~{fragments/layout :: footer}"></footer>
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
 
 </body>
 </html>

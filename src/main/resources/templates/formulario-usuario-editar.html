@@ -5,7 +5,7 @@
   <title th:text="${adminMode != null} ? 'Editar Usuario (Admin)' : 'Editar Mi Perfil'"></title>
   <th:block th:insert="~{fragments/layout :: head}"></th:block>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <header th:insert="~{fragments/layout :: header}"></header>
 
 <main class="container mt-5 mb-5">
@@ -95,6 +95,8 @@
   </div>
 </main>
 
-<footer th:insert="~{fragments/layout :: footer}"></footer>
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
 </body>
 </html>

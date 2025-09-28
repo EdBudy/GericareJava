@@ -7,7 +7,7 @@
     <!-- Incluimos la cabecera del layout que tiene los estilos y metadatos -->
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <!-- Incluimos el header reutilizable que tiene la barra de navegación -->
 <header th:insert="~{fragments/layout :: header}"></header>
@@ -76,7 +76,10 @@
 </main>
 
 <!-- Incluimos el footer reutilizable -->
-<footer th:insert="~{fragments/layout :: footer}"></footer>
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
+
 </body>
 </html>
 
