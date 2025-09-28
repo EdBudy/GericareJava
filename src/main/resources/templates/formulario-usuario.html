@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Nuevo Usuario</title>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Crear Nuevo Usuario</h2>
+
+                    <form th:action="@{/usuarios/crear}" th:object="${usuario}" method="post">
+                        <div class="mb-3">
+                            <label for="rolNombre" class="form-label">Rol del Usuario</label>
+                            <select id="rolNombre" name="rolNombre" class="form-select" required>
+                                <option value="">Seleccione un rol...</option>
+                                <option th:each="rolOpt : ${roles}"
+                                        th:if="${rolOpt.name() == 'Cuidador'}"
+                                        th:value="${rolOpt}"
+                                        th:text="${#strings.capitalize(rolOpt.toString().toLowerCase())}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre</label>
+                                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="apellido" class="form-label">Apellido</label>
+                                <input type="text" id="apellido" th:field="*{apellido}" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">""</button>
+                            <a th:href="@{/dashboard}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
+</body>
+</html>

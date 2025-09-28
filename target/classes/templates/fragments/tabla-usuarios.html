@@ -13,6 +13,12 @@
 
     <!-- Formulario de Filtros -->
     <div class="card shadow-sm mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Gestión de Usuarios del Sistema</h2>
+            <a th:href="@{/usuarios/nuevo}" class="btn btn-primary">
+                <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Usuario
+            </a>
+        </div>
         <div class="card-body">
             <h5 class="card-title">Filtrar Usuarios</h5>
             <form th:action="@{/dashboard}" method="get" class="row g-3 align-items-end">
