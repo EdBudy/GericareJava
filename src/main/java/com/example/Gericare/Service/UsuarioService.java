@@ -27,6 +27,8 @@ public interface UsuarioService {
 
     Optional<UsuarioDTO> findByEmail(String email);
 
+    List<UsuarioDTO> findByRol(RolNombre rolNombre);
+
     // Nuevos métodos para el dashboard y filtros
     List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude);
 

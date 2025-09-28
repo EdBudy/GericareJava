@@ -150,6 +150,14 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .map(pacienteAsignadoService::toDTO);
     }
 
+    @Override
+    public List<UsuarioDTO> findByRol(RolNombre rolNombre) {
+        return usuarioRepository.findByRol_RolNombre(rolNombre)
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
 
     private UsuarioDTO toDTO(Usuario usuario) {
         UsuarioDTO dto = new UsuarioDTO();
