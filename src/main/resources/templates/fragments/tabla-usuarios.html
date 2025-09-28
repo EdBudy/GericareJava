@@ -71,9 +71,12 @@
                             <a th:href="@{|/usuarios/editar/${usuario.idUsuario}|}" class="btn btn-warning btn-sm" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <form th:action="@{|/usuarios/eliminar/${usuario.idUsuario}|}" method="post" style="display:inline;"
-                                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
-                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                            <form th:id="'form-eliminar-' + ${usuario.idUsuario}"
+                                  th:action="@{|/usuarios/eliminar/${usuario.idUsuario}|}"
+                                  method="post" style="display:inline;">
+
+                                <button type="button" class="btn btn-danger btn-sm" title="Eliminar"
+                                        th:onclick="'confirmarEliminacion(\'' + ${usuario.idUsuario} + '\')'">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
