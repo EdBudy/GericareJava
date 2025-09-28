@@ -169,6 +169,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         return dto;
     }
 
+    // REEMPLAZA tu método setCommonProperties con este
     private void setCommonProperties(Usuario usuario, UsuarioDTO dto) {
         dto.setIdUsuario(usuario.getIdUsuario());
         dto.setTipoDocumento(usuario.getTipoDocumento());
@@ -179,23 +180,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setCorreoElectronico(usuario.getCorreoElectronico());
         dto.setEstado(usuario.getEstado());
         dto.setRol(usuario.getRol());
-    }
-
-    private EmpleadoDTO toEmpleadoDTO(Empleado empleado) {
-        EmpleadoDTO dto = new EmpleadoDTO();
-        setCommonProperties(empleado, dto);
-        dto.setFechaContratacion(empleado.getFechaContratacion());
-        dto.setTipoContrato(empleado.getTipoContrato());
-        dto.setContactoEmergencia(empleado.getContactoEmergencia());
-        dto.setFechaNacimiento(empleado.getFechaNacimiento());
-        return dto;
-    }
-
-    private FamiliarDTO toFamiliarDTO(Familiar familiar) {
-        FamiliarDTO dto = new FamiliarDTO();
-        setCommonProperties(familiar, dto);
-        dto.setParentesco(familiar.getParentesco());
-        return dto;
     }
 
     // ------

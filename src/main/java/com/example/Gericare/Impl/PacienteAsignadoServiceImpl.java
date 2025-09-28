@@ -1,7 +1,5 @@
 package com.example.Gericare.Impl;
 
-import com.example.Gericare.DTO.EmpleadoDTO;
-import com.example.Gericare.DTO.FamiliarDTO;
 import com.example.Gericare.DTO.PacienteAsignadoDTO;
 import com.example.Gericare.DTO.PacienteDTO;
 import com.example.Gericare.DTO.UsuarioDTO;
@@ -107,9 +105,10 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         pacienteAsignadoRepository.saveAll(asignacionesActivas);
     }
 
+    // Este es el método principal que convierte la asignación
     public PacienteAsignadoDTO toDTO(PacienteAsignado asignacion) {
-        // Convertir cada entidad anidada a su DTO correspondiente.
         PacienteDTO pacienteDTO = toPacienteDTO(asignacion.getPaciente());
+
         UsuarioDTO cuidadorDTO = toUsuarioDTO(asignacion.getCuidador());
 
         UsuarioDTO familiarDTO = null;
@@ -117,7 +116,6 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
             familiarDTO = toUsuarioDTO(asignacion.getFamiliar());
         }
 
-        // Construir el DTO principal de la asignación con todos los datos.
         return new PacienteAsignadoDTO(
                 asignacion.getIdAsignacion(),
                 pacienteDTO,
@@ -129,15 +127,11 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
     }
 
     private PacienteDTO toPacienteDTO(Paciente paciente) {
-
-        // Obtener el nombre del familiar asociado desde la entidad Paciente.
-        // Comprobación para evitar un error si el familiar es nulo.
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
             nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
                     + paciente.getUsuarioFamiliar().getApellido();
         }
-
         return new PacienteDTO(
                 paciente.getIdPaciente(),
                 paciente.getDocumentoIdentificacion(),
@@ -155,39 +149,25 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
     }
 
     private UsuarioDTO toUsuarioDTO(Usuario usuario) {
+        UsuarioDTO dto = new UsuarioDTO();
+
+        dto.setIdUsuario(usuario.getIdUsuario());
+        dto.setDocumentoIdentificacion(usuario.getDocumentoIdentificacion());
+        dto.setNombre(usuario.getNombre());
+        dto.setApellido(usuario.getApellido());
+        dto.setDireccion(usuario.getDireccion());
+        dto.setCorreoElectronico(usuario.getCorreoElectronico());
+
         if (usuario instanceof Empleado) {
-            return toEmpleadoDTO((Empleado) usuario);
+            Empleado empleado = (Empleado) usuario;
+            dto.setTipoContrato(empleado.getTipoContrato());
+            dto.setContactoEmergencia(empleado.getContactoEmergencia());
+            dto.setFechaNacimiento(empleado.getFechaNacimiento());
+        } else if (usuario instanceof Familiar) {
+            Familiar familiar = (Familiar) usuario;
+            dto.setParentesco(familiar.getParentesco());
         }
-        if (usuario instanceof Familiar) {
-            return toFamiliarDTO((Familiar) usuario);
-        }
-        throw new IllegalArgumentException("Tipo de usuario desconocido para la conversión a DTO.");
-    }
 
-    private EmpleadoDTO toEmpleadoDTO(Empleado empleado) {
-        EmpleadoDTO dto = new EmpleadoDTO();
-        dto.setIdUsuario(empleado.getIdUsuario());
-        dto.setDocumentoIdentificacion(empleado.getDocumentoIdentificacion());
-        dto.setNombre(empleado.getNombre());
-        dto.setApellido(empleado.getApellido());
-        dto.setDireccion(empleado.getDireccion());
-        dto.setCorreoElectronico(empleado.getCorreoElectronico());
-        dto.setFechaContratacion(empleado.getFechaContratacion());
-        dto.setTipoContrato(empleado.getTipoContrato());
-        dto.setContactoEmergencia(empleado.getContactoEmergencia());
-        dto.setFechaNacimiento(empleado.getFechaNacimiento());
-        return dto;
-    }
-
-    private FamiliarDTO toFamiliarDTO(Familiar familiar) {
-        FamiliarDTO dto = new FamiliarDTO();
-        dto.setIdUsuario(familiar.getIdUsuario());
-        dto.setDocumentoIdentificacion(familiar.getDocumentoIdentificacion());
-        dto.setNombre(familiar.getNombre());
-        dto.setApellido(familiar.getApellido());
-        dto.setDireccion(familiar.getDireccion());
-        dto.setCorreoElectronico(familiar.getCorreoElectronico());
-        dto.setParentesco(familiar.getParentesco());
         return dto;
     }
 }
