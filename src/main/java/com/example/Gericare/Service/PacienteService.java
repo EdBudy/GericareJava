@@ -14,5 +14,7 @@ public interface PacienteService {
 
     Optional<PacienteDTO> actualizarPaciente(Long id, PacienteDTO pacienteDTO);
 
+    PacienteDTO crearPacienteYAsignar(PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId);
+
     void eliminarPaciente(Long id); // Borrador lógico
 }

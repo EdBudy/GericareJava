@@ -12,7 +12,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
-                <div class="card-body">
+                <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">Crear Nuevo Paciente</h2>
 
                     <form th:action="@{/pacientes/crear}" th:object="${paciente}" method="post">
@@ -44,7 +44,6 @@
                                 <label for="estadoCivil" class="form-label">Estado Civil</label>
                                 <input type="text" id="estadoCivil" th:field="*{estadoCivil}" class="form-control" required />
                             </div>
-
                             <div class="col-md-6 mb-3">
                                 <label for="tipoSangre" class="form-label">Tipo de Sangre</label>
                                 <select id="tipoSangre" th:field="*{tipoSangre}" class="form-select" required>
@@ -64,11 +63,31 @@
                                 <label for="numeroSeguro" class="form-label">Número de Seguro</label>
                                 <input type="text" id="numeroSeguro" th:field="*{numeroSeguro}" class="form-control" />
                             </div>
+
+                            <hr class="my-3"> <div class="col-md-6 mb-3">
+                            <label for="cuidadorId" class="form-label">Asignar Cuidador <span class="text-danger">*</span></label>
+                            <select id="cuidadorId" name="cuidadorId" class="form-select" required>
+                                <option value="" disabled selected>-- Seleccione un cuidador --</option>
+                                <option th:each="cuidador : ${cuidadores}"
+                                        th:value="${cuidador.idUsuario}"
+                                        th:text="${cuidador.nombre + ' ' + cuidador.apellido}"></option>
+                            </select>
                         </div>
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">Guardar Paciente</button>
+                            <div class="col-md-6 mb-3">
+                                <label for="familiarId" class="form-label">Asociar Familiar (Opcional)</label>
+                                <select id="familiarId" name="familiarId" class="form-select">
+                                    <option value="">-- Ninguno --</option>
+                                    <option th:each="familiar : ${familiares}"
+                                            th:value="${familiar.idUsuario}"
+                                            th:text="${familiar.nombre + ' ' + familiar.apellido}"></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4 d-md-flex justify-content-md-end">
                             <a th:href="@{/pacientes}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Paciente</button>
                         </div>
                     </form>
                 </div>
@@ -77,9 +96,7 @@
     </div>
 </main>
 
-<footer class="bg-light text-center mt-auto"
-        th:insert="~{fragments/layout :: footer-content}">
-</footer>
+<footer th:insert="~{fragments/layout :: footer-content}"></footer>
 
 </body>
 </html>

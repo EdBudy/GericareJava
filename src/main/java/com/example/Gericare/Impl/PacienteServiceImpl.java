@@ -2,11 +2,13 @@ package com.example.Gericare.Impl;
 
 import com.example.Gericare.DTO.PacienteDTO;
 import com.example.Gericare.Repository.PacienteRepository;
+import com.example.Gericare.Service.PacienteAsignadoService;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.entity.Paciente;
 import com.example.Gericare.enums.EstadoPaciente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +19,8 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Autowired
     private PacienteRepository pacienteRepository;
+    @Autowired
+    private PacienteAsignadoService pacienteAsignadoService;
 
     @Override
     public PacienteDTO crearPaciente(PacienteDTO pacienteDTO) {
@@ -27,6 +31,25 @@ public class PacienteServiceImpl implements PacienteService {
         // Guardar la entidad en la base de datos.
         Paciente pacienteGuardado = pacienteRepository.save(nuevoPaciente);
         // Convertir la entidad guardada de vuelta a un DTO para devolverla.
+        return toDTO(pacienteGuardado);
+    }
+
+    @Override
+    @Transactional
+    public PacienteDTO crearPacienteYAsignar(PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId) {
+        // Crear paciente
+        Paciente nuevoPaciente = toEntity(pacienteDTO);
+        nuevoPaciente.setEstado(EstadoPaciente.Activo);
+        Paciente pacienteGuardado = pacienteRepository.save(nuevoPaciente);
+
+        // Usar ID del paciente recién creado para crear la asignación
+        pacienteAsignadoService.crearAsignacion(
+                pacienteGuardado.getIdPaciente(),
+                cuidadorId,
+                familiarId,
+                adminId
+        );
+
         return toDTO(pacienteGuardado);
     }
 

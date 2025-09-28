@@ -59,20 +59,36 @@
     <!-- Este bloque solo se renderizará si el usuario tiene el rol 'Familiar' -->
     <div sec:authorize="hasRole('Familiar')">
         <h2>Información del Paciente Asignado</h2>
-        <div th:if="${pacienteAsignado.isPresent()}">
-            <div class="patient-card mt-4">
-                <h3 th:text="${pacienteAsignado.get().paciente.nombre + ' ' + pacienteAsignado.get().paciente.apellido}"></h3>
-                <hr>
-                <p><strong>Documento:</strong> <span th:text="${pacienteAsignado.get().paciente.documentoIdentificacion}"></span></p>
-                <p><strong>Cuidador Asignado:</strong> <span th:text="${pacienteAsignado.get().cuidador.nombre + ' ' + pacienteAsignado.get().cuidador.apellido}"></span></p>
-                <p><strong>Fecha de Asignación:</strong> <span th:text="${#temporals.format(pacienteAsignado.get().fechaCreacion, 'dd/MM/yyyy HH:mm')}"></span></p>
+
+        <div th:if="${pacienteAsignado.isPresent()}" class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Nombre Paciente</th>
+                            <th>Documento</th>
+                            <th>Cuidador Asignado</th>
+                            <th>Fecha de Asignación</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td th:text="${pacienteAsignado.get().paciente.nombre + ' ' + pacienteAsignado.get().paciente.apellido}"></td>
+                            <td th:text="${pacienteAsignado.get().paciente.documentoIdentificacion}"></td>
+                            <td th:text="${pacienteAsignado.get().cuidador.nombre + ' ' + pacienteAsignado.get().cuidador.apellido}"></td>
+                            <td th:text="${#temporals.format(pacienteAsignado.get().fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+
         <div th:if="${pacienteAsignado.isEmpty()}">
             <div class="alert alert-warning mt-4">Usted aún no ha sido relacionado a ningún paciente.</div>
         </div>
     </div>
-
 </main>
 
 <!-- Incluimos el footer reutilizable -->
