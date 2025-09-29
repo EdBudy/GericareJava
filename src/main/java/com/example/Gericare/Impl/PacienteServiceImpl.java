@@ -2,9 +2,11 @@ package com.example.Gericare.Impl;
 
 import com.example.Gericare.DTO.PacienteDTO;
 import com.example.Gericare.Repository.PacienteRepository;
+import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.Service.PacienteAsignadoService;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.entity.Paciente;
+import com.example.Gericare.entity.Usuario;
 import com.example.Gericare.enums.EstadoPaciente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteRepository pacienteRepository;
     @Autowired
     private PacienteAsignadoService pacienteAsignadoService;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     // metodos publicos de service
 
@@ -53,26 +57,30 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
-    public Optional<PacienteDTO> actualizarPaciente(Long id, PacienteDTO pacienteDTO) {
-        return pacienteRepository.findById(id).map(pacienteExistente -> {
-            // Actualiza solo los campos que se pueden editar
-            pacienteExistente.setContactoEmergencia(pacienteDTO.getContactoEmergencia());
-            pacienteExistente.setEstadoCivil(pacienteDTO.getEstadoCivil());
-            pacienteExistente.setSeguroMedico(pacienteDTO.getSeguroMedico());
-            pacienteExistente.setNumeroSeguro(pacienteDTO.getNumeroSeguro());
+    @Transactional
+    public void actualizarPacienteYReasignar(Long pacienteId, PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId) {
+        // Busca al paciente o lanza un error si no existe
+        Paciente pacienteExistente = pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new RuntimeException("No se encontró el paciente con ID: " + pacienteId));
 
-            // Asigna los valores de los campos no editables para que no se pierdan
-            pacienteExistente.setNombre(pacienteDTO.getNombre());
-            pacienteExistente.setApellido(pacienteDTO.getApellido());
-            pacienteExistente.setDocumentoIdentificacion(pacienteDTO.getDocumentoIdentificacion());
-            pacienteExistente.setFechaNacimiento(pacienteDTO.getFechaNacimiento());
-            pacienteExistente.setGenero(pacienteDTO.getGenero());
-            pacienteExistente.setTipoSangre(pacienteDTO.getTipoSangre());
+        // Actualiza los campos básicos del paciente que son editables
+        pacienteExistente.setContactoEmergencia(pacienteDTO.getContactoEmergencia());
+        pacienteExistente.setEstadoCivil(pacienteDTO.getEstadoCivil());
+        pacienteExistente.setSeguroMedico(pacienteDTO.getSeguroMedico());
+        pacienteExistente.setNumeroSeguro(pacienteDTO.getNumeroSeguro());
 
+        // Actualiza la referencia al familiar directamente en la entidad del paciente
+        if (familiarId != null) {
+            Usuario familiar = usuarioRepository.findById(familiarId)
+                    .orElseThrow(() -> new RuntimeException("No se encontró el familiar con ID: " + familiarId));
+            pacienteExistente.setUsuarioFamiliar(familiar);
+        } else {
+            pacienteExistente.setUsuarioFamiliar(null);
+        }
 
-            Paciente pacienteActualizado = pacienteRepository.save(pacienteExistente);
-            return toDTO(pacienteActualizado);
-        });
+        // Llama al servicio de asignaciones para actualizar al cuidador y familiar
+        // Este servicio se encarga de desactivar la asignación vieja y crear la nueva
+        pacienteAsignadoService.crearAsignacion(pacienteId, cuidadorId, familiarId, adminId);
     }
 
     @Override

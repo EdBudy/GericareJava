@@ -1,8 +1,10 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.PacienteDTO;
+import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.Service.UsuarioService;
+import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.RolNombre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -18,6 +20,8 @@ public class PacienteController {
     private PacienteService pacienteService;
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private PacienteAsignadoRepository pacienteAsignadoRepository;
 
     // lista pacientes
     @GetMapping
@@ -54,13 +58,33 @@ public class PacienteController {
             model.addAttribute("paciente", paciente);
             model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
             model.addAttribute("familiares", usuarioService.findByRol(RolNombre.Familiar));
+
+            // USAREMOS EL NUEVO MÉTODO CORRECTO DEL REPOSITORIO
+            pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(id, EstadoAsignacion.Activo)
+                    .stream()
+                    .findFirst()
+                    .ifPresent(asignacion -> {
+                        model.addAttribute("cuidadorActualId", asignacion.getCuidador().getIdUsuario());
+                        if (asignacion.getFamiliar() != null) {
+                            model.addAttribute("familiarActualId", asignacion.getFamiliar().getIdUsuario());
+                        }
+                    });
         });
         return "formulario-paciente-editar";
     }
 
     @PostMapping("/editar/{id}")
-    public String actualizarPaciente(@PathVariable Long id, @ModelAttribute("paciente") PacienteDTO pacienteDTO) {
-        pacienteService.actualizarPaciente(id, pacienteDTO);
+    public String actualizarPaciente(@PathVariable Long id,
+                                     @ModelAttribute("paciente") PacienteDTO pacienteDTO,
+                                     @RequestParam("cuidadorId") Long cuidadorId,
+                                     @RequestParam(value = "familiarId", required = false) Long familiarId,
+                                     Authentication authentication) {
+        // Obtenemos el ID del admin que está realizando el cambio
+        Long adminId = usuarioService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
+
+        pacienteService.actualizarPacienteYReasignar(id, pacienteDTO, cuidadorId, familiarId, adminId);
+
         return "redirect:/pacientes";
     }
 

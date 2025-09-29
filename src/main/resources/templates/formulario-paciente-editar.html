@@ -25,29 +25,30 @@
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" readonly />
+                                <label class="form-label">Nombre</label>
+                                <p class="form-control-plaintext" th:text="*{nombre}"></p>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="apellido" class="form-label">Apellido</label>
-                                <input type="text" id="apellido" th:field="*{apellido}" class="form-control" readonly />
+                                <label class="form-label">Apellido</label>
+                                <p class="form-control-plaintext" th:text="*{apellido}"></p>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="documentoIdentificacion" class="form-label">Documento de Identificación</label>
-                                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control" readonly />
+                                <label class="form-label">Documento de Identificación</label>
+                                <p class="form-control-plaintext" th:text="*{documentoIdentificacion}"></p>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
-                                <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}" class="form-control" readonly />
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <p class="form-control-plaintext" th:text="*{#temporals.format(fechaNacimiento, 'dd/MM/yyyy')}"></p>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="genero" class="form-label">Género</label>
-                                <input type="text" id="genero" th:field="*{genero}" class="form-control" readonly />
+                                <label class="form-label">Género</label>
+                                <p class="form-control-plaintext" th:text="*{genero}"></p>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="tipoSangre" class="form-label">Tipo de Sangre</label>
-                                <input type="text" id="tipoSangre" th:value="*{tipoSangre.valor}" class="form-control" readonly />
+                                <label class="form-label">Tipo de Sangre</label>
+                                <p class="form-control-plaintext" th:text="*{tipoSangre.valor}"></p>
                             </div>
+
                             <div class="col-md-6 mb-3">
                                 <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
                                 <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control" required />
@@ -64,6 +65,31 @@
                                 <label for="numeroSeguro" class="form-label">Número de Seguro</label>
                                 <input type="text" id="numeroSeguro" th:field="*{numeroSeguro}" class="form-control" />
                             </div>
+                        </div>
+
+                        <hr class="my-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="cuidadorId" class="form-label">Asignar Cuidador <span class="text-danger">*</span></label>
+                            <select id="cuidadorId" name="cuidadorId" class="form-select" required>
+                                <option value="" disabled>-- Seleccione un cuidador --</option>
+                                <option th:each="cuidador : ${cuidadores}"
+                                        th:value="${cuidador.idUsuario}"
+                                        th:text="${cuidador.nombre + ' ' + cuidador.apellido}"
+                                        th:selected="${cuidador.idUsuario == cuidadorActualId}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="familiarId" class="form-label">Asociar Familiar (Opcional)</label>
+                            <select id="familiarId" name="familiarId" class="form-select">
+                                <option value="">-- Ninguno --</option>
+                                <option th:each="familiar : ${familiares}"
+                                        th:value="${familiar.idUsuario}"
+                                        th:text="${familiar.nombre + ' ' + familiar.apellido}"
+                                        th:selected="${familiar.idUsuario == familiarActualId}">
+                                </option>
+                            </select>
                         </div>
 
                         <div class="d-grid gap-2 mt-4 d-md-flex justify-content-md-end">

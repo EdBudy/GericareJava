@@ -18,4 +18,6 @@ public interface PacienteAsignadoRepository extends JpaRepository<PacienteAsigna
 
     // Encuentra todas las asignaciones activas de un familiar a través de su correo electrónico
     Optional<PacienteAsignado> findByFamiliar_CorreoElectronicoAndEstado(String correoElectronico, EstadoAsignacion estado);
+
+    List<PacienteAsignado> findByPacienteIdPacienteAndEstado(Long idPaciente, EstadoAsignacion estado);
 }
