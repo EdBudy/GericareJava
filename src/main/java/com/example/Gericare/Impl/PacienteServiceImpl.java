@@ -22,43 +22,29 @@ public class PacienteServiceImpl implements PacienteService {
     @Autowired
     private PacienteAsignadoService pacienteAsignadoService;
 
-    @Override
-    public PacienteDTO crearPaciente(PacienteDTO pacienteDTO) {
-        // Convertir el DTO recibido a una entidad para poder guardarla.
-        Paciente nuevoPaciente = toEntity(pacienteDTO);
-        // Asegurar de que el estado inicial sea 'Activo'.
-        nuevoPaciente.setEstado(EstadoPaciente.Activo);
-        // Guardar la entidad en la base de datos.
-        Paciente pacienteGuardado = pacienteRepository.save(nuevoPaciente);
-        // Convertir la entidad guardada de vuelta a un DTO para devolverla.
-        return toDTO(pacienteGuardado);
-    }
+    // metodos publicos de service
 
     @Override
     @Transactional
     public PacienteDTO crearPacienteYAsignar(PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId) {
-        // Crear paciente
         Paciente nuevoPaciente = toEntity(pacienteDTO);
         nuevoPaciente.setEstado(EstadoPaciente.Activo);
         Paciente pacienteGuardado = pacienteRepository.save(nuevoPaciente);
+        pacienteAsignadoService.crearAsignacion(pacienteGuardado.getIdPaciente(), cuidadorId, familiarId, adminId);
+        return toDTO(pacienteGuardado);
+    }
 
-        // Usar ID del paciente recién creado para crear la asignación
-        pacienteAsignadoService.crearAsignacion(
-                pacienteGuardado.getIdPaciente(),
-                cuidadorId,
-                familiarId,
-                adminId
-        );
-
+    @Override
+    public PacienteDTO crearPaciente(PacienteDTO pacienteDTO) {
+        Paciente nuevoPaciente = toEntity(pacienteDTO);
+        nuevoPaciente.setEstado(EstadoPaciente.Activo);
+        Paciente pacienteGuardado = pacienteRepository.save(nuevoPaciente);
         return toDTO(pacienteGuardado);
     }
 
     @Override
     public List<PacienteDTO> listarTodosLosPacientes() {
-        return pacienteRepository.findAll()
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+        return pacienteRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -87,20 +73,23 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Override
     public void eliminarPaciente(Long id) {
-        // Borrado lógico.
         pacienteRepository.findById(id).ifPresent(paciente -> {
             paciente.setEstado(EstadoPaciente.Inactivo);
             pacienteRepository.save(paciente);
         });
     }
 
+    // Metodos privados de conversion entre entidad y DTO
+
     private PacienteDTO toDTO(Paciente paciente) {
+        // Comprobación para evitar un error si el familiar es nulo.
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
             nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
                     + paciente.getUsuarioFamiliar().getApellido();
         }
 
+        // Crea y retorna un DTO con TODOS los datos necesarios.
         return new PacienteDTO(
                 paciente.getIdPaciente(),
                 paciente.getDocumentoIdentificacion(),
@@ -119,6 +108,7 @@ public class PacienteServiceImpl implements PacienteService {
 
     private Paciente toEntity(PacienteDTO dto) {
         Paciente paciente = new Paciente();
+        // El ID no se asigna aquí porque se genera automáticamente.
         paciente.setDocumentoIdentificacion(dto.getDocumentoIdentificacion());
         paciente.setNombre(dto.getNombre());
         paciente.setApellido(dto.getApellido());
@@ -129,8 +119,6 @@ public class PacienteServiceImpl implements PacienteService {
         paciente.setTipoSangre(dto.getTipoSangre());
         paciente.setSeguroMedico(dto.getSeguroMedico());
         paciente.setNumeroSeguro(dto.getNumeroSeguro());
-        // El estado y el familiar asociado se manejan por separado en la lógica de
-        // negocio.
         return paciente;
     }
 }
