@@ -55,16 +55,20 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     public Optional<PacienteDTO> actualizarPaciente(Long id, PacienteDTO pacienteDTO) {
         return pacienteRepository.findById(id).map(pacienteExistente -> {
-            // Actualizar los campos del paciente existente con los del DTO.
-            pacienteExistente.setNombre(pacienteDTO.getNombre());
-            pacienteExistente.setApellido(pacienteDTO.getApellido());
-            pacienteExistente.setFechaNacimiento(pacienteDTO.getFechaNacimiento());
-            pacienteExistente.setGenero(pacienteDTO.getGenero());
+            // Actualiza solo los campos que se pueden editar
             pacienteExistente.setContactoEmergencia(pacienteDTO.getContactoEmergencia());
             pacienteExistente.setEstadoCivil(pacienteDTO.getEstadoCivil());
-            pacienteExistente.setTipoSangre(pacienteDTO.getTipoSangre());
             pacienteExistente.setSeguroMedico(pacienteDTO.getSeguroMedico());
             pacienteExistente.setNumeroSeguro(pacienteDTO.getNumeroSeguro());
+
+            // Asigna los valores de los campos no editables para que no se pierdan
+            pacienteExistente.setNombre(pacienteDTO.getNombre());
+            pacienteExistente.setApellido(pacienteDTO.getApellido());
+            pacienteExistente.setDocumentoIdentificacion(pacienteDTO.getDocumentoIdentificacion());
+            pacienteExistente.setFechaNacimiento(pacienteDTO.getFechaNacimiento());
+            pacienteExistente.setGenero(pacienteDTO.getGenero());
+            pacienteExistente.setTipoSangre(pacienteDTO.getTipoSangre());
+
 
             Paciente pacienteActualizado = pacienteRepository.save(pacienteExistente);
             return toDTO(pacienteActualizado);

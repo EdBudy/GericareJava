@@ -16,6 +16,13 @@
                     <h2 class="card-title text-center mb-4">Editar Paciente</h2>
 
                     <form th:action="@{|/pacientes/editar/${paciente.idPaciente}|}" th:object="${paciente}" method="post">
+                        <input type="hidden" th:field="*{nombre}" />
+                        <input type="hidden" th:field="*{apellido}" />
+                        <input type="hidden" th:field="*{documentoIdentificacion}" />
+                        <input type="hidden" th:field="*{fechaNacimiento}" />
+                        <input type="hidden" th:field="*{genero}" />
+                        <input type="hidden" th:field="*{tipoSangre}" />
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="nombre" class="form-label">Nombre</label>
@@ -39,7 +46,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="tipoSangre" class="form-label">Tipo de Sangre</label>
-                                <input type="text" id="tipoSangre" th:field="*{tipoSangre}" class="form-control" readonly />
+                                <input type="text" id="tipoSangre" th:value="*{tipoSangre.valor}" class="form-control" readonly />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
