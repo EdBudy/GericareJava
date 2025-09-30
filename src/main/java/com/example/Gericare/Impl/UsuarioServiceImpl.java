@@ -105,22 +105,19 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
 
-            // Actualiza los campos comunes
+            // Actualizar los campos comunes que son editables
             usuarioExistente.setNombre(usuarioDTO.getNombre());
             usuarioExistente.setApellido(usuarioDTO.getApellido());
             usuarioExistente.setDireccion(usuarioDTO.getDireccion());
 
-            // Actualiza campos específicos si es un Empleado
+            // Si el usuario es un tipo de Empleado (Cuidador o Admin) r sus campos
             if (usuarioExistente instanceof Empleado) {
                 Empleado empleadoExistente = (Empleado) usuarioExistente;
                 empleadoExistente.setTipoContrato(usuarioDTO.getTipoContrato());
                 empleadoExistente.setContactoEmergencia(usuarioDTO.getContactoEmergencia());
             }
 
-            // Guarda la entidad actualizada en la base de datos
             Usuario usuarioActualizado = usuarioRepository.save(usuarioExistente);
-
-            // Convierte la entidad de vuelta a DTO para retornarla
             return toDTO(usuarioActualizado);
         });
     }

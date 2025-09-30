@@ -49,10 +49,7 @@ public class UsuarioController {
 
     // Actualización usuario
     @PostMapping("/editar/{id}")
-    public String actualizarUsuario(@PathVariable Long id, @Valid @ModelAttribute("usuario") UsuarioDTO usuarioDTO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "formulario-usuario-editar";
-        }
+    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") UsuarioDTO usuarioDTO) {
         usuarioService.actualizarUsuario(id, usuarioDTO);
         return "redirect:/dashboard";
     }

@@ -26,27 +26,27 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Nombre</label>
-                                <p class="form-control-plaintext" th:text="*{nombre}"></p>
+                                <input type="text" class="form-control" th:value="*{nombre}" disabled />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Apellido</label>
-                                <p class="form-control-plaintext" th:text="*{apellido}"></p>
+                                <input type="text" class="form-control" th:value="*{apellido}" disabled />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Documento de Identificación</label>
-                                <p class="form-control-plaintext" th:text="*{documentoIdentificacion}"></p>
+                                <input type="text" class="form-control" th:value="*{documentoIdentificacion}" disabled />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Fecha de Nacimiento</label>
-                                <p class="form-control-plaintext" th:text="*{#temporals.format(fechaNacimiento, 'dd/MM/yyyy')}"></p>
+                                <input type="text" class="form-control" th:value="*{#temporals.format(fechaNacimiento, 'dd/MM/yyyy')}" disabled />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Género</label>
-                                <p class="form-control-plaintext" th:text="*{genero}"></p>
+                                <input type="text" class="form-control" th:value="*{genero}" disabled />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Tipo de Sangre</label>
-                                <p class="form-control-plaintext" th:text="*{tipoSangre.valor}"></p>
+                                <input type="text" class="form-control" th:value="*{tipoSangre.valor}" disabled />
                             </div>
 
                             <div class="col-md-6 mb-3">
@@ -65,31 +65,30 @@
                                 <label for="numeroSeguro" class="form-label">Número de Seguro</label>
                                 <input type="text" id="numeroSeguro" th:field="*{numeroSeguro}" class="form-control" />
                             </div>
-                        </div>
 
-                        <hr class="my-3">
-                        <div class="col-md-6 mb-3">
-                            <label for="cuidadorId" class="form-label">Asignar Cuidador <span class="text-danger">*</span></label>
-                            <select id="cuidadorId" name="cuidadorId" class="form-select" required>
-                                <option value="" disabled>-- Seleccione un cuidador --</option>
-                                <option th:each="cuidador : ${cuidadores}"
-                                        th:value="${cuidador.idUsuario}"
-                                        th:text="${cuidador.nombre + ' ' + cuidador.apellido}"
-                                        th:selected="${cuidador.idUsuario == cuidadorActualId}">
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="familiarId" class="form-label">Asociar Familiar (Opcional)</label>
-                            <select id="familiarId" name="familiarId" class="form-select">
-                                <option value="">-- Ninguno --</option>
-                                <option th:each="familiar : ${familiares}"
-                                        th:value="${familiar.idUsuario}"
-                                        th:text="${familiar.nombre + ' ' + familiar.apellido}"
-                                        th:selected="${familiar.idUsuario == familiarActualId}">
-                                </option>
-                            </select>
+                            <hr class="my-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="cuidadorId" class="form-label">Asignar Cuidador <span class="text-danger">*</span></label>
+                                <select id="cuidadorId" name="cuidadorId" class="form-select" required>
+                                    <option value="" disabled>-- Seleccione un cuidador --</option>
+                                    <option th:each="cuidador : ${cuidadores}"
+                                            th:value="${cuidador.idUsuario}"
+                                            th:text="${cuidador.nombre + ' ' + cuidador.apellido}"
+                                            th:selected="${cuidador.idUsuario == cuidadorActualId}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="familiarId" class="form-label">Asociar Familiar (Opcional)</label>
+                                <select id="familiarId" name="familiarId" class="form-select">
+                                    <option value="">-- Ninguno --</option>
+                                    <option th:each="familiar : ${familiares}"
+                                            th:value="${familiar.idUsuario}"
+                                            th:text="${familiar.nombre + ' ' + familiar.apellido}"
+                                            th:selected="${familiar.idUsuario == familiarActualId}">
+                                    </option>
+                                </select>
+                            </div>
                         </div>
 
                         <div class="d-grid gap-2 mt-4 d-md-flex justify-content-md-end">
