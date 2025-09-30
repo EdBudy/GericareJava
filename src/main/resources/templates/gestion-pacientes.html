@@ -64,8 +64,8 @@
                         <td th:text="${paciente.documentoIdentificacion}"></td>
                         <td th:text="${#temporals.format(paciente.fechaNacimiento, 'dd/MM/yyyy')}"></td>
                         <td th:text="${paciente.genero}"></td>
-                        <td th:text="${paciente.nombreFamiliarAsociado}"></td>
-                        <td>
+                        <td th:text="${nombresFamiliares[paciente.idPaciente]}"></td>
+                        <td class="text-center">
                             <a th:href="@{|/pacientes/editar/${paciente.idPaciente}|}" class="btn btn-warning btn-sm" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>

@@ -10,14 +10,10 @@ import java.io.OutputStream; // Y esta
 
 public interface PacienteService {
 
-    PacienteDTO crearPaciente(PacienteDTO pacienteDTO);
-    List<PacienteDTO> listarTodosLosPacientes();
     Optional<PacienteDTO> obtenerPacientePorId(Long id);
     void actualizarPacienteYReasignar(Long pacienteId, PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId);
     PacienteDTO crearPacienteYAsignar(PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId);
     void eliminarPaciente(Long id); // Borrado lógico
-
-
     List<PacienteDTO> listarPacientesFiltrados(String nombre, String documento);
 
     // Nuevos métodos para exportar la lista filtrada

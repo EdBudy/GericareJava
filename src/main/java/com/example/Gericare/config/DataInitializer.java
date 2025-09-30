@@ -131,7 +131,6 @@ public class DataInitializer {
                 paciente.setEstadoCivil("Viudo(a)");
                 paciente.setTipoSangre(TipoSangre.O_POSITIVO);
                 paciente.setEstado(EstadoPaciente.Activo);
-                paciente.setUsuarioFamiliar(familiar); // Asigna el familiar directamente
 
                 Paciente pacienteGuardado = pacienteRepository.save(paciente);
 

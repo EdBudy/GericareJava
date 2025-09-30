@@ -127,11 +127,6 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
     }
 
     private PacienteDTO toPacienteDTO(Paciente paciente) {
-        String nombreFamiliar = null;
-        if (paciente.getUsuarioFamiliar() != null) {
-            nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
-                    + paciente.getUsuarioFamiliar().getApellido();
-        }
         return new PacienteDTO(
                 paciente.getIdPaciente(),
                 paciente.getDocumentoIdentificacion(),
@@ -144,8 +139,8 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
                 paciente.getTipoSangre(),
                 paciente.getSeguroMedico(),
                 paciente.getNumeroSeguro(),
-                paciente.getEstado(),
-                nombreFamiliar);
+                paciente.getEstado()
+        );
     }
 
     private UsuarioDTO toUsuarioDTO(Usuario usuario) {

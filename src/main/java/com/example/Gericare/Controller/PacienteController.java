@@ -4,6 +4,7 @@ import com.example.Gericare.DTO.PacienteDTO;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.Service.UsuarioService;
+import com.example.Gericare.entity.PacienteAsignado;
 import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.RolNombre;
 import jakarta.validation.Valid;
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/pacientes")
@@ -34,16 +38,27 @@ public class PacienteController {
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
 
-    // Muestra la lista de pacientes, ahora con filtros
     @GetMapping
     public String listarPacientes(Model model,
                                   @RequestParam(required = false) String nombre,
                                   @RequestParam(required = false) String documento) {
-        model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(nombre, documento));
+        List<PacienteDTO> pacientes = pacienteService.listarPacientesFiltrados(nombre, documento);
+
+        Map<Long, String> nombresFamiliares = pacientes.stream()
+                .collect(Collectors.toMap(
+                        PacienteDTO::getIdPaciente,
+                        paciente -> pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(paciente.getIdPaciente(), EstadoAsignacion.Activo)
+                                .stream()
+                                .findFirst()
+                                .map(asignacion -> asignacion.getFamiliar() != null ? asignacion.getFamiliar().getNombre() + " " + asignacion.getFamiliar().getApellido() : "N/A")
+                                .orElse("N/A")
+                ));
+
+        model.addAttribute("pacientes", pacientes);
+        model.addAttribute("nombresFamiliares", nombresFamiliares);
         return "gestion-pacientes";
     }
 
-    // --- Endpoints de Exportación ---
     @GetMapping("/exportExcel")
     public ResponseEntity<InputStreamResource> exportarExcel(
             @RequestParam(required = false) String nombre,
@@ -68,7 +83,6 @@ public class PacienteController {
         return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
     }
 
-    // --- Flujo de Creación de Paciente ---
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevoPaciente(Model model) {
         model.addAttribute("paciente", new PacienteDTO());
@@ -95,18 +109,24 @@ public class PacienteController {
         return "redirect:/pacientes";
     }
 
-    // --- Flujo de Edición de Paciente (CORREGIDO) ---
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditarPaciente(@PathVariable Long id, Model model) {
-        // Busca al paciente por su ID
         pacienteService.obtenerPacientePorId(id).ifPresent(paciente -> {
             model.addAttribute("paciente", paciente);
-            // CORRECCIÓN 1: Usa el método correcto para obtener la lista de usuarios por rol
             model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
             model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
 
+            pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(id, EstadoAsignacion.Activo)
+                    .stream()
+                    .findFirst()
+                    .ifPresent(asignacion -> {
+                        model.addAttribute("cuidadorActualId", asignacion.getCuidador().getIdUsuario());
+                        if (asignacion.getFamiliar() != null) {
+                            model.addAttribute("familiarActualId", asignacion.getFamiliar().getIdUsuario());
+                        }
+                    });
         });
-        return "formulario-paciente-editar"; // Asegúrate de que esta vista exista
+        return "formulario-paciente-editar";
     }
 
     @PostMapping("/editar/{id}")
@@ -121,7 +141,6 @@ public class PacienteController {
         return "redirect:/pacientes";
     }
 
-    // --- Flujo de Eliminación ---
     @PostMapping("/eliminar/{id}")
     public String eliminarPaciente(@PathVariable Long id) {
         pacienteService.eliminarPaciente(id);

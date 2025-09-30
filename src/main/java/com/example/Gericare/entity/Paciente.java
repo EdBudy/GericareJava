@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -57,10 +56,4 @@ public class Paciente {
     @Column(nullable = false)
     private EstadoPaciente estado;
 
-    // Relación con Usuario (Familiar)
-
-    // Relación Muchos a Uno: Muchos pacientes pueden estar asociados a un usuario familiar.
-    @ManyToOne
-    @JoinColumn(name = "id_usuario_familiar") // Esta es la columna FK en la tabla 'tb_paciente'
-    private Usuario usuarioFamiliar; // Este es el campo que 'mappedBy' esperaba en 'Usuario.java'
 }
