@@ -2,12 +2,8 @@ package com.example.Gericare.config;
 
 import com.example.Gericare.Repository.RolRepository;
 import com.example.Gericare.Repository.UsuarioRepository;
-import com.example.Gericare.entity.Administrador;
-import com.example.Gericare.entity.Cuidador;
-import com.example.Gericare.entity.Familiar;
-import com.example.Gericare.entity.Rol;
-import com.example.Gericare.enums.RolNombre;
-import com.example.Gericare.enums.TipoDocumento;
+import com.example.Gericare.entity.*;
+import com.example.Gericare.enums.*;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,7 +17,9 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initDatabase(RolRepository rolRepository,
                                           UsuarioRepository usuarioRepository,
-                                          PasswordEncoder passwordEncoder) {
+                                          PasswordEncoder passwordEncoder,
+                                          com.example.Gericare.Repository.PacienteRepository pacienteRepository,
+                                          com.example.Gericare.Service.PacienteAsignadoService pacienteAsignadoService) {
         return args -> {
             // Crear todos los roles definidos en el enum RolNombre si no existen
             for (RolNombre rolNombre : RolNombre.values()) {
@@ -111,6 +109,41 @@ public class DataInitializer {
 
                 usuarioRepository.save(familiar);
                 System.out.println("Usuario familiar por defecto creado.");
+            }
+
+            // Verifica si el paciente de prueba ya existe usando su documento
+            if (pacienteRepository.findByDocumentoIdentificacion("12345").isEmpty()) {
+                System.out.println("Creando paciente y asignación por defecto...");
+
+                // Busca los usuarios que acabamos de crear para obtener sus IDs
+                Usuario admin = usuarioRepository.findByCorreoElectronico("admin@gericare.com").get();
+                Usuario cuidador = usuarioRepository.findByCorreoElectronico("cuidador@gericare.com").get();
+                Usuario familiar = usuarioRepository.findByCorreoElectronico("familiar@gericare.com").get();
+
+                // Crea el nuevo paciente
+                Paciente paciente = new Paciente();
+                paciente.setDocumentoIdentificacion("12345");
+                paciente.setNombre("Paciente");
+                paciente.setApellido("Prueba");
+                paciente.setFechaNacimiento(LocalDate.of(1940, 10, 20));
+                paciente.setGenero(Genero.Femenino);
+                paciente.setContactoEmergencia("3001234567");
+                paciente.setEstadoCivil("Viudo(a)");
+                paciente.setTipoSangre(TipoSangre.O_POSITIVO);
+                paciente.setEstado(EstadoPaciente.Activo);
+                paciente.setUsuarioFamiliar(familiar); // Asigna el familiar directamente
+
+                Paciente pacienteGuardado = pacienteRepository.save(paciente);
+
+                // Crea la asignación
+                pacienteAsignadoService.crearAsignacion(
+                        pacienteGuardado.getIdPaciente(),
+                        cuidador.getIdUsuario(),
+                        familiar.getIdUsuario(),
+                        admin.getIdUsuario()
+                );
+
+                System.out.println("Paciente y asignación por defecto creados con éxito.");
             }
         };
     }

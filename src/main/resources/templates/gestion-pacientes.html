@@ -64,14 +64,17 @@
                         <td th:text="${paciente.documentoIdentificacion}"></td>
                         <td th:text="${#temporals.format(paciente.fechaNacimiento, 'dd/MM/yyyy')}"></td>
                         <td th:text="${paciente.genero}"></td>
-                        <td th:text="${paciente.nombreFamiliarAsociado} ?: 'N/A'"></td>
-                        <td class="text-center">
-                            <a href="#" class="btn btn-warning btn-sm" title="Editar">
+                        <td th:text="${paciente.nombreFamiliarAsociado}"></td>
+                        <td>
+                            <a th:href="@{|/pacientes/editar/${paciente.idPaciente}|}" class="btn btn-warning btn-sm" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <a href="#" class="btn btn-danger btn-sm" title="Eliminar">
-                                <i class="bi bi-trash"></i>
-                            </a>
+                            <form th:action="@{|/pacientes/eliminar/${paciente.idPaciente}|}" method="post" class="d-inline"
+                                  onsubmit="return confirm('¿Estás seguro de desactivar a este paciente?');">
+                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </td>
                     </tr>
                     </tbody>
