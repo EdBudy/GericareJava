@@ -3,6 +3,7 @@ package com.example.Gericare.entity;
 import com.example.Gericare.enums.EstadoUsuario;
 import com.example.Gericare.enums.TipoDocumento;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.annotations.Where;
 import jakarta.validation.constraints.Pattern;
@@ -62,5 +63,7 @@ public abstract class Usuario {
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @Size(min = 1, max = 3, message = "Debe registrar entre 1 y 3 teléfonos.")
+    @NotEmpty(message = "Debe registrar al menos un teléfono.")
     private List<Telefono> telefonos = new ArrayList<>();
 }

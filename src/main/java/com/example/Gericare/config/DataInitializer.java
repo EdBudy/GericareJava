@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.util.Collections;
 
 @Configuration
 public class DataInitializer {
@@ -50,6 +51,11 @@ public class DataInitializer {
                 admin.setContrasena(passwordEncoder.encode("admin123")); // Contraseña por defecto
                 admin.setRol(rolAdmin);
 
+                Telefono adminTelefono = new Telefono();
+                adminTelefono.setNumero("111111111");
+                adminTelefono.setUsuario(admin);
+                admin.setTelefonos(Collections.singletonList(adminTelefono));
+
                 // Atributos de Empleado
                 admin.setFechaContratacion(LocalDate.now());
                 admin.setTipoContrato("Indefinido");
@@ -77,6 +83,11 @@ public class DataInitializer {
                 cuidador.setContrasena(passwordEncoder.encode("cuidador123"));
                 cuidador.setRol(rolCuidador);
 
+                Telefono cuidadorTelefono = new Telefono();
+                cuidadorTelefono.setNumero("222222222");
+                cuidadorTelefono.setUsuario(cuidador);
+                cuidador.setTelefonos(Collections.singletonList(cuidadorTelefono));
+
                 // Atributos de Empleado
                 cuidador.setFechaContratacion(LocalDate.now());
                 cuidador.setTipoContrato("Por Horas");
@@ -103,6 +114,11 @@ public class DataInitializer {
                 familiar.setCorreoElectronico("familiar@gericare.com");
                 familiar.setContrasena(passwordEncoder.encode("familiar123"));
                 familiar.setRol(rolFamiliar);
+
+                Telefono familiarTelefono = new Telefono();
+                familiarTelefono.setNumero("333333333");
+                familiarTelefono.setUsuario(familiar);
+                familiar.setTelefonos(Collections.singletonList(familiarTelefono));
 
                 // Atributos de Familiar
                 familiar.setParentesco("Hijo/a");

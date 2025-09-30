@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,7 +18,6 @@ import jakarta.validation.constraints.Size;
 @AllArgsConstructor
 public class UsuarioDTO {
 
-    // --- CAMPOS COMUNES CON VALIDACIÓN ---
 
     private Long idUsuario;
 
@@ -50,7 +50,9 @@ public class UsuarioDTO {
     @NotNull(message = "Debe seleccionar un rol.")
     private Rol rol;
 
-    // --- CAMPOS DE EMPLEADO (OPCIONALES EN EL DTO GENERAL) ---
+    private List<String> telefonos;
+
+    // Campos empleados
 
     private LocalDate fechaContratacion;
     private String tipoContrato;
@@ -61,6 +63,6 @@ public class UsuarioDTO {
 
     private LocalDate fechaNacimiento;
 
-    // --- CAMPO DE FAMILIAR (OPCIONAL EN EL DTO GENERAL) ---
+    // Campo familiar
     private String parentesco;
 }

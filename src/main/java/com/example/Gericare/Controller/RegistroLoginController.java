@@ -1,18 +1,22 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.Service.UsuarioService;
-import com.example.Gericare.entity.Familiar; // ¡Importante! Ahora trabajamos con la entidad Familiar.
+import com.example.Gericare.entity.Familiar;
+import com.example.Gericare.entity.Telefono;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.validation.BindingResult;
-import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping // Manejo rutas raíz como /login y /registro.
+@RequestMapping
 public class RegistroLoginController {
 
     private final UsuarioService usuarioService;
@@ -21,45 +25,46 @@ public class RegistroLoginController {
         this.usuarioService = usuarioService;
     }
 
-    // Login
-
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
-        // Esto solo muestra la página de login
         return "login";
     }
 
-    // Registro familiares
-
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
-        // En lugar de un DTO genérico se prepara un objeto Familiar vacío
-        // El formulario de la vista (HTML) se llenará con los datos de este objeto
         model.addAttribute("familiar", new Familiar());
         return "registro";
     }
 
     @PostMapping("/registro")
-    public String registrarCuentaDeFamiliar(@Valid @ModelAttribute("familiar") Familiar familiar, BindingResult bindingResult) {
-        // Si hay errores de validación, regresa al formulario
+    public String registrarCuentaDeFamiliar(@Valid @ModelAttribute("familiar") Familiar familiar, BindingResult bindingResult, Model model) {
+
+        // Limpiar teléfonos vacíos que podrían venir del formulario
+        if (familiar.getTelefonos() != null) {
+            List<Telefono> telefonosNoVacios = familiar.getTelefonos().stream()
+                    .filter(t -> t.getNumero() != null && !t.getNumero().trim().isEmpty())
+                    .collect(Collectors.toList());
+            familiar.setTelefonos(telefonosNoVacios);
+        }
+
         if (bindingResult.hasErrors()) {
-            return "registro"; // Devuelve al usuario al formulario para que corrija los errores
+            model.addAttribute("familiar", familiar); // Devolver el objeto con los errores
+            return "registro";
         }
 
         try {
             usuarioService.crearFamiliar(familiar);
             return "redirect:/login?registroExitoso";
         } catch (Exception e) {
-            return "redirect:/registro?error";
+            model.addAttribute("familiar", familiar);
+            // Idealmente, un error más específico (ej. "El correo ya está en uso")
+            model.addAttribute("error", "Error durante el registro. Por favor, verifique sus datos.");
+            return "registro";
         }
     }
 
-    // Página principal después del login
-
     @GetMapping("/")
     public String verPaginaDeInicio() {
-        // Redirigir la página raíz a la página de login
         return "redirect:/login";
-
     }
 }
