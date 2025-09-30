@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+    <title>Editar Paciente</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Editar Paciente</h2>
+
+                    <form th:action="@{|/pacientes/editar/${paciente.idPaciente}|}" th:object="${paciente}" method="post">
+                        <input type="hidden" th:field="*{nombre}" />
+                        <input type="hidden" th:field="*{apellido}" />
+                        <input type="hidden" th:field="*{documentoIdentificacion}" />
+                        <input type="hidden" th:field="*{fechaNacimiento}" />
+                        <input type="hidden" th:field="*{genero}" />
+                        <input type="hidden" th:field="*{tipoSangre}" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre</label>
+                                <p class="form-control-plaintext" th:text="*{nombre}"></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Apellido</label>
+                                <p class="form-control-plaintext" th:text="*{apellido}"></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Documento de Identificación</label>
+                                <p class="form-control-plaintext" th:text="*{documentoIdentificacion}"></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de Nacimiento</label>
+                                <p class="form-control-plaintext" th:text="*{#temporals.format(fechaNacimiento, 'dd/MM/yyyy')}"></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Género</label>
+                                <p class="form-control-plaintext" th:text="*{genero}"></p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Tipo de Sangre</label>
+                                <p class="form-control-plaintext" th:text="*{tipoSangre.valor}"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
+                                <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="estadoCivil" class="form-label">Estado Civil</label>
+                                <input type="text" id="estadoCivil" th:field="*{estadoCivil}" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="seguroMedico" class="form-label">Seguro Médico</label>
+                                <input type="text" id="seguroMedico" th:field="*{seguroMedico}" class="form-control" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="numeroSeguro" class="form-label">Número de Seguro</label>
+                                <input type="text" id="numeroSeguro" th:field="*{numeroSeguro}" class="form-control" />
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="cuidadorId" class="form-label">Asignar Cuidador <span class="text-danger">*</span></label>
+                            <select id="cuidadorId" name="cuidadorId" class="form-select" required>
+                                <option value="" disabled>-- Seleccione un cuidador --</option>
+                                <option th:each="cuidador : ${cuidadores}"
+                                        th:value="${cuidador.idUsuario}"
+                                        th:text="${cuidador.nombre + ' ' + cuidador.apellido}"
+                                        th:selected="${cuidador.idUsuario == cuidadorActualId}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="familiarId" class="form-label">Asociar Familiar (Opcional)</label>
+                            <select id="familiarId" name="familiarId" class="form-select">
+                                <option value="">-- Ninguno --</option>
+                                <option th:each="familiar : ${familiares}"
+                                        th:value="${familiar.idUsuario}"
+                                        th:text="${familiar.nombre + ' ' + familiar.apellido}"
+                                        th:selected="${familiar.idUsuario == familiarActualId}">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4 d-md-flex justify-content-md-end">
+                            <a th:href="@{/pacientes}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:insert="~{fragments/layout :: footer-content}"></footer>
+
+</body>
+</html>

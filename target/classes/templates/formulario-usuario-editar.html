@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title th:text="${adminMode != null} ? 'Editar Usuario (Admin)' : 'Editar Mi Perfil'"></title>
+  <th:block th:insert="~{fragments/layout :: head}"></th:block>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+
+          <h2 class="card-title text-center mb-4"
+              th:text="${adminMode != null} ? 'Editando a ' + usuario.nombre : 'Editar Mi Perfil'">
+          </h2>
+
+          <form th:action="${adminMode != null} ? @{|/usuarios/editar/${usuario.idUsuario}|} : @{/perfil}"
+                th:object="${usuario}" method="post">
+
+            <h5 class="mt-4">Datos de Identificación</h5>
+            <hr class="mb-3">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Tipo de Documento:</label>
+                <input type="text" th:field="*{tipoDocumento}" class="form-control" readonly />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Documento:</label>
+                <input type="text" th:field="*{documentoIdentificacion}" class="form-control" readonly />
+              </div>
+              <div class="col-md-12 mb-3">
+                <label class="form-label">Correo Electrónico:</label>
+                <input type="email" th:field="*{correoElectronico}" class="form-control" readonly />
+              </div>
+            </div>
+
+            <h5 class="mt-4">Datos Generales</h5>
+            <hr class="mb-3">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="nombre" class="form-label">Nombre:</label>
+                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required />
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="apellido" class="form-label">Apellido:</label>
+                <input type="text" id="apellido" th:field="*{apellido}" class="form-control" required />
+              </div>
+              <div class="col-md-12 mb-3">
+                <label for="direccion" class="form-label">Dirección:</label>
+                <input type="text" id="direccion" th:field="*{direccion}" class="form-control" required />
+              </div>
+            </div>
+
+            <div th:if="${usuario.rol.rolNombre.name() == 'Familiar'}">
+              <h5 class="mt-4">Información de Familiar</h5>
+              <hr class="mb-3">
+              <div class="mb-3">
+                <label for="parentesco" class="form-label">Parentesco:</label>
+                <input type="text" id="parentesco" th:field="*{parentesco}" class="form-control" readonly />
+              </div>
+            </div>
+
+            <div th:if="${usuario.rol.rolNombre.name() == 'Cuidador' or usuario.rol.rolNombre.name() == 'Administrador'}">
+              <h5 class="mt-4">Información de Empleado</h5>
+              <hr class="mb-3">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="tipoContrato" class="form-label">Tipo de Contrato:</label>
+
+                  <input type="text" id="tipoContrato" th:field="*{tipoContrato}" class="form-control"
+                         th:readonly="${adminMode == null}" />
+
+                  <div th:if="${adminMode == null}" class="form-text">
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="contactoEmergencia" class="form-label">Contacto de Emergencia:</label>
+                  <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+              <a th:href="@{/dashboard}" class="btn btn-secondary me-md-2">Cancelar</a>
+              <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
+</body>
+</html>
