@@ -10,38 +10,115 @@
 
 <main class="container mt-5 mb-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-8 col-lg-7">
             <div class="card shadow-sm">
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">Crear Nuevo Usuario</h2>
 
+                    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
                     <form th:action="@{/usuarios/crear}" th:object="${usuario}" method="post">
+
+                        <h5 class="mt-4">Tipo de Usuario</h5>
+                        <hr class="mb-3">
                         <div class="mb-3">
-                            <label for="rolNombre" class="form-label">Rol del Usuario</label>
-                            <select id="rolNombre" name="rolNombre" class="form-select" required>
+                            <label for="rol" class="form-label">Rol del Usuario</label>
+                            <select id="rol" th:field="*{rol.rolNombre}" class="form-select" required onchange="toggleFields()">
                                 <option value="">Seleccione un rol...</option>
                                 <option th:each="rolOpt : ${roles}"
-                                        th:if="${rolOpt.name() == 'Cuidador'}"
                                         th:value="${rolOpt}"
                                         th:text="${#strings.capitalize(rolOpt.toString().toLowerCase())}">
                                 </option>
                             </select>
+                            <div class="text-danger" th:if="${#fields.hasErrors('rol')}" th:errors="*{rol}"></div>
                         </div>
 
+                        <h5 class="mt-4">Datos de Identificación</h5>
+                        <hr class="mb-3">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                                <select id="tipoDocumento" th:field="*{tipoDocumento}" class="form-select" required>
+                                    <option th:each="tipo : ${T(com.example.Gericare.enums.TipoDocumento).values()}"
+                                            th:value="${tipo}" th:text="${tipo}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="documentoIdentificacion" class="form-label">Documento</label>
+                                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control"
+                                       pattern="[0-9]+" title="Este campo solo admite números." required/>
+                                <div class="text-danger" th:if="${#fields.hasErrors('documentoIdentificacion')}" th:errors="*{documentoIdentificacion}"></div>
+                            </div>
+                        </div>
+
+                        <h5 class="mt-4">Datos Generales</h5>
+                        <hr class="mb-3">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="nombre" class="form-label">Nombre</label>
-                                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required />
+                                <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required/>
+                                <div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="apellido" class="form-label">Apellido</label>
-                                <input type="text" id="apellido" th:field="*{apellido}" class="form-control" required />
+                                <input type="text" id="apellido" th:field="*{apellido}" class="form-control" required/>
+                                <div class="text-danger" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" id="direccion" th:field="*{direccion}" class="form-control" required/>
+                                <div class="text-danger" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="correoElectronico" class="form-label">Correo Electrónico</label>
+                                <input type="email" id="correoElectronico" th:field="*{correoElectronico}" class="form-control" required/>
+                                <div class="text-danger" th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="contrasena" class="form-label">Contraseña</label>
+                                <input type="password" id="contrasena" th:field="*{contrasena}" class="form-control" required/>
+                                <div class="text-danger" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
                             </div>
                         </div>
 
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">""</button>
-                            <a th:href="@{/dashboard}" class="btn btn-secondary">Cancelar</a>
+                        <div id="familiar-fields" style="display:none;">
+                            <h5 class="mt-4">Información de Familiar</h5>
+                            <hr class="mb-3">
+                            <div class="mb-3">
+                                <label for="parentesco" class="form-label">Parentesco</label>
+                                <input type="text" id="parentesco" th:field="*{parentesco}" class="form-control"/>
+                            </div>
+                        </div>
+
+                        <div id="cuidador-fields" style="display:none;">
+                            <h5 class="mt-4">Información de Empleado</h5>
+                            <hr class="mb-3">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
+                                    <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}" class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
+                                    <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control"
+                                           pattern="[0-9]+" title="Este campo solo admite números."/>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('contactoEmergencia')}" th:errors="*{contactoEmergencia}"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="fechaContratacion" class="form-label">Fecha de Contratación</label>
+                                    <input type="date" id="fechaContratacion" th:field="*{fechaContratacion}" class="form-control"/>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="tipoContrato" class="form-label">Tipo de Contrato</label>
+                                    <input type="text" id="tipoContrato" th:field="*{tipoContrato}" class="form-control"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a th:href="@{/dashboard}" class="btn btn-secondary me-md-2">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">Guardar Usuario</button>
                         </div>
                     </form>
                 </div>
@@ -50,8 +127,29 @@
     </div>
 </main>
 
-<footer class="bg-light text-center mt-auto"
-        th:insert="~{fragments/layout :: footer-content}">
-</footer>
+<footer class="bg-light text-center mt-auto" th:insert="~{fragments/layout :: footer-content}"></footer>
+
+<script>
+    function toggleFields() {
+        // Asegurarse de que el objeto rol y rolNombre existan antes de acceder a ellos
+        const rolSelect = document.getElementById('rol');
+        if (!rolSelect) return;
+
+        const rol = rolSelect.value;
+        const familiarFields = document.getElementById('familiar-fields');
+        const cuidadorFields = document.getElementById('cuidador-fields');
+
+        familiarFields.style.display = 'none';
+        cuidadorFields.style.display = 'none';
+
+        if (rol === 'Familiar') {
+            familiarFields.style.display = 'block';
+        } else if (rol === 'Cuidador') {
+            cuidadorFields.style.display = 'block';
+        }
+    }
+    document.addEventListener('DOMContentLoaded', toggleFields);
+</script>
+
 </body>
 </html>

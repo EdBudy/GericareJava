@@ -8,11 +8,6 @@
 </head>
 <body>
 
-<!--
-  SOLUCIÓN:
-  Se aplica la misma estructura de contenedores que en la página de login
-  para asegurar que el formulario de registro también esté centrado.
--->
 <div class="container-login">
     <div class="form-container">
         <h1>Crear una Cuenta</h1>
@@ -23,8 +18,6 @@
                 Ocurrió un error durante el registro. Inténtalo de nuevo.
             </div>
 
-            <!-- Se han añadido clases de Bootstrap para consistencia, pero los estilos
-                 principales vienen de .form-container en styles.css -->
             <div class="form-group">
                 <label for="nombre">Nombre:</label>
                 <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required />
@@ -45,7 +38,9 @@
 
             <div class="form-group">
                 <label for="documentoIdentificacion">Documento de Identificación:</label>
-                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control" required />
+                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control"
+                       pattern="[0-9]+" title="Este campo solo admite números." required />
+                <div class="text-danger" th:if="${#fields.hasErrors('documentoIdentificacion')}" th:errors="*{documentoIdentificacion}"></div>
             </div>
 
             <div class="form-group">

@@ -3,6 +3,10 @@ package com.example.Gericare.Controller;
 import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Impl.UsuarioServiceImpl;
 import com.example.Gericare.Service.UsuarioService;
+import com.example.Gericare.entity.Cuidador;
+import com.example.Gericare.entity.Familiar;
+import com.example.Gericare.entity.Rol;
+import com.example.Gericare.enums.RolNombre;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -42,7 +49,10 @@ public class UsuarioController {
 
     // Actualización usuario
     @PostMapping("/editar/{id}")
-    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") UsuarioDTO usuarioDTO) {
+    public String actualizarUsuario(@PathVariable Long id, @Valid @ModelAttribute("usuario") UsuarioDTO usuarioDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "formulario-usuario-editar";
+        }
         usuarioService.actualizarUsuario(id, usuarioDTO);
         return "redirect:/dashboard";
     }
@@ -75,5 +85,75 @@ public class UsuarioController {
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "users.pdf");
         return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
+    }
+
+    //Nuevos metodos para crear usuario
+
+    @GetMapping("/nuevo")
+    public String mostrarFormularioNuevoUsuario(Model model) {
+        if (!model.containsAttribute("usuario")) {
+            model.addAttribute("usuario", new UsuarioDTO());
+        }
+        model.addAttribute("roles", new RolNombre[]{RolNombre.Cuidador, RolNombre.Familiar});
+        return "formulario-usuario"; // Vista para crear usuarios
+    }
+
+    @PostMapping("/crear")
+    public String crearUsuario(@Valid @ModelAttribute("usuario") UsuarioDTO usuarioDTO, BindingResult bindingResult,
+                               RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            // Si hay errores, volvemos al formulario para mostrarlos
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.usuario", bindingResult);
+            redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
+            return "redirect:/usuarios/nuevo";
+        }
+        try {
+            // Se obtiene el RolNombre del objeto Rol dentro del DTO
+            RolNombre rolSeleccionado = usuarioDTO.getRol().getRolNombre();
+
+            if (rolSeleccionado == RolNombre.Cuidador) {
+                Cuidador cuidador = new Cuidador();
+                // --- Mapeo completo para Cuidador ---
+                cuidador.setTipoDocumento(usuarioDTO.getTipoDocumento());
+                cuidador.setDocumentoIdentificacion(usuarioDTO.getDocumentoIdentificacion());
+                cuidador.setNombre(usuarioDTO.getNombre());
+                cuidador.setApellido(usuarioDTO.getApellido());
+                cuidador.setDireccion(usuarioDTO.getDireccion());
+                cuidador.setCorreoElectronico(usuarioDTO.getCorreoElectronico());
+                cuidador.setContrasena(usuarioDTO.getContrasena());
+                // Campos específicos de Empleado
+                cuidador.setFechaContratacion(usuarioDTO.getFechaContratacion());
+                cuidador.setTipoContrato(usuarioDTO.getTipoContrato());
+                cuidador.setContactoEmergencia(usuarioDTO.getContactoEmergencia());
+                cuidador.setFechaNacimiento(usuarioDTO.getFechaNacimiento());
+
+                usuarioService.crearCuidador(cuidador);
+
+            } else if (rolSeleccionado == RolNombre.Familiar) {
+                Familiar familiar = new Familiar();
+                // --- Mapeo completo para Familiar ---
+                familiar.setTipoDocumento(usuarioDTO.getTipoDocumento());
+                familiar.setDocumentoIdentificacion(usuarioDTO.getDocumentoIdentificacion());
+                familiar.setNombre(usuarioDTO.getNombre());
+                familiar.setApellido(usuarioDTO.getApellido());
+                familiar.setDireccion(usuarioDTO.getDireccion());
+                familiar.setCorreoElectronico(usuarioDTO.getCorreoElectronico());
+                familiar.setContrasena(usuarioDTO.getContrasena());
+                // Campo específico de Familiar
+                familiar.setParentesco(usuarioDTO.getParentesco());
+
+                usuarioService.crearFamiliar(familiar);
+            } else {
+                throw new IllegalArgumentException("El rol seleccionado no es válido para la creación.");
+            }
+
+            redirectAttributes.addFlashAttribute("success", "¡Usuario creado con éxito!");
+            return "redirect:/dashboard";
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al crear el usuario: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
+            return "redirect:/usuarios/nuevo";
+        }
     }
 }

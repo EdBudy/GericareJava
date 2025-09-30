@@ -27,7 +27,9 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="documentoIdentificacion" class="form-label">Documento de Identificación</label>
-                                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control" required />
+                                <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control"
+                                       pattern="[0-9]+" title="Este campo solo admite números." required />
+                                <div class="text-danger" th:if="${#fields.hasErrors('documentoIdentificacion')}" th:errors="*{documentoIdentificacion}"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
@@ -53,7 +55,9 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
-                                <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control" required />
+                                <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control"
+                                       pattern="[0-9]+" title="Este campo solo admite números." required />
+                                <div class="text-danger" th:if="${#fields.hasErrors('contactoEmergencia')}" th:errors="*{contactoEmergencia}"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="seguroMedico" class="form-label">Seguro Médico</label>

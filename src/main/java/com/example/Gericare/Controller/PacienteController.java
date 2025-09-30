@@ -11,6 +11,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/pacientes")
@@ -34,17 +36,25 @@ public class PacienteController {
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevoPaciente(Model model) {
         model.addAttribute("paciente", new PacienteDTO());
-        model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
-        model.addAttribute("familiares", usuarioService.findByRol(RolNombre.Familiar));
+        model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
+        model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
         return "formulario-paciente";
     }
 
     // procesa la creacion de un nuevo paciente y su asignacion
     @PostMapping("/crear")
-    public String crearPaciente(PacienteDTO pacienteDTO,
+    public String crearPaciente(@Valid @ModelAttribute("paciente") PacienteDTO pacienteDTO,
+                                BindingResult bindingResult, //
                                 @RequestParam("cuidadorId") Long cuidadorId,
                                 @RequestParam(value = "familiarId", required = false) Long familiarId,
-                                Authentication authentication) {
+                                Authentication authentication,
+                                Model model) { //
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
+            model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
+            return "formulario-paciente"; // <-- Devuelve al formulario para mostrar los errores
+        }
         Long adminId = usuarioService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
         pacienteService.crearPacienteYAsignar(pacienteDTO, cuidadorId, familiarId, adminId);

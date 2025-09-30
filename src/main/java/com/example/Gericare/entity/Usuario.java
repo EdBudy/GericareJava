@@ -5,6 +5,8 @@ import com.example.Gericare.enums.TipoDocumento;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Where;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,8 @@ public abstract class Usuario {
     private TipoDocumento tipoDocumento;
 
     @Column(nullable = false, unique = true)
+    @Size(min = 5, max = 15, message = "El documento debe tener entre 5 y 15 caracteres")
+    @Pattern(regexp = "[0-9]+", message = "El documento solo debe contener números")
     private String documentoIdentificacion;
 
     @Column(nullable = false)

@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping // Manejo rutas raíz como /login y /registro.
@@ -38,16 +40,16 @@ public class RegistroLoginController {
     }
 
     @PostMapping("/registro")
-    public String registrarCuentaDeFamiliar(@ModelAttribute("familiar") Familiar familiar) {
-        // Recibir el objeto Familiar ya con los datos del formulario
-        // Llamar al método específico y correcto en nuestro servicio
+    public String registrarCuentaDeFamiliar(@Valid @ModelAttribute("familiar") Familiar familiar, BindingResult bindingResult) {
+        // Si hay errores de validación, regresa al formulario
+        if (bindingResult.hasErrors()) {
+            return "registro"; // Devuelve al usuario al formulario para que corrija los errores
+        }
+
         try {
             usuarioService.crearFamiliar(familiar);
-            // Si el registro es exitoso, redirigir a la página de login con un mensaje de
-            // éxito
             return "redirect:/login?registroExitoso";
         } catch (Exception e) {
-            // Si no redirigir de vuelta al formulario de registro con un mensaje de error
             return "redirect:/registro?error";
         }
     }
