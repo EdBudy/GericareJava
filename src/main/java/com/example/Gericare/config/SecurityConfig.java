@@ -26,7 +26,7 @@ public class SecurityConfig {
                         // Permisos públicos
                         // Permitir el acceso sin necesidad de login a estas URLs.
                         // Página de inicio, login y archivos de estilo (CSS, JS).
-                        .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**")
+                        .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/images/**")
                         .permitAll()
 
                         // Permisos admin

@@ -105,16 +105,34 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
 
-            // Actualizar los campos comunes que son editables
+            // Actualiza los campos comunes
             usuarioExistente.setNombre(usuarioDTO.getNombre());
             usuarioExistente.setApellido(usuarioDTO.getApellido());
             usuarioExistente.setDireccion(usuarioDTO.getDireccion());
 
-            // Si el usuario es un tipo de Empleado (Cuidador o Admin) r sus campos
+            // Actualizar campos de Empleado si aplica
             if (usuarioExistente instanceof Empleado) {
                 Empleado empleadoExistente = (Empleado) usuarioExistente;
                 empleadoExistente.setTipoContrato(usuarioDTO.getTipoContrato());
                 empleadoExistente.setContactoEmergencia(usuarioDTO.getContactoEmergencia());
+            }
+
+            // Lógica para actualizar los teléfonos
+            if (usuarioDTO.getTelefonos() != null) {
+                // Borrar los teléfonos antiguos para evitar duplicados
+                usuarioExistente.getTelefonos().clear();
+
+                // Crear y añadir los nuevos teléfonos desde el DTO
+                List<Telefono> nuevosTelefonos = usuarioDTO.getTelefonos().stream()
+                        .filter(numero -> numero != null && !numero.trim().isEmpty())
+                        .map(numero -> {
+                            Telefono tel = new Telefono();
+                            tel.setNumero(numero);
+                            tel.setUsuario(usuarioExistente); // Enlace bidireccional
+                            return tel;
+                        })
+                        .collect(Collectors.toList());
+                usuarioExistente.getTelefonos().addAll(nuevosTelefonos);
             }
 
             Usuario usuarioActualizado = usuarioRepository.save(usuarioExistente);
@@ -170,6 +188,13 @@ public class UsuarioServiceImpl implements UsuarioService {
         } else if (usuario instanceof Familiar) {
             Familiar familiar = (Familiar) usuario;
             dto.setParentesco(familiar.getParentesco());
+        }
+
+        // Teléfono a la lista de Strings del DTO
+        if (usuario.getTelefonos() != null) {
+            dto.setTelefonos(usuario.getTelefonos().stream()
+                    .map(Telefono::getNumero)
+                    .collect(Collectors.toList()));
         }
 
         return dto;

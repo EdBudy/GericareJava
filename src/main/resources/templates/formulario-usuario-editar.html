@@ -21,15 +21,14 @@
                     <form th:action="${adminMode != null} ? @{|/usuarios/editar/${usuario.idUsuario}|} : @{/perfil}"
                           th:object="${usuario}" method="post">
 
-                        <input type="hidden" name="tipoDocumento" th:value="*{tipoDocumento}" />
-                        <input type="hidden" name="documentoIdentificacion" th:value="*{documentoIdentificacion}" />
-                        <input type="hidden" name="correoElectronico" th:value="*{correoElectronico}" />
-                        <input type="hidden" name="rol" th:value="*{rol?.idRol}" />
-                        <input type="hidden" th:if="${usuario.rol != null && usuario.rol.rolNombre.name() == 'Familiar'}" name="parentesco" th:value="*{parentesco}" />
-                        <input type="hidden" th:if="${adminMode == null && usuario.rol != null && (usuario.rol.rolNombre.name() == 'Cuidador' or usuario.rol.rolNombre.name() == 'Administrador')}" name="tipoContrato" th:value="*{tipoContrato}" />
+                        <input type="hidden" th:field="*{tipoDocumento}" />
+                        <input type="hidden" th:field="*{documentoIdentificacion}" />
+                        <input type="hidden" th:field="*{correoElectronico}" />
+                        <input type="hidden" th:if="*{rol?.rolNombre?.name() == 'Familiar'}" th:field="*{parentesco}" />
+                        <input type="hidden" th:if="${adminMode == null and usuario.rol?.rolNombre?.name() != 'Familiar'}" th:field="*{tipoContrato}" />
 
 
-                        <h5 class="mt-4">Datos de Identificación</h5>
+                        <h5 class="mt-4">Datos de Identificación (No editables)</h5>
                         <hr class="mb-3">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -63,6 +62,33 @@
                             </div>
                         </div>
 
+                        <h5 class="mt-4">Teléfonos de Contacto</h5>
+                        <hr class="mb-3">
+
+                        <div th:if="${adminMode != null}" class="mb-3">
+                            <label class="form-label">Números registrados:</label>
+                            <ul class="list-group">
+                                <li th:each="telefono : *{telefonos}" th:text="${telefono}" class="list-group-item"></li>
+                                <li th:if="*{telefonos == null or #lists.isEmpty(telefonos)}" class="list-group-item">No hay teléfonos registrados.</li>
+                            </ul>
+                            <div class="form-text">Los teléfonos solo pueden ser modificados por el propio usuario desde su perfil.</div>
+                        </div>
+
+                        <div th:if="${adminMode == null}" class="mb-3">
+                            <label class="form-label">Mis Teléfonos (mínimo 1, máximo 3):</label>
+                            <div id="telefonos-wrapper" data-form-type="admin">
+                                <th:block th:each="tel, stat : *{telefonos}">
+                                    <div class="input-group mb-2">
+                                        <input type="text" th:name="|telefonos[${stat.index}]|" th:value="${tel}" class="form-control"
+                                               pattern="[0-9]+" title="Solo se admiten números." required />
+                                        <button th:if="${stat.index > 0}" type="button" class="btn btn-outline-danger btn-sm"
+                                                onclick="this.parentElement.remove(); document.getElementById('add-telefono').style.display='block';">Eliminar</button>
+                                    </div>
+                                </th:block>
+                            </div>
+                            <button type="button" id="add-telefono" class="btn btn-sm btn-outline-primary mt-1">Añadir otro teléfono</button>
+                            <div class="text-danger" th:if="${#fields.hasErrors('telefonos')}" th:errors="*{telefonos}"></div>
+                        </div>
                         <div th:if="${usuario.rol != null && usuario.rol.rolNombre.name() == 'Familiar'}">
                             <h5 class="mt-4">Información de Familiar</h5>
                             <hr class="mb-3">
@@ -82,7 +108,7 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="contactoEmergencia" class="form-label">Contacto de Emergencia:</label>
-                                    <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control" />
+                                    <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" pattern="[0-9]+" title="Solo números" class="form-control" />
                                 </div>
                             </div>
                         </div>

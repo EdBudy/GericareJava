@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping
+@RequestMapping("/")
 public class RegistroLoginController {
 
     private final UsuarioService usuarioService;

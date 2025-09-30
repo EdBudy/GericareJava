@@ -15,7 +15,7 @@
 
         <form th:action="@{/registro}" th:object="${familiar}" method="post">
 
-            <div th:if="${param.error or error}" class="alert alert-error"
+            <div th:if="${param.error != null or error != null}" class="alert alert-error"
                  th:text="${error ?: 'Ocurrió un error durante el registro. Inténtalo de nuevo.'}">
             </div>
 

@@ -47,7 +47,6 @@ public class UsuarioController {
 
     @PostMapping("/editar/{id}")
     public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") UsuarioDTO usuarioDTO) {
-        // La validación @Valid se omite aquí para simplificar, pero sería ideal añadirla
         usuarioService.actualizarUsuario(id, usuarioDTO);
         return "redirect:/dashboard";
     }

@@ -32,6 +32,9 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-image: url('/images/background.jpg');
+    background-size: cover;
+    background-position: center;
 }
 
 /* El contenedor del formulario en sí */
