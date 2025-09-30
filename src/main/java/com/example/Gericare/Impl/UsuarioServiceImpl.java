@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.lowagie.text.pdf.PdfWriter;
+import com.example.Gericare.entity.Usuario;
 
 
 
@@ -177,7 +178,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         return dto;
     }
 
-    // REEMPLAZA tu método setCommonProperties con este
+
     private void setCommonProperties(Usuario usuario, UsuarioDTO dto) {
         dto.setIdUsuario(usuario.getIdUsuario());
         dto.setTipoDocumento(usuario.getTipoDocumento());
@@ -197,7 +198,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     //exportar al excel
-    public void exportarUsuariosAExcel(OutputStream outputStream) throws IOException {
+    public void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
         //Libro
         Workbook workbook = new XSSFWorkbook();
         //Hoja
@@ -215,7 +216,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         headerRow.createCell(7).setCellValue("Rol");
 
         //Listar todos
-        List<Usuario> usuarios = listarUsuarios();
+        List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, null));
 
         //Llenar filas
         int rowNum = 1;
@@ -242,7 +243,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     //Exportar a PDF
-    public void exportarUsuariosAPDF(OutputStream outputStream) throws IOException {
+    public void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
         //Crear documento PDF
         Document document = new Document();
 
@@ -270,7 +271,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         table.addCell("Rol");
 
         //Listar todos
-        List<Usuario> usuarios = listarUsuarios();
+        List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, null));
 
         for (Usuario usuario : usuarios) {
             table.addCell(String.valueOf(usuario.getIdUsuario()));

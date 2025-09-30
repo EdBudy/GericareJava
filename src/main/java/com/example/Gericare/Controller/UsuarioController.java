@@ -68,19 +68,29 @@ public class UsuarioController {
     // Exportar datos pdf y excel
 
     @GetMapping("/exportExcel")
-    public ResponseEntity<InputStreamResource> exportarExcel() throws IOException {
+    public ResponseEntity<InputStreamResource> exportarExcel(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String documento,
+            @RequestParam(required = false) RolNombre rol) throws IOException {
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        usuarioServiceImpl.exportarUsuariosAExcel(outputStream);
+        // Pasamos los filtros al servicio
+        usuarioServiceImpl.exportarUsuariosAExcel(outputStream, nombre, documento, rol);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
-        headers.setContentDispositionFormData("attachment", "users.xlsx");
+        headers.setContentDispositionFormData("attachment", "usuarios.xlsx");
         return new ResponseEntity<>(new InputStreamResource(new ByteArrayInputStream(outputStream.toByteArray())), headers, HttpStatus.OK);
     }
 
     @GetMapping("/exportPdf")
-    public ResponseEntity<InputStreamResource> exportarPdf() throws IOException {
+    public ResponseEntity<InputStreamResource> exportarPdf(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String documento,
+            @RequestParam(required = false) RolNombre rol) throws IOException {
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        usuarioServiceImpl.exportarUsuariosAPDF(outputStream);
+        // Pasamos los filtros al servicio
+        usuarioServiceImpl.exportarUsuariosAPDF(outputStream, nombre, documento, rol);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "users.pdf");

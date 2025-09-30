@@ -11,10 +11,22 @@ import com.example.Gericare.entity.PacienteAsignado;
 import com.example.Gericare.entity.Usuario;
 import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.EstadoPaciente;
+import com.example.Gericare.specification.PacienteSpecification; // Importante
+import com.lowagie.text.Document;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +44,7 @@ public class PacienteServiceImpl implements PacienteService {
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
 
-    // metodos publicos de service
+    // --- TUS MÉTODOS EXISTENTES (SIN CAMBIOS) ---
 
     @Override
     @Transactional
@@ -65,34 +77,24 @@ public class PacienteServiceImpl implements PacienteService {
     @Override
     @Transactional
     public void actualizarPacienteYReasignar(Long pacienteId, PacienteDTO pacienteDTO, Long cuidadorId, Long familiarId, Long adminId) {
-        // 1. Busca al paciente o lanza un error si no existe.
         Paciente pacienteExistente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("No se encontró el paciente con ID: " + pacienteId));
-
-        // 2. Actualiza los campos básicos del paciente.
         pacienteExistente.setContactoEmergencia(pacienteDTO.getContactoEmergencia());
         pacienteExistente.setEstadoCivil(pacienteDTO.getEstadoCivil());
         pacienteExistente.setSeguroMedico(pacienteDTO.getSeguroMedico());
         pacienteExistente.setNumeroSeguro(pacienteDTO.getNumeroSeguro());
-
-        // 3. Busca la asignación activa actual para compararla.
         PacienteAsignado asignacionActual = pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(pacienteId, EstadoAsignacion.Activo)
                 .stream().findFirst().orElse(null);
-
         boolean haCambiadoLaAsignacion = false;
         if (asignacionActual == null) {
-            // Si no hay ninguna asignación activa, se debe crear una.
             haCambiadoLaAsignacion = true;
         } else {
-            // Comprueba si el cuidador o el familiar son diferentes.
             Long familiarActualId = (asignacionActual.getFamiliar() != null) ? asignacionActual.getFamiliar().getIdUsuario() : null;
             if (!asignacionActual.getCuidador().getIdUsuario().equals(cuidadorId) ||
                     !Objects.equals(familiarActualId, familiarId)) {
                 haCambiadoLaAsignacion = true;
             }
         }
-
-        // 4. Si la asignación ha cambiado, actualiza la referencia del familiar y crea la nueva asignación.
         if (haCambiadoLaAsignacion) {
             if (familiarId != null) {
                 Usuario familiar = usuarioRepository.findById(familiarId)
@@ -103,8 +105,6 @@ public class PacienteServiceImpl implements PacienteService {
             }
             pacienteAsignadoService.crearAsignacion(pacienteId, cuidadorId, familiarId, adminId);
         }
-
-        // Si no ha cambiado, @Transactional guardará los cambios del paciente (paso 2) automáticamente sin crear una nueva asignación.
     }
 
     @Override
@@ -115,17 +115,89 @@ public class PacienteServiceImpl implements PacienteService {
         });
     }
 
-    // Metodos privados de conversion entre entidad y DTO
+    // --- NUEVA LÓGICA DE FILTRADO Y EXPORTACIÓN ---
+
+    @Override
+    public List<PacienteDTO> listarPacientesFiltrados(String nombre, String documento) {
+        List<Paciente> pacientes = pacienteRepository.findAll(PacienteSpecification.findByCriteria(nombre, documento));
+        return pacientes.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void exportarPacientesAExcel(OutputStream outputStream, String nombre, String documento) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Pacientes");
+        Row headerRow = sheet.createRow(0);
+        headerRow.createCell(0).setCellValue("ID");
+        headerRow.createCell(1).setCellValue("Nombre Completo");
+        headerRow.createCell(2).setCellValue("Documento");
+        headerRow.createCell(3).setCellValue("Fecha de Nacimiento");
+        headerRow.createCell(4).setCellValue("Género");
+        headerRow.createCell(5).setCellValue("Familiar Asociado");
+
+        List<Paciente> pacientes = pacienteRepository.findAll(PacienteSpecification.findByCriteria(nombre, documento));
+
+        int rowNum = 1;
+        for (Paciente paciente : pacientes) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(paciente.getIdPaciente());
+            row.createCell(1).setCellValue(paciente.getNombre() + " " + paciente.getApellido());
+            row.createCell(2).setCellValue(paciente.getDocumentoIdentificacion());
+            row.createCell(3).setCellValue(paciente.getFechaNacimiento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            row.createCell(4).setCellValue(paciente.getGenero().toString());
+            String familiarAsociado = paciente.getUsuarioFamiliar() != null ? paciente.getUsuarioFamiliar().getNombre() + " " + paciente.getUsuarioFamiliar().getApellido() : "N/A";
+            row.createCell(5).setCellValue(familiarAsociado);
+        }
+
+        for (int i = 0; i < 6; i++) {
+            sheet.autoSizeColumn(i);
+        }
+        workbook.write(outputStream);
+        workbook.close();
+    }
+
+    @Override
+    public void exportarPacientesAPDF(OutputStream outputStream, String nombre, String documento) throws IOException {
+        Document document = new Document();
+        PdfWriter.getInstance(document, outputStream);
+        document.open();
+        document.add(new Paragraph("Lista de Pacientes"));
+        document.add(new Paragraph(" "));
+
+        PdfPTable table = new PdfPTable(6);
+        table.addCell("ID");
+        table.addCell("Nombre Completo");
+        table.addCell("Documento");
+        table.addCell("Fecha de Nacimiento");
+        table.addCell("Género");
+        table.addCell("Familiar Asociado");
+
+        List<Paciente> pacientes = pacienteRepository.findAll(PacienteSpecification.findByCriteria(nombre, documento));
+
+        for (Paciente paciente : pacientes) {
+            table.addCell(String.valueOf(paciente.getIdPaciente()));
+            table.addCell(paciente.getNombre() + " " + paciente.getApellido());
+            table.addCell(paciente.getDocumentoIdentificacion());
+            table.addCell(paciente.getFechaNacimiento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            table.addCell(paciente.getGenero().toString());
+            String familiarAsociado = paciente.getUsuarioFamiliar() != null ? paciente.getUsuarioFamiliar().getNombre() + " " + paciente.getUsuarioFamiliar().getApellido() : "N/A";
+            table.addCell(familiarAsociado);
+        }
+        document.add(table);
+        document.close();
+    }
+
+
+    // --- TUS MÉTODOS PRIVADOS (SIN CAMBIOS) ---
 
     private PacienteDTO toDTO(Paciente paciente) {
-        // Comprobación para evitar un error si el familiar es nulo.
         String nombreFamiliar = null;
         if (paciente.getUsuarioFamiliar() != null) {
             nombreFamiliar = paciente.getUsuarioFamiliar().getNombre() + " "
                     + paciente.getUsuarioFamiliar().getApellido();
         }
-
-        // Crea y retorna un DTO con TODOS los datos necesarios.
         return new PacienteDTO(
                 paciente.getIdPaciente(),
                 paciente.getDocumentoIdentificacion(),
@@ -144,7 +216,6 @@ public class PacienteServiceImpl implements PacienteService {
 
     private Paciente toEntity(PacienteDTO dto) {
         Paciente paciente = new Paciente();
-        // El ID no se asigna aquí porque se genera automáticamente.
         paciente.setDocumentoIdentificacion(dto.getDocumentoIdentificacion());
         paciente.setNombre(dto.getNombre());
         paciente.setApellido(dto.getApellido());

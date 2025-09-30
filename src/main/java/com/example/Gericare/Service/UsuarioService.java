@@ -37,6 +37,6 @@ public interface UsuarioService {
     Optional<PacienteAsignadoDTO> findPacientesByFamiliarEmail(String email);
 
     // Nuevos métodos para exportar
-    void exportarUsuariosAExcel(OutputStream outputStream) throws IOException;
-    void exportarUsuariosAPDF(OutputStream outputStream) throws IOException;
+    void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException;
+    void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException;
 }
