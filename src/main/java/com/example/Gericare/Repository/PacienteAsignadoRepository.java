@@ -13,11 +13,15 @@ import java.util.Optional;
 public interface PacienteAsignadoRepository extends JpaRepository<PacienteAsignado, Long> {
     List<PacienteAsignado> findByPacienteAndEstado(Paciente paciente, EstadoAsignacion estado);
 
-    // Encuentra todas las asignaciones activas de un cuidador a través de su correo electrónico
     List<PacienteAsignado> findByCuidador_CorreoElectronicoAndEstado(String correoElectronico, EstadoAsignacion estado);
 
-    // Encuentra todas las asignaciones activas de un familiar a través de su correo electrónico
     Optional<PacienteAsignado> findByFamiliar_CorreoElectronicoAndEstado(String correoElectronico, EstadoAsignacion estado);
 
     List<PacienteAsignado> findByPacienteIdPacienteAndEstado(Long idPaciente, EstadoAsignacion estado);
+
+    /**
+     * Valida si existe una asignación activa para una combinación específica de cuidador y paciente.
+     * Esencial para la validación de seguridad.
+     */
+    Optional<PacienteAsignado> findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(Long cuidadorId, Long pacienteId, EstadoAsignacion estado);
 }

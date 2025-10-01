@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+    <title>Gestión de Actividades</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Gestión de Actividades</h2>
+        <a th:href="@{/actividades/nuevo}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle me-2"></i>Crear Nueva Actividad
+        </a>
+    </div>
+    <p class="text-muted">Asigna y administra las tareas y actividades de los pacientes.</p>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-4">
+            <!-- Formulario de Filtros -->
+            <div class="d-flex justify-content-end">
+                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse">
+                    <i class="bi bi-funnel me-2"></i>Mostrar Filtros
+                </button>
+            </div>
+
+            <div class="collapse" id="filtrosCollapse">
+                <form th:action="@{/actividades}" method="get" class="row g-3 align-items-end mt-3 mb-4 p-3 bg-light border rounded">
+                    <div class="col-md-4">
+                        <label for="nombrePaciente" class="form-label">Nombre del Paciente</label>
+                        <input type="text" id="nombrePaciente" name="nombrePaciente" class="form-control" th:value="${param.nombrePaciente}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="tipoActividad" class="form-label">Tipo de Actividad</label>
+                        <input type="text" id="tipoActividad" name="tipoActividad" class="form-control" th:value="${param.tipoActividad}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select id="estado" name="estado" class="form-select">
+                            <option value="">Todos</option>
+                            <option th:each="est : ${estados}"
+                                    th:value="${est}"
+                                    th:text="${est}"
+                                    th:selected="${param.estado != null and est.name() == param.estado[0]}"></option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-dark w-100">Filtrar</button>
+                    </div>
+                </form>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Paciente</th>
+                        <th>Tipo de Actividad</th>
+                        <th>Fecha</th>
+                        <th>Horario</th>
+                        <th>Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="actividad : ${actividades}">
+                        <td th:text="${actividad.idActividad}"></td>
+                        <td th:text="${actividad.nombrePaciente}"></td>
+                        <td th:text="${actividad.tipoActividad}"></td>
+                        <td th:text="${#temporals.format(actividad.fechaActividad, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${actividad.horaInicio != null ? #temporals.format(actividad.horaInicio, 'HH:mm') + ' - ' + #temporals.format(actividad.horaFin, 'HH:mm') : 'N/A'}"></td>
+                        <td>
+                             <span th:text="${actividad.estadoActividad}" class="badge"
+                                   th:classappend="${actividad.estadoActividad.toString() == 'Pendiente'} ? 'bg-warning text-dark' : (${actividad.estadoActividad.toString() == 'Completada'} ? 'bg-success' : 'bg-secondary')">
+                             </span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{|/actividades/editar/${actividad.idActividad}|}" class="btn btn-warning btn-sm" title="Editar">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form th:action="@{|/actividades/eliminar/${actividad.idActividad}|}" method="post" class="d-inline"
+                                  onsubmit="return confirm('¿Estás seguro de eliminar esta actividad?');">
+                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-light text-center mt-auto" th:insert="~{fragments/layout :: footer-content}"></footer>
+
+</body>
+</html>
+

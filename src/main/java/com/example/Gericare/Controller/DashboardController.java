@@ -1,5 +1,6 @@
 package com.example.Gericare.Controller;
 
+import com.example.Gericare.Service.ActividadService;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.enums.RolNombre;
 import org.springframework.security.core.Authentication;
@@ -15,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class DashboardController {
 
     private final UsuarioService usuarioService;
+    private final ActividadService actividadService; // Añadimos el servicio de actividad
 
-    public DashboardController(UsuarioService usuarioService) {
+    public DashboardController(UsuarioService usuarioService, ActividadService actividadService) {
         this.usuarioService = usuarioService;
+        this.actividadService = actividadService;
     }
 
     @GetMapping
@@ -31,23 +34,27 @@ public class DashboardController {
                 .findFirst()
                 .orElse(null);
 
-        // ¡VERSIÓN CORREGIDA Y SIMPLIFICADA!
         if (userRole != null) {
+            String userEmail = authentication.getName();
+
             if (userRole.equals("ROLE_Administrador")) {
-                // Obtener el email del usuario logueado
-                String adminEmail = authentication.getName();
-                // Pasar email al servicio para que sea excluido de la lista
-                model.addAttribute("usuarios", usuarioService.findUsuariosByCriteria(nombre, documento, rol, adminEmail));
+                model.addAttribute("usuarios", usuarioService.findUsuariosByCriteria(nombre, documento, rol, userEmail));
                 model.addAttribute("roles", RolNombre.values());
+
             } else if (userRole.equals("ROLE_Cuidador")) {
-                model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(authentication.getName()));
+                // Obtenemos el ID del cuidador logueado
+                Long cuidadorId = usuarioService.findByEmail(userEmail)
+                        .orElseThrow(() -> new RuntimeException("Cuidador no encontrado"))
+                        .getIdUsuario();
+                // Cargamos tanto los pacientes como las actividades pendientes
+                model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(userEmail));
+                model.addAttribute("actividadesPendientes", actividadService.listarActividadesPorCuidador(cuidadorId));
+
             } else if (userRole.equals("ROLE_Familiar")) {
-                // Thymeleaf sabe cómo manejar un Optional vacío
-                model.addAttribute("pacienteAsignado", usuarioService.findPacientesByFamiliarEmail(authentication.getName()));
+                model.addAttribute("pacienteAsignado", usuarioService.findPacientesByFamiliarEmail(userEmail));
             }
         }
-
-        // Este return se ejecuta siempre, asegurando que el método siempre devuelva un String.
         return "dashboard";
     }
 }
+
