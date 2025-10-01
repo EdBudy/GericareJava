@@ -77,7 +77,12 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="contrasena" class="form-label">Contraseña</label>
-                                <input type="password" id="contrasena" th:field="*{contrasena}" class="form-control" required/>
+                                <div class="input-group">
+                                    <input type="password" id="contrasena" th:field="*{contrasena}" class="form-control" required/>
+                                    <button type="button" class="btn btn-outline-secondary toggle-password-btn">
+                                        <i class="bi bi-eye-slash-fill"></i>
+                                    </button>
+                                </div>
                                 <div class="text-danger" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
                             </div>
                         </div>
