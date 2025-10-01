@@ -17,4 +17,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>, JpaSpec
     // Esto se traduce a: "SELECT * FROM tb_usuario WHERE correo_electronico = ?"
     Optional<Usuario> findByCorreoElectronico(String correoElectronico);
     List<Usuario> findByRol_RolNombre(RolNombre rolNombre);
+    Optional<Usuario> findByResetPasswordToken(String token);
 }

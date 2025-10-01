@@ -39,4 +39,9 @@ public interface UsuarioService {
     // Nuevos métodos para exportar
     void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException;
     void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException;
+
+    // Metodos correo/token
+    void createPasswordResetTokenForUser(String email);
+    String validatePasswordResetToken(String token);
+    void changeUserPassword(String token, String newPassword);
 }

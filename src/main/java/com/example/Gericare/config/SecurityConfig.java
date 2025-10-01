@@ -24,7 +24,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         // Permisos públicos
-                        .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/images/**")
+                        .requestMatchers("/", "/login", "/registro", "/reset-password", "/css/**", "/js/**", "/images/**")
                         .permitAll()
 
                         // Reglas cuidador

@@ -3,6 +3,7 @@ package com.example.Gericare.Impl;
 import com.example.Gericare.DTO.*;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Repository.RolRepository;
+import com.example.Gericare.Service.EmailService;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.Service.PacienteAsignadoService;
@@ -29,8 +30,10 @@ import com.example.Gericare.entity.Usuario;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,6 +50,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     @Lazy // Se usa @Lazy para romper una posible dependencia circular al inyectar servicios entre sí
     private PacienteAsignadoService pacienteAsignadoService;
+    @Autowired
+    private EmailService emailService;
 
 
     @Override
@@ -172,6 +177,43 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    // Metodos correo y token
+    @Override
+    public void createPasswordResetTokenForUser(String email) {
+        Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
+                .orElseThrow(() -> new RuntimeException("No se encontró un usuario con el correo: " + email));
+
+        String token = UUID.randomUUID().toString();
+        usuario.setResetPasswordToken(token);
+        usuario.setResetPasswordTokenExpiryDate(LocalDateTime.now().plusHours(1)); // Válido por 1 hora
+
+        usuarioRepository.save(usuario);
+
+        emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), token);
+    }
+
+    @Override
+    public String validatePasswordResetToken(String token) {
+        final Usuario usuario = usuarioRepository.findByResetPasswordToken(token).orElse(null);
+
+        if (usuario == null || usuario.getResetPasswordTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            return "invalidToken";
+        }
+        return null;
+    }
+
+    @Override
+    public void changeUserPassword(String token, String newPassword) {
+        Usuario usuario = usuarioRepository.findByResetPasswordToken(token)
+                .orElseThrow(() -> new RuntimeException("Token inválido para cambio de contraseña."));
+
+        usuario.setContrasena(passwordEncoder.encode(newPassword));
+        usuario.setResetPasswordToken(null);
+        usuario.setResetPasswordTokenExpiryDate(null);
+
+        usuarioRepository.save(usuario);
     }
 
 

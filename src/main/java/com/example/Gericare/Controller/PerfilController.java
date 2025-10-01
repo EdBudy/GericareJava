@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/perfil")
@@ -33,5 +34,16 @@ public class PerfilController {
             usuarioService.actualizarUsuario(usuarioExistente.getIdUsuario(), usuarioDTO);
         });
         return "redirect:/dashboard?perfilActualizado=true";
+    }
+
+    @PostMapping("/solicitar-cambio-password")
+    public String solicitarCambioPassword(Authentication authentication, RedirectAttributes redirectAttributes) {
+        try {
+            usuarioService.createPasswordResetTokenForUser(authentication.getName());
+            redirectAttributes.addFlashAttribute("successMessage", "Se ha enviado un correo con las instrucciones para cambiar la contraseña.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo procesar la solicitud. Inténtalo de nuevo.");
+        }
+        return "redirect:/perfil";
     }
 }
