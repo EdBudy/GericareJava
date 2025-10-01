@@ -9,6 +9,7 @@ import org.hibernate.annotations.Where;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,4 +67,12 @@ public abstract class Usuario {
     @Size(min = 1, max = 3, message = "Debe registrar entre 1 y 3 teléfonos.")
     @NotEmpty(message = "Debe registrar al menos un teléfono.")
     private List<Telefono> telefonos = new ArrayList<>();
+
+
+    // Campos para guardar token y fecha de expiración
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_expiry_date")
+    private LocalDateTime resetPasswordTokenExpiryDate;
 }
