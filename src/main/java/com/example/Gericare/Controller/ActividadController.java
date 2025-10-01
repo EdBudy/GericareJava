@@ -22,12 +22,12 @@ public class ActividadController {
     private ActividadService actividadService;
 
     @Autowired
-    private PacienteService pacienteService; // Usamos PacienteService como en tu código original
+    private PacienteService pacienteService;
 
     @Autowired
     private UsuarioService usuarioService;
 
-    // --- Vistas para Administrador ---
+    // Vistas admin
     @GetMapping
     public String listarActividades(Model model,
                                     @RequestParam(required = false) String nombrePaciente,
@@ -96,7 +96,7 @@ public class ActividadController {
         return "redirect:/actividades";
     }
 
-    // --- ACCIÓN PARA CUIDADOR ---
+    // Acción cuidador
     @PostMapping("/completar/{id}")
     public String completarActividad(@PathVariable("id") Long actividadId, Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
@@ -108,8 +108,18 @@ public class ActividadController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al completar la actividad: " + e.getMessage());
         }
-        // Redirige de vuelta al dashboard, donde verá la lista actualizada
-        return "redirect:/dashboard";
+        return "redirect:/actividades/actividades-pacientes";
+    }
+
+    // Vista cuidador
+    @GetMapping("/actividades-pacientes")
+    public String mostrarActividadesCuidador(Authentication authentication, Model model) {
+        String userEmail = authentication.getName();
+        Long cuidadorId = usuarioService.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Cuidador no encontrado"))
+                .getIdUsuario();
+        model.addAttribute("actividades", actividadService.listarActividadesPorCuidador(cuidadorId));
+        return "actividades-cuidador";
     }
 }
 

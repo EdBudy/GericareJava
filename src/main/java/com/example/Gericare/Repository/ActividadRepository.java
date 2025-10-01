@@ -22,9 +22,9 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long>, Jpa
      */
     @Query("SELECT new com.example.Gericare.DTO.ActividadDTO(" +
             "a.idActividad, a.tipoActividad, a.descripcionActividad, a.fechaActividad, a.horaInicio, a.horaFin, " +
-            "p.nombre, p.apellido) " +
+            "p.nombre, p.apellido, a.estadoActividad) " + // SE AÑADIÓ a.estadoActividad
             "FROM Actividad a JOIN a.paciente p JOIN PacienteAsignado pa ON pa.paciente.idPaciente = p.idPaciente " +
-            "WHERE pa.cuidador.idUsuario = :cuidadorId AND a.estadoActividad = com.example.Gericare.enums.EstadoActividad.Pendiente")
-    List<ActividadDTO> findActividadesPendientesByCuidador(@Param("cuidadorId") Long cuidadorId);
+            "WHERE pa.cuidador.idUsuario = :cuidadorId AND a.estadoActividad IN (com.example.Gericare.enums.EstadoActividad.Pendiente, com.example.Gericare.enums.EstadoActividad.Completada)")
+    List<ActividadDTO> findActividadesByCuidador(@Param("cuidadorId") Long cuidadorId);
 }
 

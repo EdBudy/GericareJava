@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class DashboardController {
 
     private final UsuarioService usuarioService;
-    private final ActividadService actividadService; // Añadimos el servicio de actividad
+    private final ActividadService actividadService;
 
     public DashboardController(UsuarioService usuarioService, ActividadService actividadService) {
         this.usuarioService = usuarioService;
@@ -42,13 +42,8 @@ public class DashboardController {
                 model.addAttribute("roles", RolNombre.values());
 
             } else if (userRole.equals("ROLE_Cuidador")) {
-                // Obtenemos el ID del cuidador logueado
-                Long cuidadorId = usuarioService.findByEmail(userEmail)
-                        .orElseThrow(() -> new RuntimeException("Cuidador no encontrado"))
-                        .getIdUsuario();
-                // Cargamos tanto los pacientes como las actividades pendientes
+                // AHORA SOLO CARGA PACIENTES
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(userEmail));
-                model.addAttribute("actividadesPendientes", actividadService.listarActividadesPorCuidador(cuidadorId));
 
             } else if (userRole.equals("ROLE_Familiar")) {
                 model.addAttribute("pacienteAsignado", usuarioService.findPacientesByFamiliarEmail(userEmail));
@@ -57,4 +52,3 @@ public class DashboardController {
         return "dashboard";
     }
 }
-

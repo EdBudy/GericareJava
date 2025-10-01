@@ -1,3 +1,4 @@
+// edbudy/gericarejava/GericareJava-77ecd4243c43f842b16ab915993a9b87d440c2ea/src/main/java/com/example/Gericare/config/SecurityConfig.java
 package com.example.Gericare.config;
 
 import org.springframework.context.annotation.Bean;
@@ -26,19 +27,18 @@ public class SecurityConfig {
                         .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/images/**")
                         .permitAll()
 
-                        // --- NUEVA REGLA ESPECÍFICA PARA EL CUIDADOR ---
-                        // Permite que el rol 'Cuidador' haga peticiones POST a la URL para completar actividades.
-                        // El orden es importante: las reglas más específicas deben ir primero.
+                        // Reglas cuidador
                         .requestMatchers(HttpMethod.POST, "/actividades/completar/**").hasRole("Cuidador")
 
-                        // Permisos admin (se mantiene como estaba)
+                        // Ver lista actividad
+                        .requestMatchers("/actividades/actividades-pacientes").hasRole("Cuidador")
+
+                        // Reglas admin
                         .requestMatchers("/usuarios/**", "/pacientes/**", "/actividades/**")
                         .hasRole("Administrador")
 
-                        // Permisos cuidador
+                        // Permisos para las otras vistas de cuidador y familiar
                         .requestMatchers("/cuidador/**").hasRole("Cuidador")
-
-                        // Permisos familiar
                         .requestMatchers("/familiar/**").hasRole("Familiar")
 
                         .anyRequest().authenticated())
@@ -54,4 +54,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

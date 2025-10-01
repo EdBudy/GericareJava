@@ -99,9 +99,9 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Buena práctica para métodos de solo lectura
+    @Transactional(readOnly = true)
     public List<ActividadDTO> listarActividadesPorCuidador(Long cuidadorId) {
-        return actividadRepository.findActividadesPendientesByCuidador(cuidadorId);
+        return actividadRepository.findActividadesByCuidador(cuidadorId);
     }
 
     @Override

@@ -12,7 +12,7 @@
 
 <main class="container mt-5 mb-5">
 
-    <!-- Mensajes de éxito o error (reubicados aquí para que todos los roles los puedan usar) -->
+    <!-- Mensajes de éxito o error -->
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
         <span th:text="${successMessage}"></span>
@@ -24,12 +24,12 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <!-- Sección para el Administrador (SIN CAMBIOS) -->
+    <!-- Sección para el Administrador -->
     <div sec:authorize="hasRole('Administrador')">
         <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios})}"></div>
     </div>
 
-    <!-- Sección para el Cuidador (CON LA NUEVA TABLA AÑADIDA) -->
+    <!-- Sección para el Cuidador -->
     <div sec:authorize="hasRole('Cuidador')">
         <h2 class="mb-4">Mis Pacientes Asignados</h2>
         <div th:if="${pacientesAsignados.isEmpty()}">
@@ -59,47 +59,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- Nueva sección para Actividades Pendientes -->
-        <h2 class="mb-4">Mis Actividades Pendientes</h2>
-        <div th:if="${actividadesPendientes.isEmpty()}">
-            <div class="alert alert-success"><i class="bi bi-check-all me-2"></i>¡Felicidades! No tienes actividades pendientes.</div>
-        </div>
-        <div th:if="${not actividadesPendientes.isEmpty()}" class="card shadow-sm">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Paciente</th>
-                            <th>Tipo de Actividad</th>
-                            <th>Descripción</th>
-                            <th>Fecha y Hora</th>
-                            <th class="text-center">Acción</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="actividad : ${actividadesPendientes}">
-                            <td th:text="${actividad.nombrePaciente}"></td>
-                            <td th:text="${actividad.tipoActividad}"></td>
-                            <td th:text="${actividad.descripcionActividad}"></td>
-                            <td th:text="|${#temporals.format(actividad.fechaActividad, 'dd/MM/yyyy')} de ${#temporals.format(actividad.horaInicio, 'HH:mm')} a ${#temporals.format(actividad.horaFin, 'HH:mm')}|"></td>
-                            <td class="text-center">
-                                <form th:action="@{|/actividades/completar/${actividad.idActividad}|}" method="post">
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="bi bi-check-lg me-1"></i> Completar
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <!-- Sección para el Familiar (SIN CAMBIOS) -->
+    <!-- Sección para el Familiar -->
     <div sec:authorize="hasRole('Familiar')">
         <h2>Información del Paciente Asignado</h2>
         <div th:if="${pacienteAsignado.isPresent()}" class="card shadow-sm mt-4">
@@ -138,4 +100,3 @@
 
 </body>
 </html>
-

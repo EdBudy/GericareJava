@@ -144,3 +144,7 @@ body {
     border: 1px solid var(--border-color);
 }
 
+main {
+    flex-grow: 1;
+}
+

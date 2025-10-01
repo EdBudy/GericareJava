@@ -15,8 +15,8 @@ import java.time.LocalTime;
 
 @Getter
 @Setter
-@NoArgsConstructor // Mantenemos el constructor sin argumentos
-@AllArgsConstructor // Mantenemos el constructor con todos los argumentos
+@NoArgsConstructor // Constructor sin argumentos
+@AllArgsConstructor // Constructor con todos los argumentos
 public class ActividadDTO {
 
     private Long idActividad;
@@ -49,21 +49,17 @@ public class ActividadDTO {
 
     private EstadoActividad estadoActividad;
 
-    /**
-     * Constructor personalizado para la consulta JPQL del repositorio.
-     * Este constructor es invocado por ActividadRepository para mapear eficientemente
-     * los resultados de la base de datos a este DTO.
-     */
+    // Constructor para la consulta JPQL del repositorio del cuidador
     public ActividadDTO(Long idActividad, String tipoActividad, String descripcionActividad,
                         LocalDate fechaActividad, LocalTime horaInicio, LocalTime horaFin,
-                        String nombrePaciente, String apellidoPaciente) {
+                        String nombrePaciente, String apellidoPaciente, EstadoActividad estadoActividad) {
         this.idActividad = idActividad;
         this.tipoActividad = tipoActividad;
         this.descripcionActividad = descripcionActividad;
         this.fechaActividad = fechaActividad;
         this.horaInicio = horaInicio;
         this.horaFin = horaFin;
-        this.nombrePaciente = nombrePaciente + " " + apellidoPaciente; // Concatenamos el nombre aquí
+        this.nombrePaciente = nombrePaciente + " " + apellidoPaciente;
+        this.estadoActividad = estadoActividad;
     }
 }
-
