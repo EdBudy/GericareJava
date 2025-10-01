@@ -26,13 +26,12 @@ body {
     /* Eliminamos el flexbox de aquí para que no afecte al dashboard */
 }
 
-/* Contenedor específico para las páginas de Login y Registro */
 .container-login {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-image: url('/images/background.jpg');
+    background-image: url('../images/background.jpg');
     background-size: cover;
     background-position: center;
 }
