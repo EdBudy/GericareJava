@@ -209,6 +209,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = usuarioRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> new RuntimeException("Token inválido para cambio de contraseña."));
 
+        if (passwordEncoder.matches(newPassword, usuario.getContrasena())) {
+            throw new IllegalStateException("La nueva contraseña no puede ser igual a la anterior.");
+        }
+
         usuario.setContrasena(passwordEncoder.encode(newPassword));
         usuario.setResetPasswordToken(null);
         usuario.setResetPasswordTokenExpiryDate(null);

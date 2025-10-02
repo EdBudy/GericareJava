@@ -48,7 +48,13 @@ public class PasswordResetController {
             return "redirect:/reset-password?token=" + token;
         }
 
-        usuarioService.changeUserPassword(token, password);
+        try {
+            usuarioService.changeUserPassword(token, password);
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/reset-password?token=" + token;
+        }
+
         redirectAttributes.addFlashAttribute("successMessage", "Tu contraseña ha sido cambiada exitosamente. Por favor, inicia sesión.");
         return "redirect:/login";
     }
