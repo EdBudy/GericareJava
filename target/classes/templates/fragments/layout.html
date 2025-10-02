@@ -92,7 +92,7 @@
         function confirmarEliminacion(usuarioId) {
             Swal.fire({
                 title: '¿Estás seguro?',
-                text: "¡El usuario será desactivado y no podrás revertir esto!",
+                text: "¡El usuario será Eliminado y no podrás revertir esto!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -102,6 +102,41 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     document.getElementById('form-eliminar-' + usuarioId).submit();
+                }
+            });
+        }
+        // NUEVA Función para confirmar eliminación de PACIENTE
+        function confirmarEliminacionPaciente(pacienteId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡El paciente será Eliminado y no podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, ¡desactivar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-eliminar-paciente-' + pacienteId).submit();
+                }
+            });
+        }
+
+        // NUEVA Función para confirmar eliminación de ACTIVIDAD
+        function confirmarEliminacionActividad(actividadId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡La actividad será eliminada y no podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, ¡eliminar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-eliminar-actividad-' + actividadId).submit();
                 }
             });
         }

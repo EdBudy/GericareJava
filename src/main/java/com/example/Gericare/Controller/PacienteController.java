@@ -10,6 +10,7 @@ import com.example.Gericare.enums.RolNombre;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -97,15 +99,26 @@ public class PacienteController {
                                 @RequestParam("cuidadorId") Long cuidadorId,
                                 @RequestParam(value = "familiarId", required = false) Long familiarId,
                                 Authentication authentication,
-                                Model model) {
+                                Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
             model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
             return "formulario-paciente";
         }
-        Long adminId = usuarioService.findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
-        pacienteService.crearPacienteYAsignar(pacienteDTO, cuidadorId, familiarId, adminId);
+        try {
+            Long adminId = usuarioService.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
+            pacienteService.crearPacienteYAsignar(pacienteDTO, cuidadorId, familiarId, adminId);
+            redirectAttributes.addFlashAttribute("successMessage", "¡Paciente creado con éxito!");
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Ya existe un paciente con el mismo documento.");
+            redirectAttributes.addFlashAttribute("paciente", pacienteDTO);
+            return "redirect:/pacientes/nuevo";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al crear el paciente: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("paciente", pacienteDTO);
+            return "redirect:/pacientes/nuevo";
+        }
         return "redirect:/pacientes";
     }
 
@@ -134,16 +147,18 @@ public class PacienteController {
                                      @ModelAttribute("paciente") PacienteDTO pacienteDTO,
                                      @RequestParam("cuidadorId") Long cuidadorId,
                                      @RequestParam(value = "familiarId", required = false) Long familiarId,
-                                     Authentication authentication) {
+                                     Authentication authentication, RedirectAttributes redirectAttributes) {
         Long adminId = usuarioService.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
         pacienteService.actualizarPacienteYReasignar(id, pacienteDTO, cuidadorId, familiarId, adminId);
+        redirectAttributes.addFlashAttribute("successMessage", "¡Paciente actualizado con éxito!");
         return "redirect:/pacientes";
     }
 
     @PostMapping("/eliminar/{id}")
-    public String eliminarPaciente(@PathVariable Long id) {
+    public String eliminarPaciente(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         pacienteService.eliminarPaciente(id);
+        redirectAttributes.addFlashAttribute("successMessage", "¡Paciente eliminado con éxito!");
         return "redirect:/pacientes";
     }
 }

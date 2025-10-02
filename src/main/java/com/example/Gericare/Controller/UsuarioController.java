@@ -10,6 +10,7 @@ import com.example.Gericare.enums.RolNombre;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -46,14 +47,16 @@ public class UsuarioController {
     }
 
     @PostMapping("/editar/{id}")
-    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") UsuarioDTO usuarioDTO) {
+    public String actualizarUsuario(@PathVariable Long id, @ModelAttribute("usuario") UsuarioDTO usuarioDTO, RedirectAttributes redirectAttributes) {
         usuarioService.actualizarUsuario(id, usuarioDTO);
+        redirectAttributes.addFlashAttribute("successMessage", "¡Usuario actualizado con éxito!");
         return "redirect:/dashboard";
     }
 
     @PostMapping("/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable Long id) {
+    public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         usuarioService.eliminarUsuario(id);
+        redirectAttributes.addFlashAttribute("successMessage", "¡Usuario eliminado con éxito!");
         return "redirect:/dashboard";
     }
 
@@ -156,13 +159,18 @@ public class UsuarioController {
                 throw new IllegalArgumentException("El rol seleccionado no es válido para la creación.");
             }
 
-            redirectAttributes.addFlashAttribute("success", "¡" + usuarioDTO.getNombre() + " " + usuarioDTO.getApellido() + " se ha registrado correctamente!");
+            redirectAttributes.addFlashAttribute("successMessage", "¡" + usuarioDTO.getNombre() + " " + usuarioDTO.getApellido() + " se ha registrado correctamente!");
             return "redirect:/dashboard";
 
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Ya existe un usuario con el mismo documento o correo electrónico.");
+            redirectAttributes.addFlashAttribute("usuario", usuarioDTO); // Devuelve los datos para no perderlos
+            return "redirect:/usuarios/nuevo";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Error al crear el usuario: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al crear el usuario: " + e.getMessage());
             redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
             return "redirect:/usuarios/nuevo";
         }
     }
 }
+

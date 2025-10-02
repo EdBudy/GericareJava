@@ -9,6 +9,18 @@
 <header th:insert="~{fragments/layout :: header}"></header>
 
 <main class="container mt-5 mb-5">
+    <!-- Mensajes de éxito o error -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Gestión de Actividades</h2>
         <a th:href="@{/actividades/nuevo}" class="btn btn-primary shadow-sm">
@@ -40,7 +52,7 @@
                         <label for="estado" class="form-label">Estado</label>
                         <select id="estado" name="estado" class="form-select">
                             <option value="">Todos</option>
-                            <option th:each="est : ${estados}"
+                            <option th:each="est : ${T(com.example.Gericare.enums.EstadoActividad).values()}"
                                     th:value="${est}"
                                     th:text="${est}"
                                     th:selected="${param.estado != null and est.name() == param.estado[0]}"></option>
@@ -83,9 +95,10 @@
                             <a th:href="@{|/actividades/editar/${actividad.idActividad}|}" class="btn btn-warning btn-sm" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
-                            <form th:action="@{|/actividades/eliminar/${actividad.idActividad}|}" method="post" class="d-inline"
-                                  onsubmit="return confirm('¿Estás seguro de eliminar esta actividad?');">
-                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                            <form th:id="'form-eliminar-actividad-' + ${actividad.idActividad}"
+                                  th:action="@{|/actividades/eliminar/${actividad.idActividad}|}" method="post" class="d-inline">
+                                <button type="button" class="btn btn-danger btn-sm" title="Eliminar"
+                                        th:onclick="'confirmarEliminacionActividad(\'' + ${actividad.idActividad} + '\')'">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
