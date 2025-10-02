@@ -156,7 +156,7 @@ public class UsuarioController {
                 throw new IllegalArgumentException("El rol seleccionado no es válido para la creación.");
             }
 
-            redirectAttributes.addFlashAttribute("success", "¡Usuario creado con éxito!");
+            redirectAttributes.addFlashAttribute("success", "¡" + usuarioDTO.getNombre() + " " + usuarioDTO.getApellido() + " se ha registrado correctamente!");
             return "redirect:/dashboard";
 
         } catch (Exception e) {
