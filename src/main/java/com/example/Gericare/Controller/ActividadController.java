@@ -62,7 +62,7 @@ public class ActividadController {
         actividadDTO.setIdAdmin(adminId);
 
         actividadService.crearActividad(actividadDTO);
-        redirectAttributes.addFlashAttribute("success", "¡Actividad creada con éxito!");
+        redirectAttributes.addFlashAttribute("successMessage", "¡Actividad creada con éxito!");
         return "redirect:/actividades";
     }
 
@@ -85,14 +85,14 @@ public class ActividadController {
         }
 
         actividadService.actualizarActividad(id, actividadDTO);
-        redirectAttributes.addFlashAttribute("success", "¡Actividad actualizada con éxito!");
+        redirectAttributes.addFlashAttribute("successMessage", "¡Actividad actualizada con éxito!");
         return "redirect:/actividades";
     }
 
     @PostMapping("/eliminar/{id}")
     public String eliminarActividad(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         actividadService.eliminarActividad(id);
-        redirectAttributes.addFlashAttribute("success", "¡Actividad eliminada con éxito!");
+        redirectAttributes.addFlashAttribute("successMessage", "¡Actividad eliminada con éxito!");
         return "redirect:/actividades";
     }
 
@@ -122,4 +122,3 @@ public class ActividadController {
         return "actividades-cuidador";
     }
 }
-
