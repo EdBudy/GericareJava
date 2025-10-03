@@ -2,10 +2,11 @@ package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Impl.UsuarioServiceImpl;
+import com.example.Gericare.Repository.PacienteAsignadoRepository;
+import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.Service.UsuarioService;
-import com.example.Gericare.entity.Cuidador;
-import com.example.Gericare.entity.Familiar;
-import com.example.Gericare.entity.Telefono;
+import com.example.Gericare.entity.*;
+import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.RolNombre;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -55,8 +57,16 @@ public class UsuarioController {
 
     @PostMapping("/eliminar/{id}")
     public String eliminarUsuario(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        usuarioService.eliminarUsuario(id);
-        redirectAttributes.addFlashAttribute("successMessage", "¡Usuario eliminado con éxito!");
+        try {
+            usuarioService.eliminarUsuario(id);
+            redirectAttributes.addFlashAttribute("successMessage", "¡Usuario eliminado con éxito!");
+        } catch (IllegalStateException e) {
+            // Capturar error específico si se intenta eliminar un cuidador con pacientes
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            // Capturar cualquier otro error inesperado
+            redirectAttributes.addFlashAttribute("errorMessage", "Ocurrió un error al intentar eliminar el usuario.");
+        }
         return "redirect:/dashboard";
     }
 

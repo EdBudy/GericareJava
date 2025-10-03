@@ -25,7 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.lowagie.text.pdf.PdfWriter;
 import com.example.Gericare.entity.Usuario;
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.io.IOException;
@@ -94,11 +94,31 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public void eliminarUsuario(Long id) {
-        usuarioRepository.findById(id).ifPresent(usuario -> {
-            usuario.setEstado(EstadoUsuario.Inactivo);
-            usuarioRepository.save(usuario);
-        });
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
+
+        // Si es un Cuidador, verifica si tiene pacientes asignados
+        if (usuario instanceof Cuidador) {
+            List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByCuidador_idUsuarioAndEstado(id, EstadoAsignacion.Activo);
+            if (!asignacionesActivas.isEmpty()) {
+                throw new IllegalStateException("No se puede eliminar el cuidador porque tiene pacientes asignados. Por favor, reasigne los pacientes a otro cuidador antes de eliminarlo.");
+            }
+        }
+
+        // Si es un Familiar, busca sus asignaciones y elimina la referencia
+        if (usuario instanceof Familiar) {
+            List<PacienteAsignado> asignaciones = pacienteAsignadoRepository.findByFamiliar_idUsuario(id);
+            if (!asignaciones.isEmpty()) {
+                asignaciones.forEach(asignacion -> asignacion.setFamiliar(null));
+                pacienteAsignadoRepository.saveAll(asignaciones);
+            }
+        }
+
+        // Desactivar usuario
+        usuario.setEstado(EstadoUsuario.Inactivo);
+        usuarioRepository.save(usuario);
     }
 
     @Override

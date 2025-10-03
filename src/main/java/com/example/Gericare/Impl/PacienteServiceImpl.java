@@ -87,10 +87,10 @@ public class PacienteServiceImpl implements PacienteService {
             paciente.setEstado(EstadoPaciente.Inactivo);
             pacienteRepository.save(paciente);
 
-            // Desactivar asignaciones activas
-            List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(id, EstadoAsignacion.Activo);
-            asignacionesActivas.forEach(asignacion -> asignacion.setEstado(EstadoAsignacion.Inactivo));
-            pacienteAsignadoRepository.saveAll(asignacionesActivas);
+            // Buscar todas las asignaciones del paciente y desactivarlas
+            List<PacienteAsignado> todasLasAsignaciones = pacienteAsignadoRepository.findByPacienteIdPaciente(id);
+            todasLasAsignaciones.forEach(asignacion -> asignacion.setEstado(EstadoAsignacion.Inactivo));
+            pacienteAsignadoRepository.saveAll(todasLasAsignaciones);
 
             // Desactivar actividades del paciente
             List<Actividad> actividades = actividadRepository.findByPacienteIdPaciente(id);

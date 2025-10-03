@@ -53,6 +53,7 @@
                         <select id="estado" name="estado" class="form-select">
                             <option value="">Todos</option>
                             <option th:each="est : ${T(com.example.Gericare.enums.EstadoActividad).values()}"
+                                    th:if="${est.name() != 'Inactivo'}"
                                     th:value="${est}"
                                     th:text="${est}"
                                     th:selected="${param.estado != null and est.name() == param.estado[0]}"></option>

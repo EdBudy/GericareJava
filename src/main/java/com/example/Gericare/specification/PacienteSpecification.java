@@ -1,6 +1,7 @@
 package com.example.Gericare.specification;
 
 import com.example.Gericare.entity.Paciente;
+import com.example.Gericare.enums.EstadoPaciente;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,6 +15,8 @@ public class PacienteSpecification {
     public static Specification<Paciente> findByCriteria(String nombre, String documento) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+
+            predicates.add(criteriaBuilder.equal(root.get("estado"), EstadoPaciente.Activo));
 
             // Búsqueda por nombre completo (concatenando nombre y apellido)
             if (StringUtils.hasText(nombre)) {

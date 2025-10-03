@@ -21,4 +21,10 @@ public interface PacienteAsignadoRepository extends JpaRepository<PacienteAsigna
 
     // Validar si existe una asignación activa para una combinación específica de cuidador y paciente
     Optional<PacienteAsignado> findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(Long cuidadorId, Long pacienteId, EstadoAsignacion estado);
+
+    List<PacienteAsignado> findByPacienteIdPaciente(Long idPaciente);
+
+    List<PacienteAsignado> findByCuidador_idUsuarioAndEstado(Long cuidadorId, EstadoAsignacion estado);
+
+    List<PacienteAsignado> findByFamiliar_idUsuario(Long familiarId);
 }
