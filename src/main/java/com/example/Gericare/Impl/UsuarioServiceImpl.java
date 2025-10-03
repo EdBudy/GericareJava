@@ -164,11 +164,12 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Optional<PacienteAsignadoDTO> findPacientesByFamiliarEmail(String email) {
-        // Busca en el repositorio de asignaciones por el email del familiar y el estado activo.
+    public List<PacienteAsignadoDTO> findPacientesByFamiliarEmail(String email) {
+        // Buscar en el repositorio de asignaciones por el email del familiar y el estado activo
         return pacienteAsignadoRepository.findByFamiliar_CorreoElectronicoAndEstado(email, EstadoAsignacion.Activo)
-                // Reutiliza la lógica de conversión
-                .map(pacienteAsignadoService::toDTO);
+                .stream()
+                .map(pacienteAsignadoService::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -179,7 +180,7 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .collect(Collectors.toList());
     }
 
-    // Metodos correo y token
+    // Métodos correo y token
     @Override
     public void createPasswordResetTokenForUser(String email) {
         Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
@@ -260,20 +261,20 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     // ------
-    //listar todos los usuarios
+    // Listar todos los usuarios
     public List<Usuario> listarUsuarios() {
         return usuarioRepository.findAll();
     }
 
-    //exportar al excel
+    // Exportar al excel
     public void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
-        //Libro
+        // Libro
         Workbook workbook = new XSSFWorkbook();
-        //Hoja
+        // Hoja
         Sheet sheet = workbook.createSheet("Usuarios");
-        //Fila de encabezado
+        // Fila de encabezado
         Row headerRow = sheet.createRow(0);
-        //Columna de encabezado
+        // Columna de encabezado
         headerRow.createCell(0).setCellValue("ID");
         headerRow.createCell(1).setCellValue("Tipo Documento");
         headerRow.createCell(2).setCellValue("Documento Identificación");
@@ -283,10 +284,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         headerRow.createCell(6).setCellValue("Correo Electrónico");
         headerRow.createCell(7).setCellValue("Rol");
 
-        //Listar todos
+        // Listar todos
         List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, null));
 
-        //Llenar filas
+        // Llenar filas
         int rowNum = 1;
         for (Usuario usuario : usuarios) {
             Row row = sheet.createRow(rowNum++);
@@ -300,35 +301,35 @@ public class UsuarioServiceImpl implements UsuarioService {
             row.createCell(7).setCellValue(usuario.getRol().getRolNombre().toString());
         }
 
-        //Ajustar tamaño de las columnas
+        // Ajustar tamaño de las columnas
         for (int i = 0; i < 8; i++) {
             sheet.autoSizeColumn(i);
         }
-        //Escribir en el OutputStream
+        // Escribir en el OutputStream
         workbook.write(outputStream);
         workbook.close();
 
     }
 
-    //Exportar a PDF
+    // Exportar a PDF
     public void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
-        //Crear documento PDF
+        // Crear documento PDF
         Document document = new Document();
 
-        //Acosiar al OutputStream
+        // Acosiar al OutputStream
         PdfWriter.getInstance(document, outputStream);
 
-        //Abrir documento
+        // Abrir documento
         document.open();
 
-        //Agregar contenido
+        // Agregar contenido
         document.add(new Paragraph("Lista de Usuarios"));
         document.add(new Paragraph(" ")); // Línea en blanco
 
-        //Crear tabla con 8 columnas
+        // Crear tabla con 8 columnas
         PdfPTable table = new PdfPTable(8);
 
-        //Agregar encabezados
+        // Agregar encabezados
         table.addCell("ID");
         table.addCell("Tipo Documento");
         table.addCell("Documento Identificación");
@@ -338,7 +339,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         table.addCell("Correo Electrónico");
         table.addCell("Rol");
 
-        //Listar todos
+        // Listar todos
         List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, null));
 
         for (Usuario usuario : usuarios) {
@@ -351,9 +352,9 @@ public class UsuarioServiceImpl implements UsuarioService {
             table.addCell(usuario.getCorreoElectronico());
             table.addCell(usuario.getRol().getRolNombre().toString());
         }
-        //Agregar tabla al documento
+        // Agregar tabla al documento
         document.add(table);
-        //Cerrar documento
+        // Cerrar documento
         document.close();
     }
 }

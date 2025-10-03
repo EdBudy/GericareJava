@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-// JpaSpecificationExecutor permite el uso de Specifications para queries dinámicas.
+// JpaSpecificationExecutor permite el uso de Specifications para queries dinámicas
 public interface UsuarioRepository extends JpaRepository<Usuario, Long>, JpaSpecificationExecutor<Usuario> {
 
-    // Spring Data JPA creará la consulta automáticamente por el nombre del metodo.
-    // Esto se traduce a: "SELECT * FROM tb_usuario WHERE correo_electronico = ?"
+    // Spring Data JPA crea la consulta automáticamente por el nombre del metodo
+    // Osea: "SELECT * FROM tb_usuario WHERE correo_electronico = ?"
     Optional<Usuario> findByCorreoElectronico(String correoElectronico);
     List<Usuario> findByRol_RolNombre(RolNombre rolNombre);
     Optional<Usuario> findByResetPasswordToken(String token);

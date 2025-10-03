@@ -15,13 +15,10 @@ public interface PacienteAsignadoRepository extends JpaRepository<PacienteAsigna
 
     List<PacienteAsignado> findByCuidador_CorreoElectronicoAndEstado(String correoElectronico, EstadoAsignacion estado);
 
-    Optional<PacienteAsignado> findByFamiliar_CorreoElectronicoAndEstado(String correoElectronico, EstadoAsignacion estado);
+    List<PacienteAsignado> findByFamiliar_CorreoElectronicoAndEstado(String correoElectronico, EstadoAsignacion estado);
 
     List<PacienteAsignado> findByPacienteIdPacienteAndEstado(Long idPaciente, EstadoAsignacion estado);
 
-    /**
-     * Valida si existe una asignación activa para una combinación específica de cuidador y paciente.
-     * Esencial para la validación de seguridad.
-     */
+    // Validar si existe una asignación activa para una combinación específica de cuidador y paciente
     Optional<PacienteAsignado> findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(Long cuidadorId, Long pacienteId, EstadoAsignacion estado);
 }

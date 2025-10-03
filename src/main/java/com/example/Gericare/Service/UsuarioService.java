@@ -29,14 +29,14 @@ public interface UsuarioService {
 
     List<UsuarioDTO> findByRol(RolNombre rolNombre);
 
-    // Nuevos métodos para el dashboard y filtros
+    // Métodos para el dashboard y filtros
     List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude);
 
     List<PacienteAsignadoDTO> findPacientesByCuidadorEmail(String email);
 
-    Optional<PacienteAsignadoDTO> findPacientesByFamiliarEmail(String email);
+    List<PacienteAsignadoDTO> findPacientesByFamiliarEmail(String email);
 
-    // Nuevos métodos para exportar
+    // Métodos para exportar
     void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException;
     void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException;
 

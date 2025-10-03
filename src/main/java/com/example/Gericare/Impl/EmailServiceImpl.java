@@ -24,7 +24,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.base-url}")
     private String baseUrl;
 
-    // Inyectar el email 'from' desde application.properties para no hardcodearlo
+    // Inyectar el email 'from' desde application.properties en vez de escribirlo fijo en el código
     @Value("${spring.mail.from}")
     private String fromEmail;
 

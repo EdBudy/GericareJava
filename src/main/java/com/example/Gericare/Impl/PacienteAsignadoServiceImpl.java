@@ -29,9 +29,9 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    @Transactional // Anotación para asegurar que todas las operaciones se completen o ninguna.
+    @Transactional // Anotación para asegurar que todas las operaciones se completen o ninguna
     public PacienteAsignadoDTO crearAsignacion(Long idPaciente, Long idCuidador, Long idFamiliar, Long idAdmin) {
-        // --- 1. Buscar y validar las entidades ---
+        // Buscar y validar entidades
         Paciente paciente = pacienteRepository.findById(idPaciente)
                 .orElseThrow(() -> new RuntimeException("Error: Paciente no encontrado con id " + idPaciente));
 
@@ -50,12 +50,10 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
                     .orElseThrow(() -> new RuntimeException("Error: Familiar no encontrado con id " + idFamiliar));
         }
 
-        // --- 2. Aplicar la lógica de negocio ---
-        // Antes de crear una nueva, desactivar cualquier asignación activa que este
-        // paciente ya tenga.
+        // Antes de crear una nueva, desactivar cualquier asignación activa que el paciente tenga
         desactivarAsignacionesAnteriores(paciente);
 
-        // --- 3. Crear la nueva entidad ---
+        // Crear la nueva entidad
         PacienteAsignado nuevaAsignacion = new PacienteAsignado();
         nuevaAsignacion.setPaciente(paciente);
         nuevaAsignacion.setCuidador(cuidador);
@@ -64,7 +62,7 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
         nuevaAsignacion.setEstado(EstadoAsignacion.Activo);
         nuevaAsignacion.setFechaCreacion(LocalDateTime.now());
 
-        // --- 4. Persistir y devolver el DTO ---
+        // Persistir y devolver el DTO
         PacienteAsignado asignacionGuardada = pacienteAsignadoRepository.save(nuevaAsignacion);
         return toDTO(asignacionGuardada);
     }
@@ -81,31 +79,30 @@ public class PacienteAsignadoServiceImpl implements PacienteAsignadoService {
 
     @Override
     public void eliminarAsignacion(Long idAsignacion) {
-        // Aplicar borrado lógico.
+        // Aplicar borrado lógico
         pacienteAsignadoRepository.findById(idAsignacion).ifPresent(asignacion -> {
             asignacion.setEstado(EstadoAsignacion.Inactivo);
             pacienteAsignadoRepository.save(asignacion);
         });
     }
 
-    // --- MÉTODOS PRIVADOS ---
+    // Métodos privados
 
     private void desactivarAsignacionesAnteriores(Paciente paciente) {
-        // Buscar todas las asignaciones que actualmente estén activas para este
-        // paciente.
+        // Buscar todas las asignaciones que actualmente estén activas para el paciente
         List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteAndEstado(paciente,
                 EstadoAsignacion.Activo);
 
-        // Iterar sobre ellas y marcarlas como inactivas.
+        // Iterar sobre ellas y marcarlas como inactivas
         for (PacienteAsignado asignacion : asignacionesActivas) {
             asignacion.setEstado(EstadoAsignacion.Inactivo);
         }
 
-        // Guardar todos los cambios en la base de datos.
+        // Guardar todos los cambios en la base de datos
         pacienteAsignadoRepository.saveAll(asignacionesActivas);
     }
 
-    // Este es el método principal que convierte la asignación
+    // Método principal que convierte la asignación
     public PacienteAsignadoDTO toDTO(PacienteAsignado asignacion) {
         PacienteDTO pacienteDTO = toPacienteDTO(asignacion.getPaciente());
 

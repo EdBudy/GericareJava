@@ -35,7 +35,7 @@ public class ActividadServiceImpl implements ActividadService {
 
 
     @Override
-    @Transactional(readOnly = true) // Buena práctica para métodos de solo lectura
+    @Transactional(readOnly = true) // Métodos de solo lectura
     public List<ActividadDTO> listarActividades(String nombrePaciente, String tipoActividad, EstadoActividad estado) {
         return actividadRepository.findAll(ActividadSpecification.findByCriteria(nombrePaciente, tipoActividad, estado))
                 .stream()
@@ -68,7 +68,7 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
-    @Transactional(readOnly = true) // Buena práctica para métodos de solo lectura
+    @Transactional(readOnly = true)
     public Optional<ActividadDTO> obtenerActividadPorId(Long id) {
         return actividadRepository.findById(id).map(this::toDTO);
     }
@@ -105,12 +105,12 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     @Override
-    @Transactional // ANOTACIÓN CRUCIAL AÑADIDA
+    @Transactional
     public void marcarComoCompletada(Long actividadId, Long cuidadorId) {
         Actividad actividad = actividadRepository.findById(actividadId)
                 .orElseThrow(() -> new RuntimeException("Actividad no encontrada con id: " + actividadId));
 
-        // Validación de seguridad CRUCIAL.
+        // Validación de seguridad
         boolean esAsignado = pacienteAsignadoRepository.findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(
                         cuidadorId, actividad.getPaciente().getIdPaciente(), EstadoAsignacion.Activo)
                 .isPresent();
@@ -124,7 +124,7 @@ public class ActividadServiceImpl implements ActividadService {
     }
 
     private ActividadDTO toDTO(Actividad actividad) {
-        // Lógica para obtener nombres de forma segura
+        // Lógica para obtener nombres
         String nombrePaciente = (actividad.getPaciente() != null)
                 ? actividad.getPaciente().getNombre() + " " + actividad.getPaciente().getApellido() : "N/A";
 
@@ -134,7 +134,6 @@ public class ActividadServiceImpl implements ActividadService {
         Long idPaciente = (actividad.getPaciente() != null) ? actividad.getPaciente().getIdPaciente() : null;
         Long idAdmin = (actividad.getAdministrador() != null) ? actividad.getAdministrador().getIdUsuario() : null;
 
-        // CORRECCIÓN: Se reordenan los argumentos para coincidir con el constructor de Lombok @AllArgsConstructor
         return new ActividadDTO(
                 actividad.getIdActividad(),
                 idPaciente,

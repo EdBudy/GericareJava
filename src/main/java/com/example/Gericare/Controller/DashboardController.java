@@ -46,7 +46,7 @@ public class DashboardController {
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(userEmail));
 
             } else if (userRole.equals("ROLE_Familiar")) {
-                model.addAttribute("pacienteAsignado", usuarioService.findPacientesByFamiliarEmail(userEmail));
+                model.addAttribute("pacientesAsignados", usuarioService.findPacientesByFamiliarEmail(userEmail));
             }
         }
         return "dashboard";

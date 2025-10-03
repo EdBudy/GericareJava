@@ -1,5 +1,6 @@
 package com.example.Gericare.config;
 
+import com.example.Gericare.Repository.ActividadRepository;
 import com.example.Gericare.Repository.RolRepository;
 import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.entity.*;
@@ -10,7 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class DataInitializer {
@@ -20,11 +23,12 @@ public class DataInitializer {
                                           UsuarioRepository usuarioRepository,
                                           PasswordEncoder passwordEncoder,
                                           com.example.Gericare.Repository.PacienteRepository pacienteRepository,
-                                          com.example.Gericare.Service.PacienteAsignadoService pacienteAsignadoService) {
+                                          com.example.Gericare.Service.PacienteAsignadoService pacienteAsignadoService,
+                                          ActividadRepository actividadRepository) {
         return args -> {
-            // Crear todos los roles definidos en el enum RolNombre si no existen
+            // Crear roles
             for (RolNombre rolNombre : RolNombre.values()) {
-                if (!rolRepository.findByRolNombre(rolNombre).isPresent()) {
+                if (rolRepository.findByRolNombre(rolNombre).isEmpty()) {
                     Rol nuevoRol = new Rol();
                     nuevoRol.setRolNombre(rolNombre);
                     nuevoRol.setDescripcion("Rol de " + rolNombre.name());
@@ -33,132 +37,230 @@ public class DataInitializer {
                 }
             }
 
-            // Crear usuario administrador por defecto si no existe
-            if (!usuarioRepository.findByCorreoElectronico("admin@gericare.com").isPresent()) {
-                // Nos aseguramos de que el rol Administrador exista antes de asignarlo
-                Rol rolAdmin = rolRepository.findByRolNombre(RolNombre.Administrador)
-                        .orElseThrow(() -> new RuntimeException("Error: Rol Administrador no encontrado."));
+            // Nombres y apellidos cuidadores
+            String[] nombresCuidadores = {"Ana Milena", "Carlos Alberto", "Sofia Isabel"};
+            String[] apellidosCuidadores = {"Rojas", "Velez", "Castro"};
 
+            // Nombres y apellidos familiares
+            String[] nombresFamiliares = {"Juan David", "Maria Camila", "Pedro Jose"};
+            String[] apellidosFamiliares = {"Herrera", "Vargas", "Ramirez"};
+
+
+            // Crear admin
+            if (usuarioRepository.findByCorreoElectronico("admin@gericare.com").isEmpty()) {
+                Rol rolAdmin = rolRepository.findByRolNombre(RolNombre.Administrador).orElseThrow(() -> new RuntimeException("Rol no encontrado"));
                 Administrador admin = new Administrador();
-
-                // Atributos de Usuario
                 admin.setTipoDocumento(TipoDocumento.CC);
                 admin.setDocumentoIdentificacion("123456789");
                 admin.setNombre("Admin");
                 admin.setApellido("Gericare");
-                admin.setDireccion("Calle Falsa 123");
+                admin.setDireccion("Calle 85 #15-20");
                 admin.setCorreoElectronico("admin@gericare.com");
-                admin.setContrasena(passwordEncoder.encode("admin123")); // Contraseña por defecto
+                admin.setContrasena(passwordEncoder.encode("admin123"));
                 admin.setRol(rolAdmin);
-
                 Telefono adminTelefono = new Telefono();
-                adminTelefono.setNumero("111111111");
+                adminTelefono.setNumero("3131234567");
                 adminTelefono.setUsuario(admin);
                 admin.setTelefonos(Collections.singletonList(adminTelefono));
-
-                // Atributos de Empleado
                 admin.setFechaContratacion(LocalDate.now());
                 admin.setTipoContrato("Indefinido");
-                admin.setContactoEmergencia("987654321");
+                admin.setContactoEmergencia("3131234567");
                 admin.setFechaNacimiento(LocalDate.of(1990, 1, 1));
-
                 usuarioRepository.save(admin);
                 System.out.println("Usuario administrador por defecto creado.");
             }
 
-            // Crear usuario cuidador por defecto si no existe
-            if (!usuarioRepository.findByCorreoElectronico("cuidador@gericare.com").isPresent()) {
-                Rol rolCuidador = rolRepository.findByRolNombre(RolNombre.Cuidador)
-                        .orElseThrow(() -> new RuntimeException("Error: Rol Cuidador no encontrado."));
-
-                Cuidador cuidador = new Cuidador();
-
-                // Atributos de Usuario
-                cuidador.setTipoDocumento(TipoDocumento.CC);
-                cuidador.setDocumentoIdentificacion("987654321");
-                cuidador.setNombre("Cuidador");
-                cuidador.setApellido("Ejemplo");
-                cuidador.setDireccion("Avenida Siempre Viva 742");
-                cuidador.setCorreoElectronico("cuidador@gericare.com");
-                cuidador.setContrasena(passwordEncoder.encode("cuidador123"));
-                cuidador.setRol(rolCuidador);
-
-                Telefono cuidadorTelefono = new Telefono();
-                cuidadorTelefono.setNumero("222222222");
-                cuidadorTelefono.setUsuario(cuidador);
-                cuidador.setTelefonos(Collections.singletonList(cuidadorTelefono));
-
-                // Atributos de Empleado
-                cuidador.setFechaContratacion(LocalDate.now());
-                cuidador.setTipoContrato("Por Horas");
-                cuidador.setContactoEmergencia("123456789");
-                cuidador.setFechaNacimiento(LocalDate.of(1995, 5, 15));
-
-                usuarioRepository.save(cuidador);
-                System.out.println("Usuario cuidador por defecto creado.");
+            for (int i = 0; i < 3; i++) {
+                int userIndex = i + 1;
+                if (usuarioRepository.findByCorreoElectronico("cuidador_" + userIndex + "@gericare.com").isEmpty()) {
+                    Rol rolCuidador = rolRepository.findByRolNombre(RolNombre.Cuidador).orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                    Cuidador cuidador = new Cuidador();
+                    cuidador.setTipoDocumento(TipoDocumento.CC);
+                    cuidador.setDocumentoIdentificacion("98765432" + userIndex);
+                    cuidador.setNombre(nombresCuidadores[i]);
+                    cuidador.setApellido(apellidosCuidadores[i]);
+                    cuidador.setDireccion("Calle 72 #10-4" + userIndex);
+                    cuidador.setCorreoElectronico("cuidador_" + userIndex + "@gericare.com");
+                    cuidador.setContrasena(passwordEncoder.encode("cuidador" + userIndex));
+                    cuidador.setRol(rolCuidador);
+                    Telefono cuidadorTelefono = new Telefono();
+                    cuidadorTelefono.setNumero("320987654" + userIndex);
+                    cuidadorTelefono.setUsuario(cuidador);
+                    cuidador.setTelefonos(Collections.singletonList(cuidadorTelefono));
+                    cuidador.setFechaContratacion(LocalDate.now());
+                    cuidador.setTipoContrato("Por Horas");
+                    cuidador.setContactoEmergencia("313876543" + userIndex);
+                    cuidador.setFechaNacimiento(LocalDate.of(1995, 5, 15));
+                    usuarioRepository.save(cuidador);
+                    System.out.println("Usuario cuidador por defecto creado: cuidador_" + userIndex);
+                }
             }
 
-            // Crear usuario familiar por defecto si no existe
-            if (!usuarioRepository.findByCorreoElectronico("familiar@gericare.com").isPresent()) {
-                Rol rolFamiliar = rolRepository.findByRolNombre(RolNombre.Familiar)
-                        .orElseThrow(() -> new RuntimeException("Error: Rol Familiar no encontrado."));
-
-                Familiar familiar = new Familiar();
-
-                // Atributos de Usuario
-                familiar.setTipoDocumento(TipoDocumento.CC);
-                familiar.setDocumentoIdentificacion("1122334455");
-                familiar.setNombre("Familiar");
-                familiar.setApellido("Prueba");
-                familiar.setDireccion("Calle de la Rosa 45");
-                familiar.setCorreoElectronico("familiar@gericare.com");
-                familiar.setContrasena(passwordEncoder.encode("familiar123"));
-                familiar.setRol(rolFamiliar);
-
-                Telefono familiarTelefono = new Telefono();
-                familiarTelefono.setNumero("333333333");
-                familiarTelefono.setUsuario(familiar);
-                familiar.setTelefonos(Collections.singletonList(familiarTelefono));
-
-                // Atributos de Familiar
-                familiar.setParentesco("Hijo/a");
-
-                usuarioRepository.save(familiar);
-                System.out.println("Usuario familiar por defecto creado.");
+            for (int i = 0; i < 3; i++) {
+                int userIndex = i + 1;
+                if (usuarioRepository.findByCorreoElectronico("familiar_" + userIndex + "@gmail.com").isEmpty()) {
+                    Rol rolFamiliar = rolRepository.findByRolNombre(RolNombre.Familiar).orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                    Familiar familiar = new Familiar();
+                    familiar.setTipoDocumento(TipoDocumento.CC);
+                    familiar.setDocumentoIdentificacion("11223344" + (5 + userIndex));
+                    familiar.setNombre(nombresFamiliares[i]);
+                    familiar.setApellido(apellidosFamiliares[i]);
+                    familiar.setDireccion("Calle 72 #11-7" + userIndex);
+                    familiar.setCorreoElectronico("familiar_" + userIndex + "@gmail.com");
+                    familiar.setContrasena(passwordEncoder.encode("familiar" + userIndex));
+                    familiar.setRol(rolFamiliar);
+                    Telefono familiarTelefono = new Telefono();
+                    familiarTelefono.setNumero("313654321" + userIndex);
+                    familiarTelefono.setUsuario(familiar);
+                    familiar.setTelefonos(Collections.singletonList(familiarTelefono));
+                    familiar.setParentesco("Hijo/a");
+                    usuarioRepository.save(familiar);
+                    System.out.println("Usuario familiar por defecto creado: familiar_" + userIndex);
+                }
             }
 
-            // Verifica si el paciente de prueba ya existe usando su documento
+            // Crear pacientes y asignaciones
+            Administrador admin = (Administrador) usuarioRepository.findByCorreoElectronico("admin@gericare.com").get();
+
             if (pacienteRepository.findByDocumentoIdentificacion("12345").isEmpty()) {
-                System.out.println("Creando paciente y asignación por defecto...");
+                Usuario cuidador1 = usuarioRepository.findByCorreoElectronico("cuidador_1@gericare.com").get();
+                Usuario familiar1 = usuarioRepository.findByCorreoElectronico("familiar_1@gmail.com").get();
 
-                // Busca los usuarios que acabamos de crear para obtener sus IDs
-                Usuario admin = usuarioRepository.findByCorreoElectronico("admin@gericare.com").get();
-                Usuario cuidador = usuarioRepository.findByCorreoElectronico("cuidador@gericare.com").get();
-                Usuario familiar = usuarioRepository.findByCorreoElectronico("familiar@gericare.com").get();
+                Paciente paciente1 = new Paciente();
+                paciente1.setDocumentoIdentificacion("12345");
+                paciente1.setNombre("Roberto");
+                paciente1.setApellido("Gómez");
+                paciente1.setFechaNacimiento(LocalDate.of(1940, 10, 20));
+                paciente1.setGenero(Genero.Masculino);
+                paciente1.setContactoEmergencia("3001234567");
+                paciente1.setEstadoCivil("Viudo(a)");
+                paciente1.setTipoSangre(TipoSangre.O_POSITIVO);
+                paciente1.setEstado(EstadoPaciente.Activo);
+                Paciente pacienteGuardado1 = pacienteRepository.save(paciente1);
 
-                // Crea el nuevo paciente
-                Paciente paciente = new Paciente();
-                paciente.setDocumentoIdentificacion("12345");
-                paciente.setNombre("Paciente");
-                paciente.setApellido("Prueba");
-                paciente.setFechaNacimiento(LocalDate.of(1940, 10, 20));
-                paciente.setGenero(Genero.Femenino);
-                paciente.setContactoEmergencia("3001234567");
-                paciente.setEstadoCivil("Viudo(a)");
-                paciente.setTipoSangre(TipoSangre.O_POSITIVO);
-                paciente.setEstado(EstadoPaciente.Activo);
+                pacienteAsignadoService.crearAsignacion(pacienteGuardado1.getIdPaciente(), cuidador1.getIdUsuario(), familiar1.getIdUsuario(), admin.getIdUsuario());
+                System.out.println("Paciente 1 y asignación creados.");
+            }
 
-                Paciente pacienteGuardado = pacienteRepository.save(paciente);
+            if (pacienteRepository.findByDocumentoIdentificacion("67890").isEmpty()) {
+                Usuario cuidador2 = usuarioRepository.findByCorreoElectronico("cuidador_2@gericare.com").get();
+                Usuario familiar2 = usuarioRepository.findByCorreoElectronico("familiar_2@gmail.com").get();
 
-                // Crea la asignación
-                pacienteAsignadoService.crearAsignacion(
-                        pacienteGuardado.getIdPaciente(),
-                        cuidador.getIdUsuario(),
-                        familiar.getIdUsuario(),
-                        admin.getIdUsuario()
-                );
+                Paciente paciente2 = new Paciente();
+                paciente2.setDocumentoIdentificacion("67890");
+                paciente2.setNombre("María");
+                paciente2.setApellido("Fernández");
+                paciente2.setFechaNacimiento(LocalDate.of(1952, 5, 15));
+                paciente2.setGenero(Genero.Femenino);
+                paciente2.setContactoEmergencia("3001234568");
+                paciente2.setEstadoCivil("Casado(a)");
+                paciente2.setTipoSangre(TipoSangre.A_NEGATIVO);
+                paciente2.setEstado(EstadoPaciente.Activo);
+                Paciente pacienteGuardado2 = pacienteRepository.save(paciente2);
 
-                System.out.println("Paciente y asignación por defecto creados con éxito.");
+                pacienteAsignadoService.crearAsignacion(pacienteGuardado2.getIdPaciente(), cuidador2.getIdUsuario(), familiar2.getIdUsuario(), admin.getIdUsuario());
+                System.out.println("Paciente 2 y asignación creados.");
+            }
+
+            if (pacienteRepository.findByDocumentoIdentificacion("13579").isEmpty()) {
+                Usuario cuidador3 = usuarioRepository.findByCorreoElectronico("cuidador_3@gericare.com").get();
+
+                Paciente paciente3 = new Paciente();
+                paciente3.setDocumentoIdentificacion("13579");
+                paciente3.setNombre("Carlos");
+                paciente3.setApellido("Sánchez");
+                paciente3.setFechaNacimiento(LocalDate.of(1948, 2, 10));
+                paciente3.setGenero(Genero.Masculino);
+                paciente3.setContactoEmergencia("3001234569");
+                paciente3.setEstadoCivil("Soltero(a)");
+                paciente3.setTipoSangre(TipoSangre.B_POSITIVO);
+                paciente3.setEstado(EstadoPaciente.Activo);
+                Paciente pacienteGuardado3 = pacienteRepository.save(paciente3);
+
+                pacienteAsignadoService.crearAsignacion(pacienteGuardado3.getIdPaciente(), cuidador3.getIdUsuario(), null, admin.getIdUsuario());
+                System.out.println("Paciente 3 y asignación creados (sin familiar).");
+            }
+            // Nuevos pacientes
+            if (pacienteRepository.findByDocumentoIdentificacion("54321").isEmpty()) {
+                Usuario cuidador1 = usuarioRepository.findByCorreoElectronico("cuidador_1@gericare.com").get();
+                Usuario familiar3 = usuarioRepository.findByCorreoElectronico("familiar_3@gmail.com").get();
+                Paciente p = new Paciente();
+                p.setDocumentoIdentificacion("54321");
+                p.setNombre("Laura");
+                p.setApellido("Torres");
+                p.setFechaNacimiento(LocalDate.of(1935, 3, 12));
+                p.setGenero(Genero.Femenino);
+                p.setContactoEmergencia("3112345678");
+                p.setEstadoCivil("Divorciado(a)");
+                p.setTipoSangre(TipoSangre.A_POSITIVO);
+                p.setEstado(EstadoPaciente.Activo);
+                Paciente pg = pacienteRepository.save(p);
+                pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador1.getIdUsuario(), familiar3.getIdUsuario(), admin.getIdUsuario());
+            }
+            if (pacienteRepository.findByDocumentoIdentificacion("98765").isEmpty()) {
+                Usuario cuidador2 = usuarioRepository.findByCorreoElectronico("cuidador_2@gericare.com").get();
+                Usuario familiar1 = usuarioRepository.findByCorreoElectronico("familiar_1@gmail.com").get();
+                Paciente p = new Paciente();
+                p.setDocumentoIdentificacion("98765");
+                p.setNombre("Jorge");
+                p.setApellido("Diaz");
+                p.setFechaNacimiento(LocalDate.of(1942, 11, 30));
+                p.setGenero(Genero.Masculino);
+                p.setContactoEmergencia("3123456789");
+                p.setEstadoCivil("Viudo(a)");
+                p.setTipoSangre(TipoSangre.B_NEGATIVO);
+                p.setEstado(EstadoPaciente.Activo);
+                Paciente pg = pacienteRepository.save(p);
+                pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador2.getIdUsuario(), familiar1.getIdUsuario(), admin.getIdUsuario());
+            }
+            if (pacienteRepository.findByDocumentoIdentificacion("24680").isEmpty()) {
+                Usuario cuidador3 = usuarioRepository.findByCorreoElectronico("cuidador_3@gericare.com").get();
+                Paciente p = new Paciente();
+                p.setDocumentoIdentificacion("24680");
+                p.setNombre("Lucia");
+                p.setApellido("Mora");
+                p.setFechaNacimiento(LocalDate.of(1955, 7, 25));
+                p.setGenero(Genero.Femenino);
+                p.setContactoEmergencia("3134567890");
+                p.setEstadoCivil("Soltero(a)");
+                p.setTipoSangre(TipoSangre.O_NEGATIVO);
+                p.setEstado(EstadoPaciente.Activo);
+                Paciente pg = pacienteRepository.save(p);
+                pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador3.getIdUsuario(), null, admin.getIdUsuario());
+            }
+            if (pacienteRepository.findByDocumentoIdentificacion("11223").isEmpty()) {
+                Usuario cuidador1 = usuarioRepository.findByCorreoElectronico("cuidador_1@gericare.com").get();
+                Usuario familiar2 = usuarioRepository.findByCorreoElectronico("familiar_2@gmail.com").get();
+                Paciente p = new Paciente();
+                p.setDocumentoIdentificacion("11223");
+                p.setNombre("Miguel");
+                p.setApellido("Angel");
+                p.setFechaNacimiento(LocalDate.of(1938, 9, 5));
+                p.setGenero(Genero.Masculino);
+                p.setContactoEmergencia("3145678901");
+                p.setEstadoCivil("Casado(a)");
+                p.setTipoSangre(TipoSangre.AB_POSITIVO);
+                p.setEstado(EstadoPaciente.Activo);
+                Paciente pg = pacienteRepository.save(p);
+                pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador1.getIdUsuario(), familiar2.getIdUsuario(), admin.getIdUsuario());
+            }
+
+
+            // Crear actividades si no existen
+            if (actividadRepository.count() == 0) {
+                Paciente p1 = pacienteRepository.findByDocumentoIdentificacion("12345").get();
+                Paciente p2 = pacienteRepository.findByDocumentoIdentificacion("67890").get();
+                Paciente p3 = pacienteRepository.findByDocumentoIdentificacion("13579").get();
+                Paciente p4 = pacienteRepository.findByDocumentoIdentificacion("54321").get();
+
+                actividadRepository.saveAll(List.of(
+                        new Actividad(null, p1, admin, "Toma de presión arterial", "Monitoreo de presión", LocalDate.now(), LocalTime.of(8, 0), LocalTime.of(8, 15), EstadoActividad.Pendiente),
+                        new Actividad(null, p1, admin, "Caminata ligera", "Caminata de 15 minutos por el jardín", LocalDate.now(), LocalTime.of(10, 0), LocalTime.of(10, 15), EstadoActividad.Pendiente),
+                        new Actividad(null, p2, admin, "Administrar medicamento", "Entregar pastilla para la tiroides", LocalDate.now(), LocalTime.of(9, 0), LocalTime.of(9, 10), EstadoActividad.Pendiente),
+                        new Actividad(null, p3, admin, "Terapia física", "Ejercicios de movilidad para la rodilla", LocalDate.now().plusDays(1), LocalTime.of(11, 0), LocalTime.of(11, 30), EstadoActividad.Pendiente),
+                        new Actividad(null, p4, admin, "Control de glucosa", "Medición de azúcar en sangre antes del desayuno", LocalDate.now(), LocalTime.of(7, 30), LocalTime.of(7, 40), EstadoActividad.Pendiente)
+                ));
+                System.out.println("Actividades por defecto creadas.");
             }
         };
     }

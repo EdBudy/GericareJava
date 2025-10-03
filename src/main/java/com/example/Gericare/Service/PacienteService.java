@@ -1,4 +1,3 @@
-// En: src/main/java/com/example/Gericare/Service/PacienteService.java
 package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.PacienteDTO;
@@ -16,7 +15,7 @@ public interface PacienteService {
     void eliminarPaciente(Long id); // Borrado lógico
     List<PacienteDTO> listarPacientesFiltrados(String nombre, String documento);
 
-    // Nuevos métodos para exportar la lista filtrada
+    // Método para exportar la lista filtrada
     void exportarPacientesAExcel(OutputStream outputStream, String nombre, String documento) throws IOException;
     void exportarPacientesAPDF(OutputStream outputStream, String nombre, String documento) throws IOException;
 }

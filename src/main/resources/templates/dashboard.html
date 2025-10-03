@@ -63,8 +63,11 @@
 
     <!-- Sección para el Familiar -->
     <div sec:authorize="hasRole('Familiar')">
-        <h2>Información del Paciente Asignado</h2>
-        <div th:if="${pacienteAsignado.isPresent()}" class="card shadow-sm mt-4">
+        <h2>Mis Pacientes Asignados</h2>
+        <div th:if="${pacientesAsignados.isEmpty()}">
+            <div class="alert alert-warning mt-4">Usted aún no ha sido asignado a ningún paciente.</div>
+        </div>
+        <div th:if="${not pacientesAsignados.isEmpty()}" class="card shadow-sm mt-4">
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
@@ -77,19 +80,16 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td th:text="${pacienteAsignado.get().paciente.nombre + ' ' + pacienteAsignado.get().paciente.apellido}"></td>
-                            <td th:text="${pacienteAsignado.get().paciente.documentoIdentificacion}"></td>
-                            <td th:text="${pacienteAsignado.get().cuidador.nombre + ' ' + pacienteAsignado.get().cuidador.apellido}"></td>
-                            <td th:text="${#temporals.format(pacienteAsignado.get().fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
+                        <tr th:each="asignacion : ${pacientesAsignados}">
+                            <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
+                            <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
+                            <td th:text="${asignacion.cuidador.nombre + ' ' + asignacion.cuidador.apellido}"></td>
+                            <td th:text="${#temporals.format(asignacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
                         </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
-        <div th:if="${pacienteAsignado.isEmpty()}">
-            <div class="alert alert-warning mt-4">Usted aún no ha sido asignado a ningún paciente.</div>
         </div>
     </div>
 </main>
