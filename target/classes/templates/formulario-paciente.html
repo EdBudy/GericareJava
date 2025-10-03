@@ -15,6 +15,9 @@
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">Crear Nuevo Paciente</h2>
 
+                    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert" th:text="${successMessage}"></div>
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert" th:text="${errorMessage}"></div>
+
                     <form th:action="@{/pacientes/crear}" th:object="${paciente}" method="post">
                         <div class="row">
                             <div class="col-md-6 mb-3">
@@ -65,7 +68,8 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="numeroSeguro" class="form-label">Número de Seguro</label>
-                                <input type="text" id="numeroSeguro" th:field="*{numeroSeguro}" class="form-control" />
+                                <input type="text" id="numeroSeguro" th:field="*{numeroSeguro}" class="form-control" pattern="[0-9]+" title="Este campo solo admite números." />
+
                             </div>
 
                             <hr class="my-3"> <div class="col-md-6 mb-3">
