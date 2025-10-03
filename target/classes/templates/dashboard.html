@@ -24,6 +24,9 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
+    <!-- sec:authorize="hasRole('ROL')" es como un if en el HTML
+    usando Thymeleaf con integración de Spring Security -->
+
     <!-- Sección para el Administrador -->
     <div sec:authorize="hasRole('Administrador')">
         <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios})}"></div>

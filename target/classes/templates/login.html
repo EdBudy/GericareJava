@@ -19,6 +19,8 @@
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
         <form th:action="@{/login}" method="post">
+            <!-- Al hacer clic en "Ingresar", los datos se envían a /login por POST.
+                 Spring Security intercepta automáticamente esta petición -->
             <div th:if="${param.error}" class="alert alert-error">
                 Usuario o contraseña inválidos.
             </div>

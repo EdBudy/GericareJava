@@ -13,7 +13,6 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @Entity
 @Table(name = "tb_paciente")
-@Where(clause = "estado = 'Activo'")
 public class Paciente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

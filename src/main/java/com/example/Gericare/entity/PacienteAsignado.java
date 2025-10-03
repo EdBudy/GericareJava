@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "paciente_asignado")
-@Where(clause = "estado = 'Activo'")
 @Getter
 @Setter
 @NoArgsConstructor

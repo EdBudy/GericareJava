@@ -1,12 +1,15 @@
 package com.example.Gericare.Impl;
 
 import com.example.Gericare.DTO.PacienteDTO;
+import com.example.Gericare.Repository.ActividadRepository;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Repository.PacienteRepository;
 import com.example.Gericare.Service.PacienteAsignadoService;
 import com.example.Gericare.Service.PacienteService;
+import com.example.Gericare.entity.Actividad;
 import com.example.Gericare.entity.Paciente;
 import com.example.Gericare.entity.PacienteAsignado;
+import com.example.Gericare.enums.EstadoActividad;
 import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.EstadoPaciente;
 import com.example.Gericare.specification.PacienteSpecification;
@@ -38,6 +41,8 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteAsignadoService pacienteAsignadoService;
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
+    @Autowired
+    private ActividadRepository actividadRepository;
 
     @Override
     @Transactional
@@ -75,10 +80,22 @@ public class PacienteServiceImpl implements PacienteService {
     }
 
     @Override
+    @Transactional
     public void eliminarPaciente(Long id) {
         pacienteRepository.findById(id).ifPresent(paciente -> {
+            // Desactivar paciente
             paciente.setEstado(EstadoPaciente.Inactivo);
             pacienteRepository.save(paciente);
+
+            // Desactivar asignaciones activas
+            List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(id, EstadoAsignacion.Activo);
+            asignacionesActivas.forEach(asignacion -> asignacion.setEstado(EstadoAsignacion.Inactivo));
+            pacienteAsignadoRepository.saveAll(asignacionesActivas);
+
+            // Desactivar actividades del paciente
+            List<Actividad> actividades = actividadRepository.findByPacienteIdPaciente(id);
+            actividades.forEach(actividad -> actividad.setEstadoActividad(EstadoActividad.Inactivo));
+            actividadRepository.saveAll(actividades);
         });
     }
 
