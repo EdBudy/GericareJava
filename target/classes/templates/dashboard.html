@@ -29,7 +29,7 @@
 
     <!-- Sección para el Administrador -->
     <div sec:authorize="hasRole('Administrador')">
-        <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios})}"></div>
+        <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios}, familiarAssignmentsText=${familiarAssignmentsText})}"></div>
     </div>
 
     <!-- Sección para el Cuidador -->

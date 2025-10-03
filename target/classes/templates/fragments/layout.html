@@ -89,11 +89,26 @@
     <script th:src="@{/js/contraseña-hidden.js}"></script>
     <script>
         // Función de JavaScript para confirmar eliminación
-        function confirmarEliminacion(usuarioId) {
+        function confirmarEliminacion(button) {
+            const usuarioId = button.getAttribute('data-usuario-id');
+            const rol = button.getAttribute('data-usuario-rol');
+            const nombreUsuario = button.getAttribute('data-usuario-nombre');
+            const warningText = button.getAttribute('data-warning-text');
+
+            let title = '¿Estás seguro?';
+            let text = `¡El usuario ${nombreUsuario} será eliminado y no podrás revertir esto!`;
+            let icon = 'warning';
+
+            // Si existe un texto de advertencia (para familiares con pacientes) se usa
+            if (warningText) {
+                title = 'Advertencia de Asignación';
+                text = warningText;
+            }
+
             Swal.fire({
-                title: '¿Estás seguro?',
-                text: "¡El usuario será Eliminado y no podrás revertir esto!",
-                icon: 'warning',
+                title: title,
+                text: text,
+                icon: icon,
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
                 cancelButtonColor: '#3085d6',
@@ -105,7 +120,8 @@
                 }
             });
         }
-        // NUEVA Función para confirmar eliminación de PACIENTE
+
+        // Función para confirmar eliminación de PACIENTE
         function confirmarEliminacionPaciente(pacienteId) {
             Swal.fire({
                 title: '¿Estás seguro?',
@@ -123,7 +139,7 @@
             });
         }
 
-        // NUEVA Función para confirmar eliminación de ACTIVIDAD
+        // Función para confirmar eliminación de ACTIVIDAD
         function confirmarEliminacionActividad(actividadId) {
             Swal.fire({
                 title: '¿Estás seguro?',

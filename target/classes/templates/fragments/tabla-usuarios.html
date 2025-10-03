@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
 
-<div th:fragment="tabla(usuarios)">
+<div th:fragment="tabla(usuarios, familiarAssignmentsText)">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Gestión de Usuarios</h2>
@@ -81,7 +81,11 @@
                                   th:action="@{|/usuarios/eliminar/${usuario.idUsuario}|}"
                                   method="post" style="display:inline;">
                                 <button type="button" class="btn btn-danger btn-sm" title="Eliminar"
-                                        th:onclick="'confirmarEliminacion(\'' + ${usuario.idUsuario} + '\')'">
+                                        th:data-usuario-id="${usuario.idUsuario}"
+                                        th:data-usuario-rol="${usuario.rol.rolNombre}"
+                                        th:data-usuario-nombre="${usuario.nombre} + ' ' + ${usuario.apellido}"
+                                        th:data-warning-text="${familiarAssignmentsText[usuario.idUsuario]}"
+                                        onclick="confirmarEliminacion(this)">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </form>
