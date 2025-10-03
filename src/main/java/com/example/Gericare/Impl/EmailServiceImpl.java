@@ -28,15 +28,17 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.from}")
     private String fromEmail;
 
-    @Async
+    @Async // Se ejecuta en segundo plano para no demorar al usuario
     @Override
     public void sendPasswordResetEmail(String to, String token) {
         try {
+            // Construir URL completa, ej: http://localhost:8080/reset-password?token=...
             String resetUrl = baseUrl + "/reset-password?token=" + token;
 
             Context context = new Context();
             context.setVariable("resetUrl", resetUrl);
 
+            // Procesar la plantilla HTML del correo con Thymeleaf (cuerpo del correo)
             String htmlContent = templateEngine.process("password-reset-email", context);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -49,6 +51,8 @@ public class EmailServiceImpl implements EmailService {
             // Establecer quién envía el correo
             helper.setFrom(fromEmail);
 
+            // Cod para configurar y enviar el correo con JavaMailSender
+            // (interfaz de Spring Framework que simplifica el envío de correos electrónicos en aplicaciones Java)
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new IllegalStateException("Fallo al enviar el correo de reseteo.", e);

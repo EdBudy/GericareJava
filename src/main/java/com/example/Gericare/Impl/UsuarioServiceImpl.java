@@ -183,15 +183,20 @@ public class UsuarioServiceImpl implements UsuarioService {
     // Métodos correo y token
     @Override
     public void createPasswordResetTokenForUser(String email) {
+        // Encuentrar al usuario en la bd
         Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
                 .orElseThrow(() -> new RuntimeException("No se encontró un usuario con el correo: " + email));
 
+        // Crear un token único y aleatorio
         String token = UUID.randomUUID().toString();
         usuario.setResetPasswordToken(token);
+        // Establecer una fecha de caducidad (1 hora)
         usuario.setResetPasswordTokenExpiryDate(LocalDateTime.now().plusHours(1)); // Válido por 1 hora
 
+        // Guardar el token y la fecha en la base de datos para ese usuario
         usuarioRepository.save(usuario);
 
+        // Llama a otro servicio para enviar el correo
         emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), token);
     }
 
@@ -207,6 +212,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public void changeUserPassword(String token, String newPassword) {
+        // Buscar al usuario por el token
         Usuario usuario = usuarioRepository.findByResetPasswordToken(token)
                 .orElseThrow(() -> new RuntimeException("Token inválido para cambio de contraseña."));
 
@@ -214,10 +220,13 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new IllegalStateException("La nueva contraseña no puede ser igual a la anterior.");
         }
 
+        // Encriptar la nueva contraseña
         usuario.setContrasena(passwordEncoder.encode(newPassword));
+        // Invalidar el token borrándolo de la base de datos
         usuario.setResetPasswordToken(null);
         usuario.setResetPasswordTokenExpiryDate(null);
 
+        // Guardar los cambios
         usuarioRepository.save(usuario);
     }
 

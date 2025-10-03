@@ -17,11 +17,14 @@ public class PasswordResetController {
 
     @GetMapping("/reset-password")
     public String showResetPasswordForm(@RequestParam("token") String token, Model model, RedirectAttributes redirectAttributes) {
+        // Validar el token recibido desde la URL
+        // El método "validatePasswordResetToken" en UsuarioServiceImpl busca el token en la bd y verifica que la fecha de expiración no haya expirado
         String result = usuarioService.validatePasswordResetToken(token);
-        if (result != null) {
+        if (result != null) { // Si el resultado no es nulo, hubo un error (token inválido o expirado)
             redirectAttributes.addFlashAttribute("errorMessage", "El enlace para cambiar la contraseña es inválido o ha expirado.");
             return "redirect:/login";
         }
+        // Si es válido, mostrar el formulario para cambiar la contraseña
         model.addAttribute("token", token);
         return "reset-password-form";
     }
@@ -31,6 +34,7 @@ public class PasswordResetController {
                                       @RequestParam("password") String password,
                                       @RequestParam("confirmPassword") String confirmPassword,
                                       RedirectAttributes redirectAttributes) {
+        // Validar el token de nuevo y que las contraseñas coincidan
 
         String result = usuarioService.validatePasswordResetToken(token);
         if (result != null) {
@@ -49,6 +53,7 @@ public class PasswordResetController {
         }
 
         try {
+            // Llamar al servicio para hacer el cambio de contraseña
             usuarioService.changeUserPassword(token, password);
         } catch (IllegalStateException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
