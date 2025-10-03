@@ -16,7 +16,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(); // BCryptPasswordEncoder para que las contraseñas en la bd se guarden hasheadas
     }
 
     @Bean
@@ -43,8 +43,8 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated())
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .loginPage("/login") // Se le dice a Spring cuál es la pag de login
+                        .defaultSuccessUrl("/dashboard", true) // Redirigir si el login es exitoso
                         .permitAll())
                 .logout(logout -> logout
                         .logoutUrl("/logout")

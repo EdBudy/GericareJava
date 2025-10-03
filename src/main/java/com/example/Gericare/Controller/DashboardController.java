@@ -29,6 +29,7 @@ public class DashboardController {
                                    @RequestParam(required = false) String documento,
                                    @RequestParam(required = false) RolNombre rol) {
 
+        // Obtener el rol del usuario que inició sesión
         String userRole = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
@@ -37,18 +38,22 @@ public class DashboardController {
         if (userRole != null) {
             String userEmail = authentication.getName();
 
+            // Comparar el rol y ejecutar una lógica diferente para cada uno
             if (userRole.equals("ROLE_Administrador")) {
+                // Si es admin busca todos los usuarios y los añade al modelo
                 model.addAttribute("usuarios", usuarioService.findUsuariosByCriteria(nombre, documento, rol, userEmail));
                 model.addAttribute("roles", RolNombre.values());
 
             } else if (userRole.equals("ROLE_Cuidador")) {
-                // AHORA SOLO CARGA PACIENTES
+                // Cuidador, busca solo los pacientes asignados a ese cuidador
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(userEmail));
 
             } else if (userRole.equals("ROLE_Familiar")) {
+                // Familiar busca solo los pacientes asociados a ese familiar
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByFamiliarEmail(userEmail));
             }
         }
+        // Envía los datos cargados a la misma vista "dashboard.html"
         return "dashboard";
     }
 }

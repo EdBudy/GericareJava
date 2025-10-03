@@ -29,6 +29,7 @@ public class RegistroLoginController {
     public String mostrarFormularioDeLogin() {
         return "login";
     }
+    // Cuando se accede a la URL /login el controlador muestra la página "login.html"
 
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {

@@ -17,6 +17,8 @@ import java.util.Set;
 
 @Service
 public class UsuarioDetallesServiceImpl implements UserDetailsService {
+    // UsuarioDetallesServiceImpl es como un traductor (Spring Security solo entiende un formato de info:
+    // un objeto org.springframework.security.core.userdetails.User)
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -24,17 +26,16 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String correoElectronico) throws UsernameNotFoundException {
-        // Buscamos al usuario por su correo electrónico en la base de datos
+        // Busca al usuario en la base de datos por su correo en la bd
         Usuario usuario = usuarioRepository.findByCorreoElectronico(correoElectronico)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró usuario con el correo: " + correoElectronico));
 
-        // Creamos un conjunto de "permisos" (roles) para Spring Security
+        // Crea un conjunto de roles/permisos
         Set<GrantedAuthority> authorities = new HashSet<>();
-        // Añadir el prefijo "ROLE_" para seguir la convención de Spring Security.
         authorities.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getRolNombre().name()));
 
-        // Devolvemos un objeto "User" que Spring Security entiende,
-        // con el correo, la contraseña (ya encriptada) y sus roles.
+        // Devuelve un objeto "User" que Spring Security entiende,
+        // con correo, contraseña (hasheada) y sus roles
         return new User(usuario.getCorreoElectronico(), usuario.getContrasena(), authorities);
     }
 }
