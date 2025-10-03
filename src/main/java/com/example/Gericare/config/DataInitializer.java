@@ -70,6 +70,7 @@ public class DataInitializer {
                 System.out.println("Usuario administrador por defecto creado.");
             }
 
+            // Cuidadores
             for (int i = 0; i < 3; i++) {
                 int userIndex = i + 1;
                 if (usuarioRepository.findByCorreoElectronico("cuidador_" + userIndex + "@gericare.com").isEmpty()) {
@@ -96,6 +97,7 @@ public class DataInitializer {
                 }
             }
 
+            // Familiares
             for (int i = 0; i < 3; i++) {
                 int userIndex = i + 1;
                 if (usuarioRepository.findByCorreoElectronico("familiar_" + userIndex + "@gmail.com").isEmpty()) {
@@ -119,7 +121,7 @@ public class DataInitializer {
                 }
             }
 
-            // Crear pacientes y asignaciones
+            // Pacientes y asignaciones
             Administrador admin = (Administrador) usuarioRepository.findByCorreoElectronico("admin@gericare.com").get();
 
             if (pacienteRepository.findByDocumentoIdentificacion("12345").isEmpty()) {
@@ -136,6 +138,8 @@ public class DataInitializer {
                 paciente1.setEstadoCivil("Viudo(a)");
                 paciente1.setTipoSangre(TipoSangre.O_POSITIVO);
                 paciente1.setEstado(EstadoPaciente.Activo);
+                paciente1.setSeguroMedico("Famisanar");
+                paciente1.setNumeroSeguro("80012345-01");
                 Paciente pacienteGuardado1 = pacienteRepository.save(paciente1);
 
                 pacienteAsignadoService.crearAsignacion(pacienteGuardado1.getIdPaciente(), cuidador1.getIdUsuario(), familiar1.getIdUsuario(), admin.getIdUsuario());
@@ -156,6 +160,8 @@ public class DataInitializer {
                 paciente2.setEstadoCivil("Casado(a)");
                 paciente2.setTipoSangre(TipoSangre.A_NEGATIVO);
                 paciente2.setEstado(EstadoPaciente.Activo);
+                paciente2.setSeguroMedico("Sura EPS");
+                paciente2.setNumeroSeguro("90056789-02");
                 Paciente pacienteGuardado2 = pacienteRepository.save(paciente2);
 
                 pacienteAsignadoService.crearAsignacion(pacienteGuardado2.getIdPaciente(), cuidador2.getIdUsuario(), familiar2.getIdUsuario(), admin.getIdUsuario());
@@ -175,12 +181,14 @@ public class DataInitializer {
                 paciente3.setEstadoCivil("Soltero(a)");
                 paciente3.setTipoSangre(TipoSangre.B_POSITIVO);
                 paciente3.setEstado(EstadoPaciente.Activo);
+                paciente3.setSeguroMedico("Compensar EPS");
+                paciente3.setNumeroSeguro("86098765-03");
                 Paciente pacienteGuardado3 = pacienteRepository.save(paciente3);
 
                 pacienteAsignadoService.crearAsignacion(pacienteGuardado3.getIdPaciente(), cuidador3.getIdUsuario(), null, admin.getIdUsuario());
                 System.out.println("Paciente 3 y asignación creados (sin familiar).");
             }
-            // Nuevos pacientes
+
             if (pacienteRepository.findByDocumentoIdentificacion("54321").isEmpty()) {
                 Usuario cuidador1 = usuarioRepository.findByCorreoElectronico("cuidador_1@gericare.com").get();
                 Usuario familiar3 = usuarioRepository.findByCorreoElectronico("familiar_3@gmail.com").get();
@@ -194,6 +202,8 @@ public class DataInitializer {
                 p.setEstadoCivil("Divorciado(a)");
                 p.setTipoSangre(TipoSangre.A_POSITIVO);
                 p.setEstado(EstadoPaciente.Activo);
+                p.setSeguroMedico("Sanitas");
+                p.setNumeroSeguro("83012345-04");
                 Paciente pg = pacienteRepository.save(p);
                 pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador1.getIdUsuario(), familiar3.getIdUsuario(), admin.getIdUsuario());
             }
@@ -210,6 +220,8 @@ public class DataInitializer {
                 p.setEstadoCivil("Viudo(a)");
                 p.setTipoSangre(TipoSangre.B_NEGATIVO);
                 p.setEstado(EstadoPaciente.Activo);
+                p.setSeguroMedico("Nueva EPS");
+                p.setNumeroSeguro("90033344-05");
                 Paciente pg = pacienteRepository.save(p);
                 pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador2.getIdUsuario(), familiar1.getIdUsuario(), admin.getIdUsuario());
             }
@@ -225,6 +237,8 @@ public class DataInitializer {
                 p.setEstadoCivil("Soltero(a)");
                 p.setTipoSangre(TipoSangre.O_NEGATIVO);
                 p.setEstado(EstadoPaciente.Activo);
+                p.setSeguroMedico("Salud Total");
+                p.setNumeroSeguro("80099988-06");
                 Paciente pg = pacienteRepository.save(p);
                 pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador3.getIdUsuario(), null, admin.getIdUsuario());
             }
@@ -241,12 +255,14 @@ public class DataInitializer {
                 p.setEstadoCivil("Casado(a)");
                 p.setTipoSangre(TipoSangre.AB_POSITIVO);
                 p.setEstado(EstadoPaciente.Activo);
+                p.setSeguroMedico("Coomeva EPS");
+                p.setNumeroSeguro("83055566-07");
                 Paciente pg = pacienteRepository.save(p);
                 pacienteAsignadoService.crearAsignacion(pg.getIdPaciente(), cuidador1.getIdUsuario(), familiar2.getIdUsuario(), admin.getIdUsuario());
             }
 
 
-            // Crear actividades si no existen
+            // Actividades
             if (actividadRepository.count() == 0) {
                 Paciente p1 = pacienteRepository.findByDocumentoIdentificacion("12345").get();
                 Paciente p2 = pacienteRepository.findByDocumentoIdentificacion("67890").get();
