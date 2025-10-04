@@ -35,6 +35,7 @@ public class DashboardController {
         this.actividadService = actividadService;
     }
 
+    // DashboardController
     @GetMapping
     public String mostrarDashboard(Authentication authentication, Model model,
                                    @RequestParam(required = false) String nombre,
@@ -47,6 +48,7 @@ public class DashboardController {
                 .findFirst()
                 .orElse(null);
 
+        // Si el usuario tiene rol, obtiene el correo del usuario
         if (userRole != null) {
             String userEmail = authentication.getName();
 

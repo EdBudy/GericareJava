@@ -33,13 +33,12 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
         Usuario usuario = usuarioRepository.findByCorreoElectronico(correoElectronico)
                 .orElseThrow(() -> new UsernameNotFoundException("No se encontró usuario con el correo: " + correoElectronico));
 
-        // Crea un conjunto de roles/permisos
+        // Empaqueta los datos de ese usuario (correo, contraseña y rol) en un objeto User de Spring Security
         Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + usuario.getRol().getRolNombre().name()));
 
         // Devuelve un objeto "User" que Spring Security entiende,
         // con correo, contraseña (hasheada) y sus roles
         return new User(usuario.getCorreoElectronico(), usuario.getContrasena(), authorities);
-    }
+    } // Spring Security compara contraseñas, si coinciden va a /dashboard, si no va a /login?error
 }
-

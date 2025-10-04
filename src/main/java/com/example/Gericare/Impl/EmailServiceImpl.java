@@ -35,23 +35,29 @@ public class EmailServiceImpl implements EmailService {
             // Construir URL completa, ej: http://localhost:8080/reset-password?token=...
             String resetUrl = baseUrl + "/reset-password?token=" + token;
 
+            // Crea el “contexto” para Thymeleaf, donde guarda las variables a usar en la plantilla
             Context context = new Context();
-            context.setVariable("resetUrl", resetUrl);
+            context.setVariable("resetUrl", resetUrl); // Guardar URL de reseteo para usarla en la plantilla
 
             // Procesar la plantilla HTML del correo con Thymeleaf (cuerpo del correo)
             String htmlContent = templateEngine.process("password-reset-email", context);
 
+            // Crear correo en formato MIME, permite enviar correos en HTML
+            // (Multipurpose Internet Mail Extensions) permite adjuntar archivos, imágenes, etc.
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
 
+            // Pone el contenido del correo (HTML) y le indica que es un email HTML
             helper.setText(htmlContent, true);
+            // Definir destinatario del correo
             helper.setTo(to);
+            // Definir asunto del correo
             helper.setSubject("Solicitud de Cambio de Contraseña - Gericare Connect");
 
-            // Establecer quién envía el correo
+            // Definir quién envía el correo
             helper.setFrom(fromEmail);
 
-            // Cod para configurar y enviar el correo con JavaMailSender
+            // Configurar y envíar correo usando JavaMailSender
             // (interfaz de Spring Framework que simplifica el envío de correos electrónicos en aplicaciones Java)
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {

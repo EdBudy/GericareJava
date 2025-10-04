@@ -200,14 +200,15 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .collect(Collectors.toList());
     }
 
+    // UsuarioServiceImpl
     // Métodos correo y token
     @Override
     public void createPasswordResetTokenForUser(String email) {
-        // Encuentrar al usuario en la bd
+        // Encontrar usuario en la bd
         Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
                 .orElseThrow(() -> new RuntimeException("No se encontró un usuario con el correo: " + email));
 
-        // Crear un token único y aleatorio
+        // Crear un token único y aleatorio usando "UUID.randomUUID().toString()" (Universally Unique Identifier)
         String token = UUID.randomUUID().toString();
         usuario.setResetPasswordToken(token);
         // Establecer una fecha de caducidad (1 hora)

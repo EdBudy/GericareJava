@@ -31,6 +31,7 @@ public class RegistroLoginController {
         return "login";
     }
     // Cuando se accede a la URL /login el controlador muestra la página "login.html"
+    // "login.html" envía los datos por método POST que son procesados por Spring Security
 
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {

@@ -36,16 +36,19 @@ public class PerfilController {
         return "redirect:/dashboard?perfilActualizado=true";
     }
 
+    // PerfilController
     @PostMapping("/solicitar-cambio-password")
     public String solicitarCambioPassword(Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
-            // Llama al servicio "usuarioService.createPasswordResetTokenForUser()" para que haga el trabajo,
-            // después el controlador delega la responsabilidad al servicio UsuarioServiceImpl
+            // Llamar al servicio "usuarioService.createPasswordResetTokenForUser()" para que inicie toda la lógica,
+            //  pasándo el correo del usuario al servicio. Delega la responsabilidad al servicio "UsuarioServiceImpl"
             usuarioService.createPasswordResetTokenForUser(authentication.getName());
-            redirectAttributes.addFlashAttribute("successMessage", "Se ha enviado un correo con las instrucciones para cambiar la contraseña.");
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Se ha enviado un correo con las instrucciones para cambiar la contraseña.");
         } catch (Exception e) {
             // Manejo de errores
-            redirectAttributes.addFlashAttribute("errorMessage", "No se pudo procesar la solicitud. Inténtalo de nuevo.");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "No se pudo procesar la solicitud. Inténtalo de nuevo.");
         }
         return "redirect:/perfil";
     }
