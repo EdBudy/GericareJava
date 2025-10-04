@@ -27,6 +27,7 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
+    // Método que implementa la interfaz UserDetailsService
     public UserDetails loadUserByUsername(String correoElectronico) throws UsernameNotFoundException {
         // Busca al usuario en la base de datos por su correo en la bd
         Usuario usuario = usuarioRepository.findByCorreoElectronico(correoElectronico)
@@ -41,3 +42,4 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
         return new User(usuario.getCorreoElectronico(), usuario.getContrasena(), authorities);
     }
 }
+
