@@ -25,6 +25,7 @@ public class RegistroLoginController {
         this.usuarioService = usuarioService;
     }
 
+    // RegistroLoginController
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
         return "login";

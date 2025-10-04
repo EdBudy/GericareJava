@@ -15,7 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.Set;
 
-@Service
+@Service // Servicio gestionado por Spring
+
+// Permite a Spring Security obtener los datos del usuario para autenticación
 public class UsuarioDetallesServiceImpl implements UserDetailsService {
     // UsuarioDetallesServiceImpl es como un traductor (Spring Security solo entiende un formato de info:
     // un objeto org.springframework.security.core.userdetails.User)
