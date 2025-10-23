@@ -1,7 +1,7 @@
 package com.example.Gericare.specification;
 
-import com.example.Gericare.entity.Actividad;
-import com.example.Gericare.enums.EstadoActividad;
+import com.example.Gericare.Entity.Actividad;
+import com.example.Gericare.Enums.EstadoActividad;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;

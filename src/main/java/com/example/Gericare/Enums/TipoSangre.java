@@ -1,4 +1,4 @@
-package com.example.Gericare.enums;
+package com.example.Gericare.Enums;
 
 public enum TipoSangre {
     A_POSITIVO("A+"),

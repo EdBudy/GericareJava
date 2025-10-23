@@ -1,6 +1,6 @@
-package com.example.Gericare.entity;
+package com.example.Gericare.Entity;
 
-import com.example.Gericare.enums.EstadoActividad;
+import com.example.Gericare.Enums.EstadoActividad;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

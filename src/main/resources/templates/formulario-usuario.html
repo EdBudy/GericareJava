@@ -40,7 +40,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
                                 <select id="tipoDocumento" th:field="*{tipoDocumento}" class="form-select" required>
-                                    <option th:each="tipo : ${T(com.example.Gericare.enums.TipoDocumento).values()}"
+                                    <option th:each="tipo : ${T(com.example.Gericare.Enums.TipoDocumento).values()}"
                                             th:value="${tipo}" th:text="${tipo}"></option>
                                 </select>
                             </div>

@@ -1,8 +1,7 @@
 package com.example.Gericare.Repository;
 
 import com.example.Gericare.DTO.ActividadDTO;
-import com.example.Gericare.entity.Actividad;
-import com.example.Gericare.enums.EstadoActividad;
+import com.example.Gericare.Entity.Actividad;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -24,7 +23,7 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long>, Jpa
             "a.idActividad, a.tipoActividad, a.descripcionActividad, a.fechaActividad, a.horaInicio, a.horaFin, " +
             "p.nombre, p.apellido, a.estadoActividad) " +
             "FROM Actividad a JOIN a.paciente p JOIN PacienteAsignado pa ON pa.paciente.idPaciente = p.idPaciente " +
-            "WHERE pa.cuidador.idUsuario = :cuidadorId AND a.estadoActividad IN (com.example.Gericare.enums.EstadoActividad.Pendiente, com.example.Gericare.enums.EstadoActividad.Completada)")
+            "WHERE pa.cuidador.idUsuario = :cuidadorId AND a.estadoActividad IN (com.example.Gericare.Enums.EstadoActividad.Pendiente, com.example.Gericare.Enums.EstadoActividad.Completada)")
     List<ActividadDTO> findActividadesByCuidador(@Param("cuidadorId") Long cuidadorId);
 
     List<Actividad> findByPacienteIdPaciente(Long pacienteId);

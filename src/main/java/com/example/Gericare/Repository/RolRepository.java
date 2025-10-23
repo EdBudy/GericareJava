@@ -1,7 +1,7 @@
 package com.example.Gericare.Repository;
 
-import com.example.Gericare.entity.Rol;
-import com.example.Gericare.enums.RolNombre;
+import com.example.Gericare.Entity.Rol;
+import com.example.Gericare.Enums.RolNombre;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

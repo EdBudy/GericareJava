@@ -1,9 +1,9 @@
-package com.example.Gericare.entity;
+package com.example.Gericare.Entity;
 
-import com.example.Gericare.enums.EstadoAsignacion;
+import com.example.Gericare.Enums.EstadoAsignacion;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Where;
+
 import java.time.LocalDateTime;
 
 @Entity

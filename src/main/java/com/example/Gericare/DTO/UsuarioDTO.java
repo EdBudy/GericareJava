@@ -1,8 +1,8 @@
 package com.example.Gericare.DTO;
 
-import com.example.Gericare.entity.Rol;
-import com.example.Gericare.enums.EstadoUsuario;
-import com.example.Gericare.enums.TipoDocumento;
+import com.example.Gericare.Entity.Rol;
+import com.example.Gericare.Enums.EstadoUsuario;
+import com.example.Gericare.Enums.TipoDocumento;
 import lombok.*;
 import java.time.LocalDate;
 import jakarta.validation.constraints.Email;

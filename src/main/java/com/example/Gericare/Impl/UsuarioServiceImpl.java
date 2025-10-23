@@ -7,10 +7,10 @@ import com.example.Gericare.Service.EmailService;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.Service.PacienteAsignadoService;
-import com.example.Gericare.entity.*;
-import com.example.Gericare.enums.EstadoAsignacion;
-import com.example.Gericare.enums.EstadoUsuario;
-import com.example.Gericare.enums.RolNombre;
+import com.example.Gericare.Entity.*;
+import com.example.Gericare.Enums.EstadoAsignacion;
+import com.example.Gericare.Enums.EstadoUsuario;
+import com.example.Gericare.Enums.RolNombre;
 import com.example.Gericare.specification.UsuarioSpecification;
 import com.lowagie.text.Document;
 import com.lowagie.text.Paragraph;
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.lowagie.text.pdf.PdfWriter;
-import com.example.Gericare.entity.Usuario;
+import com.example.Gericare.Entity.Usuario;
 import org.springframework.transaction.annotation.Transactional;
 
 

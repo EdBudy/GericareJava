@@ -41,7 +41,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="genero" class="form-label">Género</label>
                                 <select id="genero" th:field="*{genero}" class="form-select" required>
-                                    <option th:each="g : ${T(com.example.Gericare.enums.Genero).values()}"
+                                    <option th:each="g : ${T(com.example.Gericare.Enums.Genero).values()}"
                                             th:value="${g}" th:text="${g}"></option>
                                 </select>
                             </div>
@@ -52,7 +52,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="tipoSangre" class="form-label">Tipo de Sangre</label>
                                 <select id="tipoSangre" th:field="*{tipoSangre}" class="form-select" required>
-                                    <option th:each="ts : ${T(com.example.Gericare.enums.TipoSangre).values()}"
+                                    <option th:each="ts : ${T(com.example.Gericare.Enums.TipoSangre).values()}"
                                             th:value="${ts}" th:text="${ts.valor}"></option>
                                 </select>
                             </div>

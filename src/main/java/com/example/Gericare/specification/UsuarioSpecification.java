@@ -1,7 +1,7 @@
 package com.example.Gericare.specification;
 
-import com.example.Gericare.entity.Usuario;
-import com.example.Gericare.enums.RolNombre;
+import com.example.Gericare.Entity.Usuario;
+import com.example.Gericare.Enums.RolNombre;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;

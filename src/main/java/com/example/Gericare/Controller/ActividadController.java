@@ -4,7 +4,7 @@ import com.example.Gericare.DTO.ActividadDTO;
 import com.example.Gericare.Service.ActividadService;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.Service.UsuarioService;
-import com.example.Gericare.enums.EstadoActividad;
+import com.example.Gericare.Enums.EstadoActividad;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

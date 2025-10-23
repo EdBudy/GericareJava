@@ -1,4 +1,4 @@
-package com.example.Gericare.enums;
+package com.example.Gericare.Enums;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

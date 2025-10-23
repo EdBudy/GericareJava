@@ -1,8 +1,8 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.Service.UsuarioService;
-import com.example.Gericare.entity.Familiar;
-import com.example.Gericare.entity.Telefono;
+import com.example.Gericare.Entity.Familiar;
+import com.example.Gericare.Entity.Telefono;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

@@ -1,7 +1,7 @@
 package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.PacienteAsignadoDTO;
-import com.example.Gericare.entity.PacienteAsignado;
+import com.example.Gericare.Entity.PacienteAsignado;
 import java.util.List;
 import java.util.Optional;
 

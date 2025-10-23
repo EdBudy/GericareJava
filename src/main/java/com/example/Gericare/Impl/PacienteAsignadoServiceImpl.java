@@ -7,8 +7,8 @@ import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Repository.PacienteRepository;
 import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.Service.PacienteAsignadoService;
-import com.example.Gericare.entity.*;
-import com.example.Gericare.enums.EstadoAsignacion;
+import com.example.Gericare.Entity.*;
+import com.example.Gericare.Enums.EstadoAsignacion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // Importante para transacciones

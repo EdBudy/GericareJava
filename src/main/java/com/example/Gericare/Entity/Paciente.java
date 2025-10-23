@@ -1,12 +1,11 @@
-package com.example.Gericare.entity;
+package com.example.Gericare.Entity;
 
-import com.example.Gericare.enums.*;
+import com.example.Gericare.Enums.*;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
 
 @Getter
 @Setter

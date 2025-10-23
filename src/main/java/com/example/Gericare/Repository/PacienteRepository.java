@@ -1,6 +1,6 @@
 package com.example.Gericare.Repository;
 
-import com.example.Gericare.entity.Paciente;
+import com.example.Gericare.Entity.Paciente;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

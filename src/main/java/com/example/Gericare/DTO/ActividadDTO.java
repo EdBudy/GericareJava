@@ -1,6 +1,6 @@
 package com.example.Gericare.DTO;
 
-import com.example.Gericare.enums.EstadoActividad;
+import com.example.Gericare.Enums.EstadoActividad;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

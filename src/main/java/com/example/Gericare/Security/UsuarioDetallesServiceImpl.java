@@ -1,7 +1,7 @@
 package com.example.Gericare.Security;
 
 import com.example.Gericare.Repository.UsuarioRepository;
-import com.example.Gericare.entity.Usuario;
+import com.example.Gericare.Entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

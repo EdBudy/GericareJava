@@ -1,4 +1,4 @@
-package com.example.Gericare.entity;
+package com.example.Gericare.Entity;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -10,6 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@DiscriminatorValue("ADMINISTRADOR")
-public class Administrador extends Empleado {
+@DiscriminatorValue("CUIDADOR")
+public class Cuidador extends Empleado {
 }

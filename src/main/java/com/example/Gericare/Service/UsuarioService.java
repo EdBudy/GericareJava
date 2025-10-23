@@ -2,9 +2,9 @@ package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.PacienteAsignadoDTO;
 import com.example.Gericare.DTO.UsuarioDTO;
-import com.example.Gericare.entity.Cuidador;
-import com.example.Gericare.entity.Familiar;
-import com.example.Gericare.enums.RolNombre;
+import com.example.Gericare.Entity.Cuidador;
+import com.example.Gericare.Entity.Familiar;
+import com.example.Gericare.Enums.RolNombre;
 import java.io.IOException;
 import java.io.OutputStream;
 

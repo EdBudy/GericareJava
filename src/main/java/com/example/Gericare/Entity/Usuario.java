@@ -1,7 +1,7 @@
-package com.example.Gericare.entity;
+package com.example.Gericare.Entity;
 
-import com.example.Gericare.enums.EstadoUsuario;
-import com.example.Gericare.enums.TipoDocumento;
+import com.example.Gericare.Enums.EstadoUsuario;
+import com.example.Gericare.Enums.TipoDocumento;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;

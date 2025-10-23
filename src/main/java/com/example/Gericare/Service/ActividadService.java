@@ -1,7 +1,7 @@
 package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.ActividadDTO;
-import com.example.Gericare.enums.EstadoActividad;
+import com.example.Gericare.Enums.EstadoActividad;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,13 +1,10 @@
-package com.example.Gericare.entity;
+package com.example.Gericare.Entity;
 
-import com.example.Gericare.enums.RolNombre;
+import com.example.Gericare.Enums.RolNombre;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
