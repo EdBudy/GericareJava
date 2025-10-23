@@ -75,4 +75,7 @@ public abstract class Usuario {
 
     @Column(name = "reset_password_token_expiry_date")
     private LocalDateTime resetPasswordTokenExpiryDate;
+
+    @Column(name = "necesita_cambio_contrasena", nullable = false)
+    private boolean necesitaCambioContrasena = true; // Por defecto true para nuevos usuarios
 }

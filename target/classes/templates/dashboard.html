@@ -12,6 +12,15 @@
 
 <main class="container mt-5 mb-5">
 
+    <div th:if="${mostrarAlertaCambioContrasena}" class="alert alert-warning alert-dismissible fade show sticky-top" role="alert" style="z-index: 1050;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>¡Cambio de contraseña requerido!</strong> Está utilizando su número de documento como contraseña, cámbiela lo antes posible.
+        <hr>
+        <p class="mb-0"><strong>Como cambiar su contraseña:</strong> Haga clic en su correo (<span sec:authentication="name"></span>) ubicado en la esquina superior derecha <strong>→</strong> Seleccione "<a th:href="@{/perfil}" class="alert-link">Editar Mi Perfil</a>" <strong>→</strong> Luego haga clic en el botón "Solicitar cambio de contraseña". Recibirá un correo para continuar con el proceso.</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+
     <!-- Mensajes de éxito o error -->
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>

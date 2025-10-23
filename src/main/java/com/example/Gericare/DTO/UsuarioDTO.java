@@ -64,4 +64,8 @@ public class UsuarioDTO {
 
     // Campo familiar
     private String parentesco;
+
+    // Campo para indicar si el usuario necesita cambiar su contraseña
+    private boolean necesitaCambioContrasena;
+
 }

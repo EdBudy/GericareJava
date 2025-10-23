@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -51,6 +52,18 @@ public class DashboardController {
         // Si el usuario tiene rol, obtiene el correo del usuario
         if (userRole != null) {
             String userEmail = authentication.getName();
+
+            // Mostrar alerta de cambio de contraseña
+            boolean mostrarAlerta = false;
+            if (userRole.equals("ROLE_Cuidador") || userRole.equals("ROLE_Familiar")) {
+                // Obtener el DTO del usuario para verificar la alerta de cambio de contraseña
+                Optional<UsuarioDTO> usuarioOpt = usuarioService.findByEmail(userEmail);
+                if (usuarioOpt.isPresent() && usuarioOpt.get().isNecesitaCambioContrasena()) {
+                    mostrarAlerta = true;
+                }
+            }
+            // Añadir al modelo para que la vista lo use
+            model.addAttribute("mostrarAlertaCambioContrasena", mostrarAlerta);
 
             // Comparar el rol y ejecutar una lógica diferente para cada uno
             if (userRole.equals("ROLE_Administrador")) {

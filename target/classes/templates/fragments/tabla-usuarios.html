@@ -36,7 +36,7 @@
                         <label for="rol" class="form-label">Rol</label>
                         <select id="rol" name="rol" class="form-select">
                             <option value="">Todos</option>
-                            <option th:each="rolOpt : ${T(com.example.Gericare.enums.RolNombre).values()}"
+                            <option th:each="rolOpt : ${T(com.example.Gericare.Enums.RolNombre).values()}"
                                     th:value="${rolOpt}"
                                     th:text="${#strings.capitalize(rolOpt.toString().toLowerCase())}"
                                     th:selected="${param.rol != null and rolOpt.name() == param.rol[0]}"></option>

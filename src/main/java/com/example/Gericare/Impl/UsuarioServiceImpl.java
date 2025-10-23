@@ -69,6 +69,10 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (cuidador.getTelefonos() != null) {
             cuidador.getTelefonos().forEach(telefono -> telefono.setUsuario(cuidador));
         }
+
+        // Asegurar que la bandera esté en true (aunque ya es default)
+        cuidador.setNecesitaCambioContrasena(true);
+
         // Asegurar que el estado inicial sea Activo
         if (cuidador.getEstado() == null) {
             cuidador.setEstado(EstadoUsuario.Activo);
@@ -101,6 +105,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (familiar.getTelefonos() != null) {
             familiar.getTelefonos().forEach(telefono -> telefono.setUsuario(familiar));
         }
+
+        // Asegurar que la bandera esté en true (aunque ya es default)
+        familiar.setNecesitaCambioContrasena(true);
 
         // Asegurar que el estado inicial sea Activo
         if (familiar.getEstado() == null) {
@@ -281,6 +288,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setResetPasswordToken(null);
         usuario.setResetPasswordTokenExpiryDate(null);
 
+        // Marcar que la contraseña ya fue cambiada
+        usuario.setNecesitaCambioContrasena(false);
+
         // Guardar los cambios
         usuarioRepository.save(usuario);
     }
@@ -308,6 +318,9 @@ public class UsuarioServiceImpl implements UsuarioService {
                     .collect(Collectors.toList()));
         }
 
+        // Campo para indicar si el usuario necesita cambiar su contraseña
+        dto.setNecesitaCambioContrasena(usuario.isNecesitaCambioContrasena());
+
         return dto;
     }
 
@@ -322,6 +335,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setCorreoElectronico(usuario.getCorreoElectronico());
         dto.setEstado(usuario.getEstado());
         dto.setRol(usuario.getRol());
+        dto.setNecesitaCambioContrasena(usuario.isNecesitaCambioContrasena());
     }
 
     // ------
