@@ -40,7 +40,7 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("resetUrl", resetUrl); // Guardar URL de reseteo para usarla en la plantilla
 
             // Procesar la plantilla HTML del correo con Thymeleaf (cuerpo del correo)
-            String htmlContent = templateEngine.process("password-reset-email", context);
+            String htmlContent = templateEngine.process("emails/password-reset-email", context);
 
             // Crear correo en formato MIME, permite enviar correos en HTML
             // (Multipurpose Internet Mail Extensions) permite adjuntar archivos, imágenes, etc.
@@ -62,6 +62,33 @@ public class EmailServiceImpl implements EmailService {
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new IllegalStateException("Fallo al enviar el correo de reseteo.", e);
+        }
+    }
+
+    @Async
+    @Override
+    public void sendWelcomeEmail(String to, String nombre, String documentoIdentificacion) {
+        try {
+            Context context = new Context();
+            context.setVariable("nombreUsuario", nombre);
+            context.setVariable("documentoIdentificacion", documentoIdentificacion);
+            context.setVariable("loginUrl", baseUrl + "/login"); // URL inicio de sesión
+
+            // Procesar la nueva plantilla 'welcome-email.html'
+            String htmlContent = templateEngine.process("emails/welcome-email", context);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+
+            helper.setText(htmlContent, true); // Indicar que es HTML
+            helper.setTo(to);                  // Destinatario
+            helper.setSubject("¡Bienvenido a Gericare Connect!"); // Asunto
+            helper.setFrom(fromEmail);         // Remitente (desde application.properties)
+
+            mailSender.send(mimeMessage);      // Enviar
+        } catch (MessagingException e) {
+            System.err.println("Error enviando email de bienvenida: " + e.getMessage()); // Mejor loggear el error
+            throw new IllegalStateException("Fallo al enviar el correo de bienvenida.", e);
         }
     }
 }

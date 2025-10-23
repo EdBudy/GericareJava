@@ -55,28 +55,62 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
     @Override
+    @Transactional // Buena práctica añadir "@Transactional" para asegurar consistencia
     public UsuarioDTO crearCuidador(Cuidador cuidador) {
+        // Codificar contraseña (que ya viene del controlador es el documento)
         cuidador.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
+
+        // Obtener y asignar el Rol 'Cuidador'
         Rol rolCuidador = rolRepository.findByRolNombre(RolNombre.Cuidador)
                 .orElseThrow(() -> new RuntimeException("Error: Rol 'Cuidador' no encontrado."));
         cuidador.setRol(rolCuidador);
+
+        // Asegurar la relación bidireccional con los Teléfonos (Importante para que JPA guarde correctamente la relación)
+        if (cuidador.getTelefonos() != null) {
+            cuidador.getTelefonos().forEach(telefono -> telefono.setUsuario(cuidador));
+        }
+        // Asegurar que el estado inicial sea Activo
+        if (cuidador.getEstado() == null) {
+            cuidador.setEstado(EstadoUsuario.Activo);
+        }
+
+        // Guardar cuidador en bd
         Cuidador cuidadorGuardado = usuarioRepository.save(cuidador);
+
+        // Convertir la entidad guardada a DTO y retornarla
         return toDTO(cuidadorGuardado);
     }
 
     @Override
+    @Transactional
     public UsuarioDTO crearFamiliar(Familiar familiar) {
+        // Validación de cantidad de teléfonos
         if (familiar.getTelefonos() != null && familiar.getTelefonos().size() > 3) {
             throw new IllegalStateException("Un familiar no puede tener más de 3 teléfonos.");
         }
+
+        // Codificar la contraseña
         familiar.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
+
+        // Obtener y asignar Rol 'Familiar'
         Rol rolFamiliar = rolRepository.findByRolNombre(RolNombre.Familiar)
                 .orElseThrow(() -> new RuntimeException("Error: Rol 'Familiar' no encontrado."));
         familiar.setRol(rolFamiliar);
+
+        // Asegurar la relación bidireccional con los Teléfonos
         if (familiar.getTelefonos() != null) {
             familiar.getTelefonos().forEach(telefono -> telefono.setUsuario(familiar));
         }
+
+        // Asegurar que el estado inicial sea Activo
+        if (familiar.getEstado() == null) {
+            familiar.setEstado(EstadoUsuario.Activo);
+        }
+
+        // Guardar el familiar en bd
         Familiar familiarGuardado = usuarioRepository.save(familiar);
+
+        // Convertir la entidad guardada a DTO y retornarla
         return toDTO(familiarGuardado);
     }
 

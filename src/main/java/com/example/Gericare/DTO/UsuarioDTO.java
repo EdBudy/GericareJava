@@ -42,8 +42,6 @@ public class UsuarioDTO {
     @Email(message = "El formato del correo electrónico no es válido.")
     private String correoElectronico;
 
-    @NotBlank(message = "La contraseña no puede estar vacía.")
-    @Size(min = 8, message = "La contraseña debe tener al menos 8 caracteres.")
     private String contrasena;
 
     private EstadoUsuario estado;

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a Gericare Connect</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 20px; color: #333; line-height: 1.6;">
+<div style="max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 25px; border-radius: 8px;">
+    <h2 style="color: #007bff; text-align: center;">¡Bienvenido/a a Gericare Connect!</h2>
+    <p>Hola <strong th:text="${nombreUsuario}">Usuario</strong>,</p>
+    <p>Le damos la bienvenida a Gericare Connect. Su cuenta ha sido creada exitosamente.</p>
+    <p>Puede iniciar sesión en la plataforma utilizando su correo electrónico y su contraseña inicial, que corresponde a su número de documento:</p>
+    <div style="text-align: center; background-color: #e9ecef; padding: 12px; border: 1px solid #ced4da; border-radius: 5px; margin: 20px 0;">
+        <p style="margin: 0; font-weight: bold; font-size: 1.2em; color: #495057;">
+            Contraseña inicial: <span th:text="${documentoIdentificacion}" style="color: #0056b3;">TuDocumento</span>
+        </p>
+    </div>
+    <p style="color: #dc3545; font-weight: bold;">Importante:</p>
+    <p>Por motivos de seguridad, es fundamental que cambie esta contraseña inicial lo antes posible. Puede hacerlo después de iniciar sesión, dirigiéndose a la sección "Editar Mi Perfil".</p>
+    <div style="text-align: center; margin: 30px 0;">
+        <a th:href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-size: 1.1em;">Ir a Iniciar Sesión</a>
+    </div>
+    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+    <p style="font-size: 0.9em; color: #6c757d; text-align: center;">
+        Este es un mensaje automático. Por favor, no responda este correo.
+        <br>Gericare Connect
+    </p>
+</div>
+</body>
+</html>

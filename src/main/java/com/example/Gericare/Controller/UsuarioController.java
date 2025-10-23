@@ -2,11 +2,9 @@ package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Impl.UsuarioServiceImpl;
-import com.example.Gericare.Repository.PacienteAsignadoRepository;
-import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.Service.EmailService;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.entity.*;
-import com.example.Gericare.enums.EstadoAsignacion;
 import com.example.Gericare.enums.RolNombre;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -38,6 +35,8 @@ public class UsuarioController {
     private UsuarioService usuarioService;
     @Autowired
     private UsuarioServiceImpl usuarioServiceImpl;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping("/editar/{id}")
     public String mostrarFormularioDeEdicion(@PathVariable Long id, Model model) {
@@ -110,15 +109,28 @@ public class UsuarioController {
     @PostMapping("/crear")
     public String crearUsuario(@Valid @ModelAttribute("usuario") UsuarioDTO usuarioDTO, BindingResult bindingResult,
                                RedirectAttributes redirectAttributes) {
+
+        // Validar si hay errores (excluyendo contraseña)
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.usuario", bindingResult);
-            redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
-            return "redirect:/usuarios/nuevo";
+            // Comprobar si los únicos errores son de contraseña
+            boolean onlyPasswordErrors = bindingResult.getFieldErrors().stream()
+                    .allMatch(fe -> fe.getField().equals("contrasena"));
+
+            // Si hay otros errores O si hay errores de contraseña y mas errores
+            if (!onlyPasswordErrors || bindingResult.getErrorCount() > bindingResult.getFieldErrorCount("contrasena")) {
+                redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.usuario", bindingResult);
+                redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
+                return "redirect:/usuarios/nuevo";
+            }
         }
+
+
         try {
             RolNombre rolSeleccionado = usuarioDTO.getRol().getRolNombre();
+            String emailUsuario = usuarioDTO.getCorreoElectronico();
+            String nombreUsuario = usuarioDTO.getNombre();
+            String documento = usuarioDTO.getDocumentoIdentificacion(); // Contraseña inicial
 
-            // Convertir la lista de strings de teléfonos a una lista de entidades Telefono
             List<Telefono> telefonos = new ArrayList<>();
             if (usuarioDTO.getTelefonos() != null) {
                 telefonos = usuarioDTO.getTelefonos().stream()
@@ -133,54 +145,62 @@ public class UsuarioController {
 
             if (rolSeleccionado == RolNombre.Cuidador) {
                 Cuidador cuidador = new Cuidador();
+                // Copiar datos DTO -> Entidad
                 cuidador.setTipoDocumento(usuarioDTO.getTipoDocumento());
                 cuidador.setDocumentoIdentificacion(usuarioDTO.getDocumentoIdentificacion());
                 cuidador.setNombre(usuarioDTO.getNombre());
                 cuidador.setApellido(usuarioDTO.getApellido());
                 cuidador.setDireccion(usuarioDTO.getDireccion());
                 cuidador.setCorreoElectronico(usuarioDTO.getCorreoElectronico());
-                cuidador.setContrasena(usuarioDTO.getContrasena());
+                cuidador.setContrasena(usuarioDTO.getContrasena()); // Contiene el documento
                 cuidador.setFechaContratacion(usuarioDTO.getFechaContratacion());
                 cuidador.setTipoContrato(usuarioDTO.getTipoContrato());
                 cuidador.setContactoEmergencia(usuarioDTO.getContactoEmergencia());
                 cuidador.setFechaNacimiento(usuarioDTO.getFechaNacimiento());
-                // Asignar teléfonos y establecer la relación bidireccional
                 cuidador.setTelefonos(telefonos);
-                telefonos.forEach(tel -> tel.setUsuario(cuidador));
+                telefonos.forEach(tel -> tel.setUsuario(cuidador)); // Relación bidireccional
 
-                usuarioService.crearCuidador(cuidador);
+                usuarioService.crearCuidador(cuidador); // Llamada al service
 
             } else if (rolSeleccionado == RolNombre.Familiar) {
                 Familiar familiar = new Familiar();
+                // Copiar datos DTO -> Entidad
                 familiar.setTipoDocumento(usuarioDTO.getTipoDocumento());
                 familiar.setDocumentoIdentificacion(usuarioDTO.getDocumentoIdentificacion());
                 familiar.setNombre(usuarioDTO.getNombre());
                 familiar.setApellido(usuarioDTO.getApellido());
                 familiar.setDireccion(usuarioDTO.getDireccion());
                 familiar.setCorreoElectronico(usuarioDTO.getCorreoElectronico());
-                familiar.setContrasena(usuarioDTO.getContrasena());
+                familiar.setContrasena(usuarioDTO.getContrasena()); // Contiene el documento
                 familiar.setParentesco(usuarioDTO.getParentesco());
-                // Asignar teléfonos y establecer la relación bidireccional
                 familiar.setTelefonos(telefonos);
-                telefonos.forEach(tel -> tel.setUsuario(familiar));
+                telefonos.forEach(tel -> tel.setUsuario(familiar)); // Relación bidireccional
 
-                usuarioService.crearFamiliar(familiar);
+                usuarioService.crearFamiliar(familiar); // Llamada al service
             } else {
                 throw new IllegalArgumentException("El rol seleccionado no es válido para la creación.");
             }
 
-            redirectAttributes.addFlashAttribute("successMessage", "¡" + usuarioDTO.getNombre() + " " + usuarioDTO.getApellido() + " se ha registrado correctamente!");
+            // Llamada para enviar correo de bienvenida
+            try {
+                emailService.sendWelcomeEmail(emailUsuario, nombreUsuario, documento);
+            } catch (Exception mailException) {
+                // Loggear el error de envío de correo, pero no detener el flujo principal
+                System.err.println("Usuario creado. Falló el envío del correo de bienvenida a " + emailUsuario + ": " + mailException.getMessage());
+            }
+
+            redirectAttributes.addFlashAttribute("successMessage", "¡" + nombreUsuario + " " + usuarioDTO.getApellido() + " se ha registrado correctamente!");
             return "redirect:/dashboard";
 
         } catch (DataIntegrityViolationException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Ya existe un usuario con el mismo documento o correo electrónico.");
-            redirectAttributes.addFlashAttribute("usuario", usuarioDTO); // Devuelve los datos para no perderlos
+            redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
             return "redirect:/usuarios/nuevo";
         } catch (Exception e) {
+            System.err.println("Error general creando usuario: " + e.getMessage()); // Loggear error
             redirectAttributes.addFlashAttribute("errorMessage", "Error al crear el usuario: " + e.getMessage());
             redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
             return "redirect:/usuarios/nuevo";
         }
     }
 }
-
