@@ -35,7 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/actividades/actividades-pacientes").hasRole("Cuidador")
 
                         // Reglas admin
-                        .requestMatchers("/usuarios/**", "/pacientes/**", "/actividades/**")
+                        .requestMatchers("/usuarios/**", "/pacientes/**", "/actividades/**", "/admin/correos/**")
                         .hasRole("Administrador")
 
                         // Vistas cuidador

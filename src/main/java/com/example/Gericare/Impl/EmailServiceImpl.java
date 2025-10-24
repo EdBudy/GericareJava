@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+import java.util.List; // Necesaria para el nuevo método de masivos
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -89,6 +90,38 @@ public class EmailServiceImpl implements EmailService {
         } catch (MessagingException e) {
             System.err.println("Error enviando email de bienvenida: " + e.getMessage()); // Mejor loggear el error
             throw new IllegalStateException("Fallo al enviar el correo de bienvenida.", e);
+        }
+    }
+    // Metodo para enviar correos masivos a una lista de destinatarios
+
+    @Async // Ejecución asíncrona
+    @Override
+    public void sendBulkEmail(List<String> recipients, String subject, String body) { // Cambiado el nombre
+        if (recipients == null || recipients.isEmpty()) {
+            System.err.println("No hay destinatarios para el correo masivo."); // Mensaje más genérico
+            return;
+        }
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage(); //
+            // Usar true para MimeMessageHelper para habilitar multipart (necesario para HTML)
+            // El segundo argumento true indica multipart, el tercero es encoding
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8"); //
+
+            // Establecer el cuerpo como HTML (asumimos que el body puede contener HTML)
+            helper.setText(body, true); //
+            helper.setSubject(subject); //
+            helper.setFrom(fromEmail); //
+
+            // Añadir destinatarios en BCC (Copia Oculta) para privacidad
+            // Convierte la List<String> a String[] requerido por setBcc
+            helper.setBcc(recipients.toArray(new String[0]));
+
+            mailSender.send(mimeMessage); //
+            System.out.println("Correo masivo enviado a " + recipients.size() + " usuarios con asunto: " + subject); // Log más informativo
+
+        } catch (MessagingException e) { //
+            System.err.println("Error al enviar el correo masivo: " + e.getMessage()); //
+            // Considera lanzar una excepción personalizada o usar un logger más robusto
         }
     }
 }

@@ -8,6 +8,8 @@ import com.example.Gericare.Enums.RolNombre;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import com.example.Gericare.Enums.RolNombre; // Necesario para el nuevo método
+
 import java.util.List;
 import java.util.Optional;
 
@@ -44,4 +46,6 @@ public interface UsuarioService {
     void createPasswordResetTokenForUser(String email);
     String validatePasswordResetToken(String token);
     void changeUserPassword(String token, String newPassword);
+
+    void sendCustomBulkEmailToRole(RolNombre role, String subject, String body);
 }

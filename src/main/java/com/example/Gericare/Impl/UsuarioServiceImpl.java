@@ -36,6 +36,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList; // Necesario para el nuevo metodo de masivos
+
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
@@ -52,6 +54,30 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PacienteAsignadoService pacienteAsignadoService;
     @Autowired
     private EmailService emailService;
+
+    // metodo para enviar correos masivos personalizados
+    @Override
+    public void sendCustomBulkEmailToRole(RolNombre role, String subject, String body) {
+        List<Usuario> targetUsers = new ArrayList<>();
+
+        if (role == null) { // Si el rol es null, asumimos que es para "Todos" (Familiares y Cuidadores)
+            targetUsers.addAll(usuarioRepository.findByRol_RolNombre(RolNombre.Familiar)); //
+            targetUsers.addAll(usuarioRepository.findByRol_RolNombre(RolNombre.Cuidador)); //
+        } else {
+            targetUsers = usuarioRepository.findByRol_RolNombre(role); //
+        }
+
+        // Obtener solo los correos electrónicos
+        List<String> recipientEmails = targetUsers.stream()
+                .map(Usuario::getCorreoElectronico) //
+                .collect(Collectors.toList()); //
+
+        if (!recipientEmails.isEmpty()) {
+            emailService.sendBulkEmail(recipientEmails, subject, body); // Llamada al método genérico
+        } else {
+            System.out.println("No se encontraron usuarios del rol " + (role != null ? role.name() : "TODOS") + " para enviar correo masivo."); //
+        }
+    }
 
 
     @Override
