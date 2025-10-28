@@ -1,8 +1,6 @@
 package com.example.Gericare.Controller;
 
-import com.example.Gericare.DTO.PacienteAsignadoDTO;
 import com.example.Gericare.DTO.TratamientoDTO;
-import com.example.Gericare.Entity.Cuidador;
 import com.example.Gericare.Enums.EstadoAsignacion;
 import com.example.Gericare.Enums.RolNombre;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
@@ -22,7 +20,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,7 +46,7 @@ public class TratamientoController {
     @PreAuthorize("hasRole('Administrador')")
     public String listarTodosTratamientosAdmin(Model model) {
         model.addAttribute("tratamientos", tratamientoService.listarTodosTratamientosActivos());
-        return "gestion-tratamientos-admin";
+        return "tratamiento/admin-gestion-tratamientos";
     }
 
     @GetMapping("/nuevo")
@@ -60,7 +57,7 @@ public class TratamientoController {
         }
         // Obtener todos los pacientes activos para el select inicial
         model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-        return "formulario-tratamiento";
+        return "tratamiento/admin-formulario-tratamiento";
     }
 
     @PostMapping("/crear")
@@ -75,7 +72,7 @@ public class TratamientoController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-            return "formulario-tratamiento";
+            return "tratamiento/admin-formulario-tratamiento";
         }
 
         try {
@@ -104,7 +101,7 @@ public class TratamientoController {
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_Administrador"))) {
                 return "redirect:/tratamientos/admin";
             } else {
-                return "redirect:/tratamientos/mis-tratamientos";
+                return "redirect:/tratamientos/cuidador-tratamientos";
             }
         }
 
@@ -122,7 +119,7 @@ public class TratamientoController {
 
             if (!esCuidadorDelTratamiento && !esAsignadoActualAlPaciente) {
                 redirectAttributes.addFlashAttribute("errorMessage", "No tienes permiso para editar este tratamiento.");
-                return "redirect:/tratamientos/mis-tratamientos";
+                return "redirect:/tratamientos/cuidador-tratamientos";
             }
         }
 
@@ -135,7 +132,7 @@ public class TratamientoController {
             model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
         }
 
-        return "formulario-tratamiento-editar";
+        return "tratamiento/formulario-tratamiento-editar";
     }
 
 
@@ -162,7 +159,7 @@ public class TratamientoController {
                 model.addAttribute("tratamiento", tratamientoDTO); // Devolver DTO con errores
                 model.addAttribute("isAdmin", isAdmin);
                 // No recargar listas el cuidador no las ve en el form edit
-                return "formulario-tratamiento-editar";
+                return "tratamiento/formulario-tratamiento-editar";
             }
             // Si solo hay error en observaciones mostrar
         } else if (isAdmin && bindingResult.hasErrors()) {
@@ -171,7 +168,7 @@ public class TratamientoController {
             model.addAttribute("isAdmin", isAdmin);
             model.addAttribute("pacientes", Collections.singletonList(pacienteService.obtenerPacientePorId(tratamientoDTO.getPacienteId()).orElse(null)));
             model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
-            return "formulario-tratamiento-editar";
+            return "tratamiento/formulario-tratamiento-editar";
         }
 
 
@@ -185,7 +182,7 @@ public class TratamientoController {
             redirectAttributes.addFlashAttribute("successMessage", "¡Tratamiento actualizado con éxito!");
 
             // Redirigir según rol
-            return isAdmin ? "redirect:/tratamientos/admin" : "redirect:/tratamientos/mis-tratamientos";
+            return isAdmin ? "redirect:/tratamientos/admin" : "redirect:/tratamientos/cuidador-tratamientos";
 
         } catch (AccessDeniedException | IllegalStateException | IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -211,12 +208,12 @@ public class TratamientoController {
 
     // Vista/Acciones Cuidador
 
-    @GetMapping("/mis-tratamientos")
+    @GetMapping("/cuidador-tratamientos")
     @PreAuthorize("hasRole('Cuidador')")
     public String listarMisTratamientos(Authentication authentication, Model model) {
         Long cuidadorId = usuarioService.findByEmail(authentication.getName()).get().getIdUsuario();
         model.addAttribute("tratamientos", tratamientoService.listarTratamientosActivosPorCuidador(cuidadorId));
-        return "mis-tratamientos"; // Nueva vista
+        return "tratamiento/cuidador-tratamientos";
     }
 
     @PostMapping("/completar/{id}")
@@ -231,7 +228,7 @@ public class TratamientoController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al completar el tratamiento.");
         }
-        return "redirect:/tratamientos/mis-tratamientos";
+        return "redirect:/tratamientos/cuidador-tratamientos";
     }
 
 
@@ -252,6 +249,6 @@ public class TratamientoController {
 
         model.addAttribute("tratamientos", tratamientoService.listarTratamientosActivosPorPaciente(pacienteId));
         model.addAttribute("pacienteNombre", pacienteService.obtenerPacientePorId(pacienteId).map(p -> p.getNombre() + " " + p.getApellido()).orElse("Desconocido"));
-        return "tratamientos-paciente";
+        return "tratamiento/familiar-tratamientos";
     }
 }

@@ -42,7 +42,7 @@ public class SolicitudController {
                 .orElseThrow(() -> new RuntimeException("Familiar no encontrado"))
                 .getIdUsuario();
         model.addAttribute("solicitudes", solicitudService.listarSolicitudesActivasPorFamiliar(familiarId));
-        return "mis-solicitudes";
+        return "solicitud/familiar-mis-solicitudes";
     }
 
     @GetMapping("/nueva")
@@ -60,7 +60,7 @@ public class SolicitudController {
 
         if (pacientesAsociados.isEmpty()) {
             model.addAttribute("errorMessage", "No tiene pacientes asignados para crear solicitudes.");
-            return "mis-solicitudes";
+            return "solicitud/familiar-mis-solicitudes";
         }
 
 
@@ -70,7 +70,7 @@ public class SolicitudController {
         model.addAttribute("pacientesAsociados", pacientesAsociados);
         // Pasar los tipos de solicitud al modelo para el select
         model.addAttribute("tiposSolicitud", com.example.Gericare.Enums.TipoSolicitud.values());
-        return "formulario-solicitud";
+        return "solicitud/familiar-formulario-solicitud";
     }
 
     @PostMapping("/crear")
@@ -102,7 +102,7 @@ public class SolicitudController {
                     .collect(Collectors.toList());
             model.addAttribute("pacientesAsociados", pacientesAsociados);
             model.addAttribute("tiposSolicitud", com.example.Gericare.Enums.TipoSolicitud.values());
-            return "formulario-solicitud";
+            return "solicitud/familiar-formulario-solicitud";
         }
 
         try {
@@ -160,7 +160,7 @@ public class SolicitudController {
     @PreAuthorize("hasRole('Administrador')")
     public String listarTodasSolicitudesAdmin(Model model) {
         model.addAttribute("solicitudes", solicitudService.listarTodasSolicitudesActivas());
-        return "gestion-solicitudes-admin";
+        return "solicitud/admin-gestion-solicitudes";
     }
 
     @PostMapping("/aprobar/{id}")
