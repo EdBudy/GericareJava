@@ -24,6 +24,11 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.Gericare.Entity.Solicitud;
+import com.example.Gericare.Entity.Tratamiento;
+import com.example.Gericare.Enums.EstadoSolicitud;
+import com.example.Gericare.Repository.SolicitudRepository;
+import com.example.Gericare.Repository.TratamientoRepository;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,6 +48,10 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteAsignadoRepository pacienteAsignadoRepository;
     @Autowired
     private ActividadRepository actividadRepository;
+    @Autowired
+    private SolicitudRepository solicitudRepository;
+    @Autowired
+    private TratamientoRepository tratamientoRepository;
 
     @Override
     @Transactional
@@ -96,6 +105,24 @@ public class PacienteServiceImpl implements PacienteService {
             List<Actividad> actividades = actividadRepository.findByPacienteIdPaciente(id);
             actividades.forEach(actividad -> actividad.setEstadoActividad(EstadoActividad.Inactivo));
             actividadRepository.saveAll(actividades);
+
+            // Desactivar Solicitudes paciente
+            List<Solicitud> solicitudes = solicitudRepository.findByPacienteIdPaciente(id);
+            solicitudes.forEach(solicitud -> {
+                if (solicitud.getEstadoSolicitud() != EstadoSolicitud.Inactivo) {
+                    solicitud.setEstadoSolicitud(EstadoSolicitud.Inactivo);
+                }
+            });
+            solicitudRepository.saveAll(solicitudes);
+
+            // Desactivar Tratamientos paciente
+            List<Tratamiento> tratamientos = tratamientoRepository.findByPacienteIdPaciente(id);
+            tratamientos.forEach(tratamiento -> {
+                if (tratamiento.getEstadoTratamiento() != EstadoActividad.Inactivo) {
+                    tratamiento.setEstadoTratamiento(EstadoActividad.Inactivo);
+                }
+            });
+            tratamientoRepository.saveAll(tratamientos);
         });
     }
 

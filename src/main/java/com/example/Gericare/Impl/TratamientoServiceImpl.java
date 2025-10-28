@@ -1,0 +1,227 @@
+package com.example.Gericare.Impl;
+
+import com.example.Gericare.DTO.TratamientoDTO;
+import com.example.Gericare.Entity.*;
+import com.example.Gericare.Enums.EstadoActividad;
+import com.example.Gericare.Enums.EstadoAsignacion;
+import com.example.Gericare.Repository.PacienteAsignadoRepository;
+import com.example.Gericare.Repository.PacienteRepository;
+import com.example.Gericare.Repository.TratamientoRepository;
+import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.Service.TratamientoService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+@Service
+public class TratamientoServiceImpl implements TratamientoService {
+
+    @Autowired
+    private TratamientoRepository tratamientoRepository;
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PacienteAsignadoRepository pacienteAsignadoRepository;
+
+    @Override
+    @Transactional
+    public TratamientoDTO crearTratamiento(TratamientoDTO tratamientoDTO, Long adminId) {
+        Paciente paciente = pacienteRepository.findById(tratamientoDTO.getPacienteId())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado con ID: " + tratamientoDTO.getPacienteId()));
+
+        Administrador admin = (Administrador) usuarioRepository.findById(adminId)
+                .filter(u -> u instanceof Administrador)
+                .orElseThrow(() -> new RuntimeException("Administrador no encontrado con ID: " + adminId));
+
+        // Encontrar al cuidador actualmente asignado al paciente
+        Cuidador cuidadorAsignado = pacienteAsignadoRepository
+                .findByPacienteIdPacienteAndEstado(paciente.getIdPaciente(), EstadoAsignacion.Activo)
+                .stream()
+                .findFirst()
+                .map(PacienteAsignado::getCuidador)
+                .orElseThrow(() -> new IllegalStateException("El paciente seleccionado no tiene un cuidador activo asignado."));
+
+        // Validar si el cuidadorId del DTO coincide con el asignado (por si se envía desde el form)
+        if (tratamientoDTO.getCuidadorId() != null && !tratamientoDTO.getCuidadorId().equals(cuidadorAsignado.getIdUsuario())) {
+            throw new IllegalArgumentException("El cuidador seleccionado no es el actualmente asignado al paciente.");
+        }
+
+
+        Tratamiento nuevoTratamiento = new Tratamiento();
+        nuevoTratamiento.setPaciente(paciente);
+        nuevoTratamiento.setAdministrador(admin);
+        nuevoTratamiento.setCuidador(cuidadorAsignado); // Asignar al cuidador encontrado
+        nuevoTratamiento.setDescripcion(tratamientoDTO.getDescripcion());
+        nuevoTratamiento.setInstruccionesEspeciales(tratamientoDTO.getInstruccionesEspeciales());
+        nuevoTratamiento.setFechaInicio(tratamientoDTO.getFechaInicio());
+        nuevoTratamiento.setFechaFin(tratamientoDTO.getFechaFin());
+        nuevoTratamiento.setObservaciones(tratamientoDTO.getObservaciones());
+        nuevoTratamiento.setEstadoTratamiento(EstadoActividad.Pendiente);
+
+        Tratamiento tratamientoGuardado = tratamientoRepository.save(nuevoTratamiento);
+        return toDTO(tratamientoGuardado);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<TratamientoDTO> obtenerTratamientoPorId(Long id) {
+        return tratamientoRepository.findById(id).map(this::toDTO);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TratamientoDTO> listarTodosTratamientosActivos() {
+        return tratamientoRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TratamientoDTO> listarTratamientosActivosPorCuidador(Long cuidadorId) {
+        return tratamientoRepository.findTratamientosActivosByCuidadorAsignado(cuidadorId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TratamientoDTO> listarTratamientosActivosPorPaciente(Long pacienteId) {
+        return tratamientoRepository.findByPacienteIdPaciente(pacienteId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public Optional<TratamientoDTO> actualizarTratamientoAdmin(Long id, TratamientoDTO tratamientoDTO) {
+        return tratamientoRepository.findById(id).map(tratamiento -> {
+
+            if (!tratamiento.getPaciente().getIdPaciente().equals(tratamientoDTO.getPacienteId())) {
+                throw new IllegalArgumentException("No se puede cambiar el paciente de un tratamiento existente.");
+            }
+
+            // Validar si el cuidador cambió y si el nuevo cuidador es el asignado actualmente
+            Cuidador cuidadorNuevo = (Cuidador) usuarioRepository.findById(tratamientoDTO.getCuidadorId())
+                    .filter(u -> u instanceof Cuidador)
+                    .orElseThrow(() -> new RuntimeException("Cuidador no encontrado con ID: " + tratamientoDTO.getCuidadorId()));
+
+            // Verificar si el cuidador nuevo es el asignado actualmente al paciente del tratamiento
+            boolean esAsignadoActual = pacienteAsignadoRepository
+                    .findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(
+                            cuidadorNuevo.getIdUsuario(), tratamiento.getPaciente().getIdPaciente(), EstadoAsignacion.Activo)
+                    .isPresent();
+
+            if (!esAsignadoActual) {
+                throw new IllegalArgumentException("El cuidador seleccionado no es el asignado actualmente al paciente.");
+            }
+
+
+            // Actualizar campos permitidos para Admin
+            tratamiento.setCuidador(cuidadorNuevo); // Permite reasignar si el nuevo cuidador es el correcto
+            tratamiento.setDescripcion(tratamientoDTO.getDescripcion());
+            tratamiento.setInstruccionesEspeciales(tratamientoDTO.getInstruccionesEspeciales());
+            tratamiento.setFechaInicio(tratamientoDTO.getFechaInicio());
+            tratamiento.setFechaFin(tratamientoDTO.getFechaFin());
+            // Admin no actualiza observaciones ni estado completado, etc.
+
+            return toDTO(tratamientoRepository.save(tratamiento));
+        });
+    }
+
+    @Override
+    @Transactional
+    public Optional<TratamientoDTO> actualizarObservacionesCuidador(Long id, Long cuidadorId, String observaciones) {
+        return tratamientoRepository.findById(id).map(tratamiento -> {
+            // Verificar que el cuidador que edita es el asignado al tratamiento
+            if (!tratamiento.getCuidador().getIdUsuario().equals(cuidadorId)) {
+                throw new AccessDeniedException("No tienes permiso para editar las observaciones de este tratamiento.");
+            }
+            tratamiento.setObservaciones(observaciones);
+            return toDTO(tratamientoRepository.save(tratamiento));
+        });
+    }
+
+    @Override
+    @Transactional
+    public Optional<TratamientoDTO> completarTratamiento(Long id, Long cuidadorId) {
+        return tratamientoRepository.findById(id).map(tratamiento -> {
+            // Verificar que el cuidador que completa es el asignado al tratamiento
+            if (!tratamiento.getCuidador().getIdUsuario().equals(cuidadorId)) {
+                // Verificar si el cuidador es el asignado actualmente al paciente
+                boolean esAsignadoActual = pacienteAsignadoRepository
+                        .findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(
+                                cuidadorId, tratamiento.getPaciente().getIdPaciente(), EstadoAsignacion.Activo)
+                        .isPresent();
+                if (!esAsignadoActual) {
+                    throw new AccessDeniedException("No tienes permiso para completar este tratamiento.");
+                }
+            }
+
+            if (tratamiento.getEstadoTratamiento() != EstadoActividad.Pendiente) {
+                throw new IllegalStateException("Solo se pueden completar tratamientos pendientes.");
+            }
+
+            tratamiento.setEstadoTratamiento(EstadoActividad.Completada);
+            // Opcional: Setear fecha fin si estaba null?
+            // if (tratamiento.getFechaFin() == null) {
+            //    tratamiento.setFechaFin(LocalDate.now());
+            // }
+            return toDTO(tratamientoRepository.save(tratamiento));
+        });
+    }
+
+    @Override
+    @Transactional
+    public void eliminarTratamientoLogico(Long id) {
+        tratamientoRepository.findById(id).ifPresent(tratamiento -> {
+            tratamiento.setEstadoTratamiento(EstadoActividad.Inactivo);
+            tratamientoRepository.save(tratamiento);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void desactivarTratamientosPorPaciente(Long pacienteId) {
+        List<Tratamiento> tratamientos = tratamientoRepository.findByPacienteIdPaciente(pacienteId);
+        tratamientos.forEach(tratamiento -> {
+            if (tratamiento.getEstadoTratamiento() != EstadoActividad.Inactivo) {
+                tratamiento.setEstadoTratamiento(EstadoActividad.Inactivo);
+            }
+        });
+        tratamientoRepository.saveAll(tratamientos);
+    }
+
+    // A DTO
+    private TratamientoDTO toDTO(Tratamiento tratamiento) {
+        String pacienteNombre = tratamiento.getPaciente() != null ? tratamiento.getPaciente().getNombre() + " " + tratamiento.getPaciente().getApellido() : null;
+        String adminNombre = tratamiento.getAdministrador() != null ? tratamiento.getAdministrador().getNombre() + " " + tratamiento.getAdministrador().getApellido() : null;
+        String cuidadorNombre = tratamiento.getCuidador() != null ? tratamiento.getCuidador().getNombre() + " " + tratamiento.getCuidador().getApellido() : null;
+
+        return new TratamientoDTO(
+                tratamiento.getIdTratamiento(),
+                tratamiento.getPaciente() != null ? tratamiento.getPaciente().getIdPaciente() : null,
+                pacienteNombre,
+                tratamiento.getAdministrador() != null ? tratamiento.getAdministrador().getIdUsuario() : null,
+                adminNombre,
+                tratamiento.getCuidador() != null ? tratamiento.getCuidador().getIdUsuario() : null,
+                cuidadorNombre,
+                tratamiento.getDescripcion(),
+                tratamiento.getInstruccionesEspeciales(),
+                tratamiento.getFechaInicio(),
+                tratamiento.getFechaFin(),
+                tratamiento.getObservaciones(),
+                tratamiento.getEstadoTratamiento()
+        );
+    }
+}

@@ -40,6 +40,13 @@
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/actividades}">Gestión Actividades</a>
                     </li>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/tratamientos/admin}">Gestión Tratamientos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/solicitudes/admin}">Gestión Solicitudes</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/admin/correos/nuevo}">Correos Masivos</a>
                     </li>
@@ -51,6 +58,17 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/actividades/actividades-pacientes}">Actividades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/tratamientos/mis-tratamientos}">Tratamientos</a>
+                    </li>
+                </ul>
+
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0" sec:authorize="hasRole('Familiar')">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/dashboard}">Mis Pacientes Asignados</a> </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/solicitudes/mis-solicitudes}">Mis Solicitudes</a>
                     </li>
                 </ul>
 

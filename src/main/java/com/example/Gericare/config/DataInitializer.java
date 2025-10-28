@@ -1,8 +1,6 @@
 package com.example.Gericare.config;
 
-import com.example.Gericare.Repository.ActividadRepository;
-import com.example.Gericare.Repository.RolRepository;
-import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.Repository.*;
 import com.example.Gericare.Entity.*;
 import com.example.Gericare.Enums.*;
 import org.springframework.boot.CommandLineRunner;
@@ -24,7 +22,8 @@ public class DataInitializer {
                                           PasswordEncoder passwordEncoder,
                                           com.example.Gericare.Repository.PacienteRepository pacienteRepository,
                                           com.example.Gericare.Service.PacienteAsignadoService pacienteAsignadoService,
-                                          ActividadRepository actividadRepository) {
+                                          ActividadRepository actividadRepository, SolicitudRepository solicitudRepository,
+                                          TratamientoRepository tratamientoRepository) {
         return args -> {
             // Crear roles
             for (RolNombre rolNombre : RolNombre.values()) {
@@ -277,6 +276,57 @@ public class DataInitializer {
                         new Actividad(null, p4, admin, "Control de glucosa", "Medición de azúcar en sangre antes del desayuno", LocalDate.now(), LocalTime.of(7, 30), LocalTime.of(7, 40), EstadoActividad.Pendiente)
                 ));
                 System.out.println("Actividades por defecto creadas.");
+            }
+
+            // solicitud y tratamiento
+            if (solicitudRepository.count() == 0 && tratamientoRepository.count() == 0) {
+                System.out.println("Creando datos de ejemplo para Solicitudes y Tratamientos...");
+
+                // Obtener usuarios/pacientes necesarios
+                Familiar familiar1 = (Familiar) usuarioRepository.findByCorreoElectronico("familiar_1@gmail.com").orElse(null);
+                Paciente paciente1 = pacienteRepository.findByDocumentoIdentificacion("12345").orElse(null);
+                Paciente paciente2 = pacienteRepository.findByDocumentoIdentificacion("67890").orElse(null);
+                Cuidador cuidador1 = (Cuidador) usuarioRepository.findByCorreoElectronico("cuidador_1@gericare.com").orElse(null);
+                Cuidador cuidador2 = (Cuidador) usuarioRepository.findByCorreoElectronico("cuidador_2@gericare.com").orElse(null);
+                Administrador adminFound = (Administrador) usuarioRepository.findByCorreoElectronico("admin@gericare.com").orElse(null);
+
+                if (familiar1 != null && paciente1 != null && paciente2 != null && cuidador1 != null && cuidador2 != null && adminFound != null) {
+
+                    // Solicitud
+                    Solicitud sol1 = new Solicitud();
+                    sol1.setFamiliar(familiar1);
+                    sol1.setPaciente(paciente1);
+                    sol1.setTipoSolicitud(TipoSolicitud.Salida);
+                    sol1.setMotivoSolicitud("Solicito salida para el paciente Roberto Gómez el próximo fin de semana.");
+                    sol1.setEstadoSolicitud(EstadoSolicitud.Pendiente);
+                    solicitudRepository.save(sol1);
+
+                    // Tratamientos
+                    Tratamiento trat1 = new Tratamiento();
+                    trat1.setPaciente(paciente1);
+                    trat1.setAdministrador(adminFound);
+                    trat1.setCuidador(cuidador1);
+                    trat1.setDescripcion("Administrar Analgésico");
+                    trat1.setInstruccionesEspeciales("Dar 1 pastilla después del almuerzo.");
+                    trat1.setFechaInicio(LocalDate.now());
+                    trat1.setFechaFin(LocalDate.now().plusDays(7));
+                    trat1.setEstadoTratamiento(EstadoActividad.Pendiente);
+                    tratamientoRepository.save(trat1);
+
+                    Tratamiento trat2 = new Tratamiento();
+                    trat2.setPaciente(paciente2);
+                    trat2.setAdministrador(adminFound);
+                    trat2.setCuidador(cuidador2);
+                    trat2.setDescripcion("Control de signos vitales");
+                    trat2.setFechaInicio(LocalDate.now());
+                    trat2.setEstadoTratamiento(EstadoActividad.Pendiente);
+                    trat2.setObservaciones("Paciente estable.");
+                    tratamientoRepository.save(trat2);
+
+                    System.out.println("Datos de ejemplo para Solicitud y Tratamiento creados.");
+                } else {
+                    System.out.println("No se pudieron crear datos de ejemplo para Solicitud/Tratamiento: Faltan usuarios/pacientes base.");
+                }
             }
         };
     }
