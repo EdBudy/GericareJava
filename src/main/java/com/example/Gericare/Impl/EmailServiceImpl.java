@@ -5,13 +5,15 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import java.util.List; // Necesaria para el nuevo método de masivos
+
+import java.util.List; // ← importante
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -22,50 +24,52 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private TemplateEngine templateEngine;
 
-    @Value("${app.base-url}")
+    @Value("${app.base-url:http://localhost:8090}")
     private String baseUrl;
 
-    // Inyectar el email 'from' desde application.properties en vez de escribirlo fijo en el código
-    @Value("${spring.mail.from}")
+    @Value("${spring.mail.from:no-reply@example.com}")
     private String fromEmail;
 
-    @Async // Se ejecuta en segundo plano para no demorar al usuario
+    // ---------------------------
+    // Envío correo reseteo
+    // ---------------------------
+    @Async
     @Override
     public void sendPasswordResetEmail(String to, String token) {
         try {
-            // Construir URL completa, ej: http://localhost:8080/reset-password?token=...
             String resetUrl = baseUrl + "/reset-password?token=" + token;
-
-            // Crea el “contexto” para Thymeleaf, donde guarda las variables a usar en la plantilla
             Context context = new Context();
-            context.setVariable("resetUrl", resetUrl); // Guardar URL de reseteo para usarla en la plantilla
+            context.setVariable("resetUrl", resetUrl);
+            context.setVariable("email", to);
+            context.setVariable("appBaseUrl", baseUrl);
 
-            // Procesar la plantilla HTML del correo con Thymeleaf (cuerpo del correo)
             String htmlContent = templateEngine.process("emails/password-reset-email", context);
 
-            // Crear correo en formato MIME, permite enviar correos en HTML
-            // (Multipurpose Internet Mail Extensions) permite adjuntar archivos, imágenes, etc.
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            // Pone el contenido del correo (HTML) y le indica que es un email HTML
-            helper.setText(htmlContent, true);
-            // Definir destinatario del correo
             helper.setTo(to);
-            // Definir asunto del correo
             helper.setSubject("Solicitud de Cambio de Contraseña - Gericare Connect");
-
-            // Definir quién envía el correo
+            helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
 
-            // Configurar y envíar correo usando JavaMailSender
-            // (interfaz de Spring Framework que simplifica el envío de correos electrónicos en aplicaciones Java)
+            // Inline logo si lo tienes en resources/static/images/
+            try {
+                ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
+                if (logo.exists()) helper.addInline("geriLogo", logo);
+            } catch (Exception e) {
+                // no fatal: continuar sin el logo inline
+            }
+
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new IllegalStateException("Fallo al enviar el correo de reseteo.", e);
         }
     }
 
+    // ---------------------------
+    // Envío correo bienvenida
+    // ---------------------------
     @Async
     @Override
     public void sendWelcomeEmail(String to, String nombre, String documentoIdentificacion) {
@@ -73,55 +77,84 @@ public class EmailServiceImpl implements EmailService {
             Context context = new Context();
             context.setVariable("nombreUsuario", nombre);
             context.setVariable("documentoIdentificacion", documentoIdentificacion);
-            context.setVariable("loginUrl", baseUrl + "/login"); // URL inicio de sesión
+            context.setVariable("email", to);
+            context.setVariable("loginUrl", baseUrl + "/login");
+            context.setVariable("appBaseUrl", baseUrl);
 
-            // Procesar la nueva plantilla 'welcome-email.html'
             String htmlContent = templateEngine.process("emails/welcome-email", context);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            helper.setText(htmlContent, true); // Indicar que es HTML
-            helper.setTo(to);                  // Destinatario
-            helper.setSubject("¡Bienvenido a Gericare Connect!"); // Asunto
-            helper.setFrom(fromEmail);         // Remitente (desde application.properties)
+            helper.setTo(to);
+            helper.setSubject("¡Bienvenido a Gericare Connect!");
+            helper.setText(htmlContent, true);
+            helper.setFrom(fromEmail);
 
-            mailSender.send(mimeMessage);      // Enviar
+            // Agregar logo inline si existe
+            try {
+                ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
+                if (logo.exists()) helper.addInline("geriLogo", logo);
+                ClassPathResource bg = new ClassPathResource("static/images/indeximg.jpg");
+                if (bg.exists()) helper.addInline("backgroundImage", bg);
+            } catch (Exception e) {
+                // ignorar
+            }
+
+            mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            System.err.println("Error enviando email de bienvenida: " + e.getMessage()); // Mejor loggear el error
             throw new IllegalStateException("Fallo al enviar el correo de bienvenida.", e);
         }
     }
-    // Metodo para enviar correos masivos a una lista de destinatarios
 
-    @Async // Ejecución asíncrona
+    // ---------------------------
+    // Envío masivo - usa plantilla bulk-email
+    // ---------------------------
+    @Async
     @Override
-    public void sendBulkEmail(List<String> recipients, String subject, String body) { // Cambiado el nombre
+    public void sendBulkEmail(List<String> recipients, String subject, String body) {
         if (recipients == null || recipients.isEmpty()) {
-            System.err.println("No hay destinatarios para el correo masivo."); // Mensaje más genérico
+            System.err.println("No hay destinatarios para el correo masivo.");
             return;
         }
+
         try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage(); //
-            // Usar true para MimeMessageHelper para habilitar multipart (necesario para HTML)
-            // El segundo argumento true indica multipart, el tercero es encoding
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "utf-8"); //
+            
+            // Preparar contexto para Thymeleaf (plantilla con subject y body)
+            Context context = new Context();
+            context.setVariable("subject", subject);
+            // Si el body contiene HTML, usar th:utext en la plantilla para interpretar HTML
+            context.setVariable("body", body);
 
-            // Establecer el cuerpo como HTML (asumimos que el body puede contener HTML)
-            helper.setText(body, true); //
-            helper.setSubject(subject); //
-            helper.setFrom(fromEmail); //
+            String htmlContent = templateEngine.process("emails/bulk-email", context);
 
-            // Añadir destinatarios en BCC (Copia Oculta) para privacidad
-            // Convierte la List<String> a String[] requerido por setBcc
-            helper.setBcc(recipients.toArray(new String[0]));
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            // multipart true para permitir inline images
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            mailSender.send(mimeMessage); //
-            System.out.println("Correo masivo enviado a " + recipients.size() + " usuarios con asunto: " + subject); // Log más informativo
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            helper.setFrom(fromEmail);
+            helper.setBcc(recipients.toArray(new String[0])); // privacidad: BCC
 
-        } catch (MessagingException e) { //
-            System.err.println("Error al enviar el correo masivo: " + e.getMessage()); //
-            // Considera lanzar una excepción personalizada o usar un logger más robusto
+            // Adjuntar logo inline (opcional)
+            try {
+                
+                ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
+                if (logo.exists()) helper.addInline("geriLogo", logo);
+            } catch (Exception e) { /* ignorar */ }
+
+            mailSender.send(mimeMessage);
+ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
+if (logo.exists()) helper.addInline("geriLogo", logo);
+
+ClassPathResource bg = new ClassPathResource("static/images/indeximg.jpg");
+if (bg.exists()) helper.addInline("backgroundImage", bg);
+
+            System.out.println("Correo masivo enviado a " + recipients.size() + " destinatarios.");
+        } catch (MessagingException e) {
+            System.err.println("Error al enviar correo masivo: " + e.getMessage());
+            // Opcional: rethrow o log más elaborado
         }
     }
 }

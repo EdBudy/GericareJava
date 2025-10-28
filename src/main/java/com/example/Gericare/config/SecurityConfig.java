@@ -1,9 +1,9 @@
+// edbudy/gericarejava/GericareJava-77ecd4243c43f842b16ab915993a9b87d440c2ea/src/main/java/com/example/Gericare/config/SecurityConfig.java
 package com.example.Gericare.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -12,7 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -43,26 +42,6 @@ public class SecurityConfig {
                         .requestMatchers("/cuidador/**").hasRole("Cuidador")
                         // Vistas familiar
                         .requestMatchers("/familiar/**").hasRole("Familiar")
-
-                        // Solicitudes (Familiar)
-                        .requestMatchers("/solicitudes/mis-solicitudes", "/solicitudes/nueva").hasRole("Familiar")
-                        .requestMatchers(HttpMethod.POST, "/solicitudes/crear").hasRole("Familiar")
-                        // Solicitudes (Admin)
-                        .requestMatchers("/solicitudes/admin/**").hasRole("Administrador")
-                        // Solicitudes (Eliminar controlado en Controller Service)
-                        .requestMatchers(HttpMethod.POST, "/solicitudes/eliminar/**").hasAnyRole("Familiar", "Administrador")
-
-                        // Tratamientos (Admin)
-                        .requestMatchers("/tratamientos/admin/**", "/tratamientos/nuevo").hasRole("Administrador")
-                        .requestMatchers(HttpMethod.POST, "/tratamientos/crear", "/tratamientos/eliminar/**").hasRole("Administrador")
-                        // Tratamientos (Cuidador)
-                        .requestMatchers("/tratamientos/mis-tratamientos/**").hasRole("Cuidador")
-                        .requestMatchers(HttpMethod.POST, "/tratamientos/completar/**").hasRole("Cuidador")
-                        // Tratamientos (Familiar solo lectura)
-                        .requestMatchers("/tratamientos/paciente/**").hasRole("Familiar")
-                        // Tratamientos (Editar controlado en Controller Service)
-                        .requestMatchers("/tratamientos/editar/**").hasAnyRole("Administrador", "Cuidador") // GET para mostrar form
-                        .requestMatchers(HttpMethod.POST, "/tratamientos/actualizar/**").hasAnyRole("Administrador", "Cuidador") // POST para guardar
 
                         // Las demás rutas requieren estar autenticado (logueado)
                         .anyRequest().authenticated())

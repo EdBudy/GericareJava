@@ -44,7 +44,7 @@ public class UsuarioController {
             model.addAttribute("usuario", usuario);
         });
         model.addAttribute("adminMode", true);
-        return "usuario/perfil";
+        return "formulario-usuario-editar";
     }
 
     @PostMapping("/editar/{id}")
@@ -103,7 +103,7 @@ public class UsuarioController {
             model.addAttribute("usuario", new UsuarioDTO());
         }
         model.addAttribute("roles", new RolNombre[]{RolNombre.Cuidador, RolNombre.Familiar});
-        return "usuario/admin-formulario-usuario";
+        return "formulario-usuario";
     }
 
     @PostMapping("/crear")

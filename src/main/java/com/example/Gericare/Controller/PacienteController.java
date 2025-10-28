@@ -57,7 +57,7 @@ public class PacienteController {
 
         model.addAttribute("pacientes", pacientes);
         model.addAttribute("nombresFamiliares", nombresFamiliares);
-        return "paciente/admin-gestion-pacientes";
+        return "gestion-pacientes";
     }
 
     @GetMapping("/exportExcel")
@@ -89,7 +89,7 @@ public class PacienteController {
         model.addAttribute("paciente", new PacienteDTO());
         model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
         model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
-        return "paciente/admin-formulario-paciente";
+        return "formulario-paciente";
     }
 
     @PostMapping("/crear")
@@ -102,7 +102,7 @@ public class PacienteController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
             model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
-            return "paciente/admin-formulario-paciente";
+            return "formulario-paciente";
         }
         try {
             Long adminId = usuarioService.findByEmail(authentication.getName())
@@ -138,7 +138,7 @@ public class PacienteController {
                         }
                     });
         });
-        return "paciente/admin-formulario-paciente-editar";
+        return "formulario-paciente-editar";
     }
 
     @PostMapping("/editar/{id}")

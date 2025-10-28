@@ -28,7 +28,7 @@ public class RegistroLoginController {
     // RegistroLoginController
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
-        return "auth/login";
+        return "login";
     }
     // Cuando se accede a la URL /login el controlador muestra la página "login.html"
     // "login.html" envía los datos por método POST que son procesados por Spring Security
@@ -36,7 +36,7 @@ public class RegistroLoginController {
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
         model.addAttribute("familiar", new Familiar());
-        return "auth/registro";
+        return "registro";
     }
 
     @PostMapping("/registro")
@@ -52,7 +52,7 @@ public class RegistroLoginController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("familiar", familiar); // Devolver el objeto con los errores
-            return "auth/registro";
+            return "registro";
         }
 
         try {
@@ -62,7 +62,7 @@ public class RegistroLoginController {
             model.addAttribute("familiar", familiar);
             // Idealmente, un error más específico (ej. "El correo ya está en uso")
             model.addAttribute("error", "Error durante el registro. Por favor, verifique sus datos.");
-            return "auth/registro";
+            return "registro";
         }
     }
 

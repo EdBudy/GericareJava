@@ -25,7 +25,7 @@ public class PerfilController {
         usuarioService.findByEmail(userEmail).ifPresent(usuario -> {
             model.addAttribute("usuario", usuario);
         });
-        return "usuario/perfil";
+        return "formulario-usuario-editar";
     }
 
     @PostMapping

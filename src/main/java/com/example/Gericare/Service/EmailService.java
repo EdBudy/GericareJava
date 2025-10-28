@@ -8,3 +8,4 @@ public interface EmailService {
 
     void sendBulkEmail(List<String> recipients, String subject, String body);
 }
+ 

@@ -1,30 +1,163 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Bienvenido a Gericare Connect</title>
+  <meta charset="UTF-8">
+  <title>Bienvenido a Gericare Connect</title>
+  <style>
+    /* Fondo general con imagen */
+        body {
+            margin: 0;
+            padding: 0;
+            background: url('cid:backgroundImage') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333;
+        }
+
+        /* Capa semitransparente para contraste */
+        .overlay {
+            background: rgba(255, 255, 255, 0.92);
+            max-width: 600px;
+            margin: 40px auto;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 40px 35px;
+            position: relative;
+        }
+
+        /* Logo superior derecho (animado) */
+        .logo-spin {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            animation: spin 8s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Encabezado principal */
+        h1 {
+            text-align: center;
+            color: #2a6efc;
+            margin-bottom: 20px;
+        }
+
+        .brand {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.3em;
+            letter-spacing: 1px;
+            color: #000;
+            margin-bottom: 25px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .highlight {
+            color: #2a6efc;
+            font-weight: 600;
+        }
+
+        /* Bloque de contraseña */
+        .password-box {
+            text-align: center;
+            background: #f0f5ff;
+            border: 1px solid #c2d3ff;
+            padding: 10px 0;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+            font-size: 1.3em;
+            color: #ffffffff;
+            box-shadow: inset 0 0 8px rgba(42,110,252,0.2);
+        }
+
+        /* Botón principal */
+        .btn {
+            display: inline-block;
+            background-color: #2a6efc;
+            color: #fff;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(42,110,252,0.3);
+        }
+
+        .btn:hover {
+            background-color: #1e5eea;
+            box-shadow: 0 6px 15px rgba(42,110,252,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* Pie de página */
+        .footer {
+            text-align: center;
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 40px;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+  </style>
 </head>
-<body style="font-family: Arial, sans-serif; margin: 20px; color: #333; line-height: 1.6;">
-<div style="max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 25px; border-radius: 8px;">
-    <h2 style="color: #007bff; text-align: center;">¡Bienvenido/a a Gericare Connect!</h2>
-    <p>Hola <strong th:text="${nombreUsuario}">Usuario</strong>,</p>
-    <p>Le damos la bienvenida a Gericare Connect. Su cuenta ha sido creada exitosamente.</p>
-    <p>Puede iniciar sesión en la plataforma utilizando su correo electrónico y su contraseña inicial, que corresponde a su número de documento:</p>
-    <div style="text-align: center; background-color: #e9ecef; padding: 12px; border: 1px solid #ced4da; border-radius: 5px; margin: 20px 0;">
-        <p style="margin: 0; font-weight: bold; font-size: 1.2em; color: #495057;">
-            Contraseña inicial: <span th:text="${documentoIdentificacion}" style="color: #0056b3;">TuDocumento</span>
-        </p>
-    </div>
-    <p style="color: #dc3545; font-weight: bold;">Importante:</p>
-    <p>Por motivos de seguridad, es fundamental que cambie esta contraseña inicial lo antes posible. Puede hacerlo después de iniciar sesión, dirigiéndose a la sección "Editar Mi Perfil".</p>
-    <div style="text-align: center; margin: 30px 0;">
-        <a th:href="${loginUrl}" style="background-color: #28a745; color: white; padding: 12px 20px; text-decoration: none; border-radius: 5px; font-size: 1.1em;">Ir a Iniciar Sesión</a>
-    </div>
-    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-    <p style="font-size: 0.9em; color: #6c757d; text-align: center;">
-        Este es un mensaje automático. Por favor, no responda este correo.
-        <br>Gericare Connect
-    </p>
+<body>
+<canvas id="particles"></canvas>
+<div class="card">
+  <img src="cid:geriLogo" alt="Gericare Logo" class="logo"/>
+  <h1>¡Bienvenido, <span th:text="${nombreUsuario}">Usuario</span>!</h1>
+  <p>Tu cuenta en <strong>Gericare Connect</strong> ha sido creada exitosamente.</p>
+  <p>Tu correo registrado es <b th:text="${email}">correo@ejemplo.com</b>.</p>
+  <p>Tu contraseña provisional (válida por 1 hora) es:</p>
+  <div class="highlight" th:text="${documentoIdentificacion}">123456789</div>
+  <p>Por motivos de seguridad, cámbiala tan pronto inicies sesión.</p>
+  <a th:href="${loginUrl}" class="btn">Iniciar Sesión</a>
+  <p class="footer">Este es un mensaje automático. No respondas a este correo.<br>© 2025 Gericare Connect</p>
 </div>
+
+<script>
+const c = document.getElementById('particles');
+const ctx = c.getContext('2d');
+c.width = innerWidth;
+c.height = innerHeight;
+const particles = [];
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * c.width;
+    this.y = Math.random() * c.height;
+    this.size = Math.random() * 2 + 1;
+    this.speedY = Math.random() * 0.6 + 0.3;
+  }
+  update() {
+    this.y += this.speedY;
+    if (this.y > c.height) this.y = 0;
+  }
+  draw() {
+    ctx.fillStyle = 'rgba(59,130,246,0.3)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+for (let i = 0; i < 60; i++) particles.push(new Particle());
+
+function animate() {
+  ctx.clearRect(0, 0, c.width, c.height);
+  particles.forEach(p => { p.update(); p.draw(); });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
 </body>
 </html>
