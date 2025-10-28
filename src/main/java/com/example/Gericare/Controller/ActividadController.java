@@ -34,7 +34,7 @@ public class ActividadController {
                                     @RequestParam(required = false) String tipoActividad,
                                     @RequestParam(required = false) EstadoActividad estado) {
         model.addAttribute("actividades", actividadService.listarActividades(nombrePaciente, tipoActividad, estado));
-        return "gestion-actividades";
+        return "actividad/admin-gestion-actividades";
     }
 
     @GetMapping("/nuevo")
@@ -43,7 +43,7 @@ public class ActividadController {
             model.addAttribute("actividad", new ActividadDTO());
         }
         model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-        return "formulario-actividad";
+        return "actividad/admin-formulario-actividad";
     }
 
     @PostMapping("/crear")
@@ -53,7 +53,7 @@ public class ActividadController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-            return "formulario-actividad";
+            return "actividad/admin-formulario-actividad";
         }
 
         String adminEmail = authentication.getName();
@@ -72,7 +72,7 @@ public class ActividadController {
             model.addAttribute("actividad", actividad);
             model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
         });
-        return "formulario-actividad";
+        return "actividad/admin-formulario-actividad";
     }
 
     @PostMapping("/editar/{id}")
@@ -81,7 +81,7 @@ public class ActividadController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-            return "formulario-actividad";
+            return "actividad/admin-formulario-actividad";
         }
 
         actividadService.actualizarActividad(id, actividadDTO);
@@ -119,6 +119,6 @@ public class ActividadController {
                 .orElseThrow(() -> new RuntimeException("Cuidador no encontrado"))
                 .getIdUsuario();
         model.addAttribute("actividades", actividadService.listarActividadesPorCuidador(cuidadorId));
-        return "actividades-cuidador";
+        return "actividad/cuidador-actividades";
     }
 }

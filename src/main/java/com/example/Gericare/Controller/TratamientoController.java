@@ -60,7 +60,6 @@ public class TratamientoController {
         }
         // Obtener todos los pacientes activos para el select inicial
         model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-        model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
         return "formulario-tratamiento";
     }
 
@@ -74,22 +73,8 @@ public class TratamientoController {
                 .orElseThrow(() -> new RuntimeException("Admin no encontrado"))
                 .getIdUsuario();
 
-        // Validación adicional en backend para asegurar que el cuidador es el asignado
-        try {
-            pacienteAsignadoRepository
-                    .findByPacienteIdPacienteAndEstado(tratamientoDTO.getPacienteId(), EstadoAsignacion.Activo)
-                    .stream()
-                    .findFirst()
-                    .filter(asignacion -> asignacion.getCuidador().getIdUsuario().equals(tratamientoDTO.getCuidadorId()))
-                    .orElseThrow(() -> new IllegalArgumentException("El cuidador seleccionado no es el asignado actualmente al paciente."));
-        } catch (IllegalArgumentException e) {
-            bindingResult.rejectValue("cuidadorId", "error.tratamiento", e.getMessage());
-        }
-
-
         if (bindingResult.hasErrors()) {
             model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-            model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
             return "formulario-tratamiento";
         }
 

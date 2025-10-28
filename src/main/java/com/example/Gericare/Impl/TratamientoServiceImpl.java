@@ -36,31 +36,28 @@ public class TratamientoServiceImpl implements TratamientoService {
     @Override
     @Transactional
     public TratamientoDTO crearTratamiento(TratamientoDTO tratamientoDTO, Long adminId) {
+        // Validar Paciente
         Paciente paciente = pacienteRepository.findById(tratamientoDTO.getPacienteId())
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado con ID: " + tratamientoDTO.getPacienteId()));
 
+        // Validar Administrador
         Administrador admin = (Administrador) usuarioRepository.findById(adminId)
                 .filter(u -> u instanceof Administrador)
                 .orElseThrow(() -> new RuntimeException("Administrador no encontrado con ID: " + adminId));
 
-        // Encontrar al cuidador actualmente asignado al paciente
+        // Buscar automaticamente al Cuidador asignado
         Cuidador cuidadorAsignado = pacienteAsignadoRepository
                 .findByPacienteIdPacienteAndEstado(paciente.getIdPaciente(), EstadoAsignacion.Activo)
                 .stream()
-                .findFirst()
+                .findFirst() // Debería haber solo uno activo
                 .map(PacienteAsignado::getCuidador)
-                .orElseThrow(() -> new IllegalStateException("El paciente seleccionado no tiene un cuidador activo asignado."));
+                .orElseThrow(() -> new IllegalStateException("El paciente seleccionado (ID: " + paciente.getIdPaciente() + ") no tiene un cuidador activo asignado actualmente. Asigne uno antes de crear tratamientos."));
 
-        // Validar si el cuidadorId del DTO coincide con el asignado (por si se envía desde el form)
-        if (tratamientoDTO.getCuidadorId() != null && !tratamientoDTO.getCuidadorId().equals(cuidadorAsignado.getIdUsuario())) {
-            throw new IllegalArgumentException("El cuidador seleccionado no es el actualmente asignado al paciente.");
-        }
-
-
+        // Crear la entidad Tratamiento
         Tratamiento nuevoTratamiento = new Tratamiento();
         nuevoTratamiento.setPaciente(paciente);
         nuevoTratamiento.setAdministrador(admin);
-        nuevoTratamiento.setCuidador(cuidadorAsignado); // Asignar al cuidador encontrado
+        nuevoTratamiento.setCuidador(cuidadorAsignado); // Asignar el cuidador encontrado automáticamente
         nuevoTratamiento.setDescripcion(tratamientoDTO.getDescripcion());
         nuevoTratamiento.setInstruccionesEspeciales(tratamientoDTO.getInstruccionesEspeciales());
         nuevoTratamiento.setFechaInicio(tratamientoDTO.getFechaInicio());
@@ -68,7 +65,9 @@ public class TratamientoServiceImpl implements TratamientoService {
         nuevoTratamiento.setObservaciones(tratamientoDTO.getObservaciones());
         nuevoTratamiento.setEstadoTratamiento(EstadoActividad.Pendiente);
 
+        // Guardar y devolver DTO
         Tratamiento tratamientoGuardado = tratamientoRepository.save(nuevoTratamiento);
+        // El DTO incluirá la info del cuidador asignado para mostrarla si es necesario
         return toDTO(tratamientoGuardado);
     }
 

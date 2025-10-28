@@ -28,7 +28,7 @@ public class PasswordResetController {
 
         // Si es válido, muestra el formulario para cambiar la contraseña
         model.addAttribute("token", token);
-        return "reset-password-form";
+        return "auth/reset-password-form";
     }
 
     // En "reset-password-form.html" el usuario ingresa y cambia su contraseña

@@ -26,29 +26,15 @@
 
                     <form th:action="@{/tratamientos/crear}" th:object="${tratamiento}" method="post">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="pacienteId" class="form-label">Paciente <span class="text-danger">*</span></label>
+                            <div class="col-md-12 mb-3"> <label for="pacienteId" class="form-label">Paciente <span class="text-danger">*</span></label>
                                 <select id="pacienteId" th:field="*{pacienteId}" class="form-select" required>
-                                    <option value="" disabled selected>Seleccione un paciente</option>
+                                    <option value="" disabled selected>-- Seleccione un paciente --</option>
                                     <option th:each="paciente : ${pacientes}"
                                             th:value="${paciente.idPaciente}"
                                             th:text="${paciente.nombre + ' ' + paciente.apellido}">
                                     </option>
                                 </select>
                                 <div class="text-danger" th:if="${#fields.hasErrors('pacienteId')}" th:errors="*{pacienteId}"></div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="cuidadorId" class="form-label">Cuidador Asignado <span class="text-danger">*</span></label>
-                                <select id="cuidadorId" th:field="*{cuidadorId}" class="form-select" required>
-                                    <option value="" disabled selected>Seleccione cuidador (verifique asignación)</option>
-                                    <option th:each="cuidador : ${cuidadores}"
-                                            th:value="${cuidador.idUsuario}"
-                                            th:text="${cuidador.nombre + ' ' + cuidador.apellido}">
-                                    </option>
-                                </select>
-                                <div class="form-text">Asegúrese de seleccionar el cuidador actualmente asignado al paciente.</div>
-                                <div class="text-danger" th:if="${#fields.hasErrors('cuidadorId')}" th:errors="*{cuidadorId}"></div>
                             </div>
 
                             <div class="col-md-12 mb-3">
