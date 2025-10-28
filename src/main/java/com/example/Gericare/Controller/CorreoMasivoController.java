@@ -24,7 +24,7 @@ public class CorreoMasivoController {
     @GetMapping("/nuevo")
     public String showBulkEmailForm(Model model) {
         model.addAttribute("roles", new RolNombre[]{RolNombre.Familiar, RolNombre.Cuidador});
-        return "emails/admin-formulario-correo-masivo";
+        return "correo/admin-formulario-correo-masivo";
     }
 
     // Procesa el envío del formulario
