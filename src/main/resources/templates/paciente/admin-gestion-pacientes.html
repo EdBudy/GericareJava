@@ -78,6 +78,12 @@
                         <td th:text="${paciente.genero}"></td>
                         <td th:text="${nombresFamiliares[paciente.idPaciente]}"></td>
                         <td class="text-center">
+                            <a th:href="@{/historias-clinicas/editar/paciente/{id}(id=${paciente.idPaciente})}"
+                               class="btn btn-sm me-1"
+                               th:classappend="${historiasCompletadas[paciente.idPaciente]} ? 'btn-info' : 'btn-warning'"
+                               th:title="${historiasCompletadas[paciente.idPaciente]} ? 'Ver/Editar HC Completa' : 'Completar/Editar HC'">
+                                <i class="bi" th:classappend="${historiasCompletadas[paciente.idPaciente]} ? 'bi-file-medical' : 'bi-clipboard-plus'"></i> HC
+                            </a>
                             <a th:href="@{|/pacientes/editar/${paciente.idPaciente}|}" class="btn btn-warning btn-sm" title="Editar">
                                 <i class="bi bi-pencil-square"></i>
                             </a>

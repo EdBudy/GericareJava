@@ -76,26 +76,58 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
 
     @Override
     @Transactional
-    public HistoriaClinicaDTO actualizarHistoriaClinica(Long id, HistoriaClinicaDTO dto, Long adminId) {
-        log.info("Actualizando HC ID: {} por Admin ID: {}", id, adminId);
+    public HistoriaClinicaDTO actualizarHistoriaClinica(Long id, HistoriaClinicaDTO dto, Long adminId) { // 'id' = idHistoriaClinica (puede ser null)
 
-        // Busca y valida la Historia Clínica existente
-        HistoriaClinica hc = historiaClinicaRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> {
-                    log.error("Historia Clínica no encontrada con id: {}", id);
-                    return new RuntimeException("Historia Clínica no encontrada con id: " + id);
-                });
-
-        // Busca y valida el Administrador que realiza la modificación
+        // Busca admin que realiza la operación
         Administrador admin = (Administrador) usuarioRepository.findById(adminId)
-                .filter(u -> u instanceof Administrador && u.getEstado() == EstadoUsuario.Activo) // Asegurar que sea Admin y esté activo
+                .filter(u -> u instanceof Administrador && u.getEstado() == EstadoUsuario.Activo)
                 .orElseThrow(() -> {
                     log.error("Administrador no encontrado o inactivo con id: {}", adminId);
                     return new RuntimeException("Administrador no encontrado o inactivo con id: " + adminId);
                 });
 
-        // --- Actualizar Campos Simples ---
-        hc.setAdministrador(admin); // Registra quién hizo la última modificación
+        HistoriaClinica hc; // La entidad que se guardará (nueva o existente)
+
+        if (id != null) {
+            // HC existe (actualización)
+            log.info("Actualizando HC ID: {} por Admin ID: {}", id, adminId);
+            hc = historiaClinicaRepository.findByIdWithDetails(id)
+                    .orElseThrow(() -> {
+                        log.error("Historia Clínica no encontrada con id: {} para actualizar", id);
+                        return new RuntimeException("Historia Clínica no encontrada con id: " + id);
+                    });
+            // Asegurar que el paciente no se cambie accidentalmente
+            if (!hc.getPaciente().getIdPaciente().equals(dto.getIdPaciente())){
+                log.error("Intento de cambiar el paciente asociado a la HC ID: {}. Original: {}, Nuevo: {}", id, hc.getPaciente().getIdPaciente(), dto.getIdPaciente());
+                throw new IllegalArgumentException("No se puede cambiar el paciente de una historia clínica existente.");
+            }
+
+        } else {
+            // creación
+            log.info("Creando nueva HC para Paciente ID: {} por Admin ID: {}", dto.getIdPaciente(), adminId);
+            Paciente paciente = pacienteRepository.findById(dto.getIdPaciente())
+                    .orElseThrow(() -> {
+                        log.error("Paciente ID {} no encontrado al crear HC", dto.getIdPaciente());
+                        return new RuntimeException("Paciente no encontrado con ID: " + dto.getIdPaciente());
+                    });
+
+            // verificar si ya existe una HC del paciente
+            Optional<HistoriaClinica> hcExistente = historiaClinicaRepository.findByPacienteIdPaciente(dto.getIdPaciente());
+            if (hcExistente.isPresent()) {
+                // Si si actualizar
+                log.warn("Se intentó crear una HC para el paciente ID {} pero ya existe una (HC ID {}). Se procederá a actualizar la existente.", dto.getIdPaciente(), hcExistente.get().getIdHistoriaClinica());
+                // Redirigir lógica a la actualización usando el ID encontrado
+                return actualizarHistoriaClinica(hcExistente.get().getIdHistoriaClinica(), dto, adminId);
+            }
+
+            // Si no existe crear
+            hc = new HistoriaClinica();
+            hc.setPaciente(paciente);
+            hc.setEstado(EstadoUsuario.Activo); // Estado inicial
+        }
+
+        // Aplicar datos del DTO a la entidad hc
+        hc.setAdministrador(admin); // Quién crea o modifica
         hc.setEstadoSalud(dto.getEstadoSalud());
         hc.setCondiciones(dto.getCondiciones());
         hc.setAntecedentesMedicos(dto.getAntecedentesMedicos());
@@ -104,60 +136,59 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         hc.setFechaUltimaConsulta(dto.getFechaUltimaConsulta());
         hc.setObservaciones(dto.getObservaciones());
 
+        // Actualizar/Crear Listas Relacionadas (Cirugías, Medicamentos, Enfermedades)
 
-        // --- Actualizar Listas Relacionadas ---
-
-        // 1. Cirugías
-        hc.getCirugias().clear(); // Limpia las cirugías existentes
+        // Cirugías
+        hc.getCirugias().clear(); // Limpiar existentes (si hay)
         if (dto.getCirugias() != null) {
-            log.debug("Añadiendo {} cirugías", dto.getCirugias().size());
+            log.debug("Procesando {} cirugías", dto.getCirugias().size());
             dto.getCirugias().forEach(cirugiaDto -> {
-                if (cirugiaDto.getDescripcionCirugia() != null && !cirugiaDto.getDescripcionCirugia().isBlank()){ // Evitar guardar vacías
+                if (cirugiaDto.getDescripcionCirugia() != null && !cirugiaDto.getDescripcionCirugia().isBlank()){
                     HistoriaClinicaCirugia cirugia = new HistoriaClinicaCirugia();
-                    cirugia.setHistoriaClinica(hc); // Vincula con la HC
+                    cirugia.setHistoriaClinica(hc);
                     cirugia.setDescripcionCirugia(cirugiaDto.getDescripcionCirugia());
                     cirugia.setFechaCirugia(cirugiaDto.getFechaCirugia());
                     cirugia.setObservaciones(cirugiaDto.getObservaciones());
-                    cirugia.setEstado(EstadoUsuario.Activo); // Asegurar estado
-                    hc.getCirugias().add(cirugia); // Añade a la colección gestionada por JPA
+                    cirugia.setEstado(EstadoUsuario.Activo);
+                    hc.getCirugias().add(cirugia);
                 }
             });
         }
 
-        // 2. Medicamentos
+        // Medicamentos
         hc.getMedicamentos().clear();
         if (dto.getMedicamentos() != null) {
-            log.debug("Añadiendo {} medicamentos", dto.getMedicamentos().size());
+            log.debug("Procesando {} medicamentos", dto.getMedicamentos().size());
             dto.getMedicamentos().forEach(medDto -> {
-                // Valida que el ID del medicamento exista y esté activo usando el servicio dedicado
+                // Válida que el ID del medicamento exista y esté activo
                 Medicamento medEntity = medicamentoService.obtenerMedicamentoPorId(medDto.getIdMedicamento())
-                        .map(mDto -> { // Si se encontró, crea una referencia solo con el ID para JPA
+                        .map(mDto -> {
                             Medicamento m = new Medicamento();
                             m.setIdMedicamento(mDto.getIdMedicamento());
                             return m;
                         })
                         .orElseThrow(() -> {
-                            log.error("Medicamento ID: {} no encontrado o inactivo al actualizar HC ID: {}", medDto.getIdMedicamento(), id);
+                            log.error("Medicamento ID: {} no encontrado o inactivo al guardar HC", medDto.getIdMedicamento());
                             return new RuntimeException("Medicamento no encontrado o inactivo con ID: " + medDto.getIdMedicamento());
                         });
 
                 HistoriaClinicaMedicamento hcm = new HistoriaClinicaMedicamento();
                 hcm.setHistoriaClinica(hc);
-                hcm.setMedicamento(medEntity); // Asigna la entidad medicamento encontrada
+                hcm.setMedicamento(medEntity);
                 hcm.setDosis(medDto.getDosis());
                 hcm.setFrecuencia(medDto.getFrecuencia());
                 hcm.setInstrucciones(medDto.getInstrucciones());
-                hcm.setEstado(EstadoUsuario.Activo); // Asegurar estado
+                hcm.setEstado(EstadoUsuario.Activo);
                 hc.getMedicamentos().add(hcm);
             });
         }
 
-        // 3. Enfermedades
+        // Enfermedades
         hc.getEnfermedades().clear();
         if (dto.getEnfermedades() != null) {
-            log.debug("Añadiendo {} enfermedades", dto.getEnfermedades().size());
+            log.debug("Procesando {} enfermedades", dto.getEnfermedades().size());
             dto.getEnfermedades().forEach(enfDto -> {
-                // Valida que el ID de la enfermedad exista y esté activa usando el servicio dedicado
+                // Válida que el ID de la enfermedad exista y esté activa
                 Enfermedad enfEntity = enfermedadService.obtenerEnfermedadPorId(enfDto.getIdEnfermedad())
                         .map(eDto -> {
                             Enfermedad e = new Enfermedad();
@@ -165,42 +196,34 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
                             return e;
                         })
                         .orElseThrow(() -> {
-                            log.error("Enfermedad ID: {} no encontrada o inactiva al actualizar HC ID: {}", enfDto.getIdEnfermedad(), id);
+                            log.error("Enfermedad ID: {} no encontrada o inactiva al guardar HC", enfDto.getIdEnfermedad());
                             return new RuntimeException("Enfermedad no encontrada o inactiva con ID: " + enfDto.getIdEnfermedad());
                         });
 
                 HistoriaClinicaEnfermedad hce = new HistoriaClinicaEnfermedad();
                 hce.setHistoriaClinica(hc);
-                hce.setEnfermedad(enfEntity); // Asigna la entidad enfermedad encontrada
+                hce.setEnfermedad(enfEntity);
                 hce.setFechaDiagnostico(enfDto.getFechaDiagnostico());
                 hce.setObservaciones(enfDto.getObservaciones());
-                hce.setEstado(EstadoUsuario.Activo); // Asegurar estado
+                hce.setEstado(EstadoUsuario.Activo);
                 hc.getEnfermedades().add(hce);
             });
         }
 
-        // Guarda la entidad HistoriaClinica. JPA/Hibernate se encarga de gestionar
-        // las inserciones/actualizaciones/eliminaciones en las tablas relacionadas
-        // gracias a CascadeType.ALL y orphanRemoval=true.
+        // Guardar HC
         try {
             HistoriaClinica hcGuardada = historiaClinicaRepository.save(hc);
-            log.info("HC ID: {} actualizada correctamente.", hcGuardada.getIdHistoriaClinica());
-            // Devuelve el DTO mapeado de la entidad guardada (que ahora tiene IDs actualizados si algo era nuevo)
+            log.info("HC ID: {} {} correctamente.", hcGuardada.getIdHistoriaClinica(), (id != null ? "actualizada" : "creada"));
+            // Devuelve el DTO mapeado de la entidad guardada
             return mapToDTO(hcGuardada);
         } catch (Exception e) {
-            log.error("Error al guardar la HC ID: {}", id, e); // Loggear la excepción completa
-            throw new RuntimeException("Ocurrió un error al guardar la historia clínica.", e); // Relanzar
+            log.error("Error al guardar la HC para paciente ID: {}", dto.getIdPaciente(), e);
+            throw new RuntimeException("Ocurrió un error al guardar la historia clínica.", e);
         }
     }
 
 
-    // --- Mapeadores Helper Privados ---
-
-     /**
-     Mapea una entidad HistoriaClinica (con sus detalles ya cargados) a su DTO.
-     @param hc La entidad HistoriaClinica.
-     @return El HistoriaClinicaDTO correspondiente.
-     */
+    // Mapeadores Helper Privados
     private HistoriaClinicaDTO mapToDTO(HistoriaClinica hc) {
         if (hc == null) return null;
 

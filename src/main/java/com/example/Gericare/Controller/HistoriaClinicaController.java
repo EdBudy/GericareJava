@@ -1,6 +1,8 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.HistoriaClinicaDTO;
+import com.example.Gericare.Entity.Paciente;
+import com.example.Gericare.Repository.PacienteRepository;
 import com.example.Gericare.Service.EnfermedadService; // Necesario
 import com.example.Gericare.Service.HistoriaClinicaService;
 import com.example.Gericare.Service.MedicamentoService; // Necesario
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/historias-clinicas")
@@ -36,11 +39,9 @@ public class HistoriaClinicaController {
     private MedicamentoService medicamentoService; // Para obtener catálogo
     @Autowired
     private EnfermedadService enfermedadService; // Para obtener catálogo
+    @Autowired
+    private PacienteRepository pacienteRepository;
 
-    /**
-     * Muestra la vista de solo lectura de la Historia Clínica por ID de Paciente.
-     * Accesible por Admin y Cuidador (según SecurityConfig).
-     */
     @GetMapping("/paciente/{pacienteId}")
     public String verHistoriaClinicaPorPaciente(@PathVariable Long pacienteId, Model model,
                                                 Authentication authentication, // Para verificar rol si es necesario aquí
@@ -62,68 +63,71 @@ public class HistoriaClinicaController {
                 });
     }
 
-    /**
-     * Muestra el formulario para EDITAR una Historia Clínica existente.
-     * Solo accesible por Administrador (asegurado por SecurityConfig o @PreAuthorize).
-     */
-    @GetMapping("/editar/{id}")
-    @PreAuthorize("hasRole('Administrador')") // Seguridad a nivel de metodo
-    public String mostrarFormularioEditar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        log.info("Mostrando formulario de edición para HC ID: {}", id);
-        return historiaClinicaService.obtenerHistoriaClinicaPorId(id)
-                .map(hc -> {
-                    model.addAttribute("historia", hc);
-                    // Cargar catálogos para los <select> del formulario
-                    try {
-                        model.addAttribute("medicamentosCatalogo", medicamentoService.listarMedicamentosActivos());
-                        model.addAttribute("enfermedadesCatalogo", enfermedadService.listarEnfermedadesActivas());
-                        log.debug("Catálogos cargados para el formulario de HC ID: {}", id);
-                    } catch (Exception e) {
-                        log.error("Error al cargar catálogos para el formulario de HC ID: {}", id, e);
-                        // Añadir listas vacías para evitar error Thymeleaf y mostrar mensaje
-                        model.addAttribute("medicamentosCatalogo", List.of());
-                        model.addAttribute("enfermedadesCatalogo", List.of());
-                        model.addAttribute("formError", "Error al cargar listas de medicamentos/enfermedades."); // Mensaje en el form
-                    }
-                    return "formulario-historia"; // Nombre de la vista Thymeleaf
-                })
-                .orElseGet(() -> {
-                    log.warn("HC ID: {} no encontrada para editar", id);
-                    redirectAttributes.addFlashAttribute("errorMessage", "Historia clínica no encontrada con ID: " + id);
-                    return "redirect:/pacientes"; // O a donde tenga sentido
-                });
+    @GetMapping("/editar/paciente/{pacienteId}")
+    @PreAuthorize("hasRole('Administrador')")
+    public String mostrarFormularioEditar(@PathVariable Long pacienteId, Model model, RedirectAttributes redirectAttributes) {
+        log.info("Mostrando formulario de edición/creación para HC del paciente ID: {}", pacienteId);
+
+
+        // Primero, intentar obtener la HC existente
+        Optional<HistoriaClinicaDTO> hcExistenteOpt = historiaClinicaService.obtenerHistoriaClinicaPorPacienteId(pacienteId);
+
+        if (hcExistenteOpt.isPresent()) {
+            // --- Caso 1: SI LA HC EXISTE (Editar) ---
+            model.addAttribute("historia", hcExistenteOpt.get());
+            log.debug("HC encontrada para paciente ID: {}. Mostrando formulario de edición.", pacienteId);
+        } else {
+            // --- Caso 2: SI LA HC NO EXISTE (Crear) ---
+            log.debug("No se encontró HC para paciente ID: {}. Preparando formulario de creación.", pacienteId);
+
+            // Verificar que el paciente (al que le crearemos la HC) exista
+            // (Asegúrate de tener PacienteRepository inyectado en este controlador)
+            Optional<Paciente> pacienteOpt = pacienteRepository.findById(pacienteId);
+
+            if (pacienteOpt.isEmpty()) {
+                // Si ni siquiera el paciente existe, redirigir con error
+                log.error("Intento de crear HC para Paciente ID {} que no existe.", pacienteId);
+                redirectAttributes.addFlashAttribute("errorMessage", "Paciente no encontrado con ID: " + pacienteId);
+                return "redirect:/pacientes"; // Vuelve a la lista de pacientes
+            }
+
+            // Si el paciente existe, crear un DTO vacío para el formulario
+            Paciente paciente = pacienteOpt.get();
+            HistoriaClinicaDTO nuevaHc = new HistoriaClinicaDTO();
+            nuevaHc.setIdPaciente(paciente.getIdPaciente());
+            nuevaHc.setNombrePacienteCompleto(paciente.getNombre() + " " + paciente.getApellido());
+            // El idHistoriaClinica (nuevaHc.getIdHistoriaClinica()) es null por defecto
+
+            model.addAttribute("historia", nuevaHc);
+        }
+
+        // --- Paso 2: Cargar Catálogos (SIEMPRE se ejecuta) ---
+        // Este bloque ahora se alcanza en ambos casos (crear o editar)
+        try {
+            model.addAttribute("medicamentosCatalogo", medicamentoService.listarMedicamentosActivos());
+            model.addAttribute("enfermedadesCatalogo", enfermedadService.listarEnfermedadesActivas());
+            log.debug("Catálogos cargados para el formulario de HC del paciente ID: {}", pacienteId);
+        } catch (Exception e) {
+            log.error("Error al cargar catálogos para el formulario de HC del paciente ID: {}", pacienteId, e);
+            model.addAttribute("medicamentosCatalogo", List.of()); // Añadir listas vacías
+            model.addAttribute("enfermedadesCatalogo", List.of()); // Añadir listas vacías
+            model.addAttribute("formError", "Error al cargar listas de medicamentos/enfermedades.");
+        }
+
+        // --- Paso 3: Devolver la vista ---
+        return "formulario-historia"; // Nombre de la vista Thymeleaf
     }
 
-    /**
-     * Procesa la ACTUALIZACIÓN de la Historia Clínica desde el formulario.
-     * Solo accesible por Administrador.
-     */
-    @PostMapping("/editar/{id}")
+    @PostMapping("/editar/paciente/{pacienteId}") // Se usa el ID del paciente en la URL
     @PreAuthorize("hasRole('Administrador')")
-    public String actualizarHistoriaClinica(@PathVariable Long id,
-                                            @ModelAttribute("historia") /*@Valid*/ HistoriaClinicaDTO historiaClinicaDTO, // Añadir @Valid si pones validaciones en DTO
+    public String actualizarHistoriaClinica(@PathVariable Long pacienteId, // Recibe el ID del paciente
+                                            @ModelAttribute("historia") HistoriaClinicaDTO historiaClinicaDTO,
                                             BindingResult bindingResult, // Capturar errores de validación
                                             Authentication authentication,
                                             RedirectAttributes redirectAttributes,
                                             Model model) { // Para devolver errores al form si es necesario
 
-        log.info("Intentando actualizar HC ID: {}", id);
-
-        // Importante: Si usas @Valid, necesitas manejar bindingResult ANTES de llamar al servicio
-        if (bindingResult.hasErrors()) {
-            log.warn("Errores de validación al actualizar HC ID: {}: {}", id, bindingResult.getAllErrors());
-            // Recargar catálogos y volver a mostrar el formulario con errores
-            try {
-                model.addAttribute("medicamentosCatalogo", medicamentoService.listarMedicamentosActivos());
-                model.addAttribute("enfermedadesCatalogo", enfermedadService.listarEnfermedadesActivas());
-            } catch (Exception e) {
-                log.error("Error recargando catálogos tras error de validación para HC ID: {}", id, e);
-                model.addAttribute("formError", "Error al cargar listas desplegables.");
-            }
-            model.addAttribute("historia", historiaClinicaDTO); // Mantener datos ingresados
-            return "formulario-historia"; // Nombre de la vista del formulario
-        }
-
+        log.info("Recibido POST para guardar HC del paciente ID: {}", pacienteId);
 
         try {
             // Obtener ID del admin autenticado de forma segura
@@ -131,26 +135,30 @@ public class HistoriaClinicaController {
                     .orElseThrow(() -> new AccessDeniedException("Usuario administrador no autenticado correctamente."))
                     .getIdUsuario();
 
-            // Llamar al servicio para actualizar
-            historiaClinicaService.actualizarHistoriaClinica(id, historiaClinicaDTO, adminId);
+            // Obtener ID de la Historia Clínica desde el DTO que viene del formulario
+            // Si HC = nueva, ID = null. Si ys existe tendrá valor
+            Long hcId = historiaClinicaDTO.getIdHistoriaClinica();
 
-            redirectAttributes.addFlashAttribute("successMessage", "Historia Clínica actualizada correctamente.");
-            log.info("HC ID: {} actualizada exitosamente.", id);
-            // Redirigir a la vista de la HC actualizada
-            return "redirect:/historias-clinicas/paciente/" + historiaClinicaDTO.getIdPaciente(); // Usa el ID de paciente del DTO
+            // Servicio HistoriaClinicaServiceImpl se encarga de determinar si crear HC o actualizar
+            historiaClinicaService.actualizarHistoriaClinica(hcId, historiaClinicaDTO, adminId);
 
-        } catch (RuntimeException e) { // Captura errores esperados del servicio (ej. no encontrado)
-            log.error("Error de lógica al actualizar HC ID: {}: {}", id, e.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("successMessage", "Historia Clínica guardada correctamente.");
+            log.info("HC del paciente ID: {} guardada exitosamente.", pacienteId);
+            // Redirigir a la vista de la HC (usa el ID del paciente que ya está en el DTO)
+            return "redirect:/historias-clinicas/paciente/" + historiaClinicaDTO.getIdPaciente();
+
+        } catch (RuntimeException e) {
+            log.error("Error de lógica al guardar HC del paciente ID: {}: {}", pacienteId, e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al guardar: " + e.getMessage());
             // Reenvía el DTO con los datos que causaron el error
             redirectAttributes.addFlashAttribute("historia", historiaClinicaDTO);
-            return "redirect:/historias-clinicas/editar/" + id; // Vuelve al form de edición
+            return "redirect:/historias-clinicas/editar/paciente/" + pacienteId;
 
         } catch (Exception e){ // Captura cualquier otro error inesperado
-            log.error("Error inesperado al actualizar HC ID: {}", id, e);
-            redirectAttributes.addFlashAttribute("errorMessage", "Ocurrió un error inesperado al actualizar la historia clínica.");
+            log.error("Error inesperado al guardar HC del paciente ID: {}", pacienteId, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Ocurrió un error inesperado al guardar la historia clínica.");
             redirectAttributes.addFlashAttribute("historia", historiaClinicaDTO);
-            return "redirect:/historias-clinicas/editar/" + id;
+            return "redirect:/historias-clinicas/editar/paciente/" + pacienteId;
         }
     }
 }
