@@ -43,6 +43,13 @@ public class SecurityConfig {
                         // Vistas familiar
                         .requestMatchers("/familiar/**").hasRole("Familiar")
 
+                        // historias clinicas
+                        // Ver HC: Admin y Cuidador
+                        .requestMatchers(HttpMethod.GET, "/historias-clinicas/paciente/**").hasAnyRole("Administrador", "Cuidador")
+                        // Editar HC: Solo Admin
+                        .requestMatchers(HttpMethod.GET, "/historias-clinicas/editar/**").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.POST, "/historias-clinicas/editar/**").hasRole("Administrador")
+
                         // Las demás rutas requieren estar autenticado (logueado)
                         .anyRequest().authenticated())
                 // Config del login
@@ -55,6 +62,8 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout") // Redirige a login después de cerrar sesión
                         .permitAll());
+                //Historia Clinica
+
 
         // Devolver el filtro de seguridad construido
         return http.build();

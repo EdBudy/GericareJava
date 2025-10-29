@@ -1,9 +1,12 @@
 package com.example.Gericare.Impl;
 
 import com.example.Gericare.DTO.PacienteDTO;
+import com.example.Gericare.Entity.Administrador;
 import com.example.Gericare.Repository.ActividadRepository;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Repository.PacienteRepository;
+import com.example.Gericare.Repository.UsuarioRepository;
+import com.example.Gericare.Service.HistoriaClinicaService;
 import com.example.Gericare.Service.PacienteAsignadoService;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.Entity.Actividad;
@@ -43,6 +46,10 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteAsignadoRepository pacienteAsignadoRepository;
     @Autowired
     private ActividadRepository actividadRepository;
+    @Autowired
+    private HistoriaClinicaService historiaClinicaService;
+    @Autowired
+    private UsuarioRepository usuarioRepository; // Para buscar el admin
 
     @Override
     @Transactional
@@ -50,6 +57,13 @@ public class PacienteServiceImpl implements PacienteService {
         Paciente nuevoPaciente = toEntity(pacienteDTO);
         nuevoPaciente.setEstado(EstadoPaciente.Activo);
         Paciente pacienteGuardado = pacienteRepository.save(nuevoPaciente);
+
+        // Crear HC inicial al crear el usuario
+        Administrador admin = (Administrador) usuarioRepository.findById(adminId)
+                .filter(u -> u instanceof Administrador)
+                .orElseThrow(() -> new RuntimeException("Admin no encontrado para crear HC inicial"));
+        historiaClinicaService.crearHistoriaClinicaInicial(pacienteGuardado, admin);
+
         pacienteAsignadoService.crearAsignacion(pacienteGuardado.getIdPaciente(), cuidadorId, familiarId, adminId);
         return toDTO(pacienteGuardado);
     }

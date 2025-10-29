@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <title th:text="${enfermedad.idEnfermedad == null ? 'Nueva Enfermedad' : 'Editar Enfermedad: ' + enfermedad.nombreEnfermedad}"></title>    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4" th:text="${enfermedad.idEnfermedad == null} ? 'Añadir Nueva Enfermedad' : 'Editar Enfermedad'"></h2>
+
+                    <form th:action="@{/enfermedades/guardar}" th:object="${enfermedad}" method="post">
+                        <input type="hidden" th:field="*{idEnfermedad}" />
+
+                        <div class="mb-3">
+                            <label for="nombreEnfermedad" class="form-label">Nombre de la Enfermedad <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nombreEnfermedad" th:field="*{nombreEnfermedad}" required aria-describedby="nombreHelp" />
+                            <div id="nombreHelp" class="form-text">Nombre principal de la enfermedad.</div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('nombreEnfermedad')}" th:errors="*{nombreEnfermedad}"></div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="descripcionEnfermedad" class="form-label">Descripción (Opcional)</label>
+                            <textarea class="form-control" id="descripcionEnfermedad" th:field="*{descripcionEnfermedad}" rows="3" aria-describedby="descHelp"></textarea>
+                            <div id="descHelp" class="form-text">Detalles adicionales o aclaraciones sobre la enfermedad.</div>
+                            <div class="text-danger small mt-1" th:if="${#fields.hasErrors('descripcionEnfermedad')}" th:errors="*{descripcionEnfermedad}"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a th:href="@{/enfermedades}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-1"></i>Guardar Enfermedad
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<footer th:insert="~{fragments/layout :: footer-content}"></footer>
+</body>
+</html>

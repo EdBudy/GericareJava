@@ -78,15 +78,27 @@
                         <td th:text="${paciente.genero}"></td>
                         <td th:text="${nombresFamiliares[paciente.idPaciente]}"></td>
                         <td class="text-center">
-                            <a th:href="@{|/pacientes/editar/${paciente.idPaciente}|}" class="btn btn-warning btn-sm" title="Editar">
-                                <i class="bi bi-pencil-square"></i>
-                            </a>
+                            <span th:if="${historiasCompletadas != null and !historiasCompletadas[paciente.idPaciente]}"
+                                  class="badge bg-warning text-dark me-1"
+                                  title="Historia Clínica Incompleta">
+                                <i class="bi bi-exclamation-triangle-fill"></i> HC Inc.
+                            </span>
+
+                            <a th:href="@{|/historias-clinicas/paciente/${paciente.idPaciente}|}"
+                               class="btn btn-info btn-sm"
+                               title="Ver/Editar Historia Clínica">
+                                <i class="bi bi-journal-text"></i> </a>
+
+                            <a th:href="@{|/pacientes/editar/${paciente.idPaciente}|}"
+                               class="btn btn-warning btn-sm"
+                               title="Editar Datos Paciente">
+                                <i class="bi bi-person-gear"></i> </a>
+
                             <form th:id="'form-eliminar-paciente-' + ${paciente.idPaciente}"
                                   th:action="@{|/pacientes/eliminar/${paciente.idPaciente}|}" method="post" class="d-inline">
-                                <button type="button" class="btn btn-danger btn-sm" title="Eliminar"
+                                <button type="button" class="btn btn-danger btn-sm" title="Eliminar Paciente"
                                         th:onclick="'confirmarEliminacionPaciente(\'' + ${paciente.idPaciente} + '\')'">
-                                    <i class="bi bi-trash"></i>
-                                </button>
+                                    <i class="bi bi-person-x"></i> </button>
                             </form>
                         </td>
                     </tr>

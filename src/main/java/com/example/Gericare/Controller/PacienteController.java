@@ -1,5 +1,6 @@
 package com.example.Gericare.Controller;
 
+import com.example.Gericare.DTO.HistoriaClinicaDTO;
 import com.example.Gericare.DTO.PacienteDTO;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Service.PacienteService;
@@ -28,6 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.example.Gericare.Service.HistoriaClinicaService;
+
 @Controller
 @RequestMapping("/pacientes")
 public class PacienteController {
@@ -38,6 +41,8 @@ public class PacienteController {
     private UsuarioService usuarioService;
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
+    @Autowired
+    private HistoriaClinicaService historiaClinicaService;
 
     @GetMapping
     public String listarPacientes(Model model,
@@ -54,6 +59,17 @@ public class PacienteController {
                                 .map(asignacion -> asignacion.getFamiliar() != null ? asignacion.getFamiliar().getNombre() + " " + asignacion.getFamiliar().getApellido() : "N/A")
                                 .orElse("N/A")
                 ));
+
+        // Obtener el estado de completitud de la historia clínica para cada paciente
+        Map<Long, Boolean> historiasCompletadas = pacientes.stream()
+                .collect(Collectors.toMap(
+                        PacienteDTO::getIdPaciente,
+                        p -> historiaClinicaService.obtenerHistoriaClinicaPorPacienteId(p.getIdPaciente())
+                                .map(HistoriaClinicaDTO::isCompletada) // Asumimos que hay un metodo isCompletada en el DTO
+                                .orElse(false) // Si no hay HC, considerar como no completada
+                ));
+        model.addAttribute("historiasCompletadas", historiasCompletadas);
+
 
         model.addAttribute("pacientes", pacientes);
         model.addAttribute("nombresFamiliares", nombresFamiliares);
