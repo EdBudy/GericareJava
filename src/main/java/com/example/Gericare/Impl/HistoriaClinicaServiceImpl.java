@@ -252,21 +252,21 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         );
 
 
-        // Mapeo de listas (filtrando por estado activo si es necesario y manejando nulos)
+// Mapeo de listas (filtrando por estado activo si es necesario y manejando nulos)
         dto.setCirugias(
-                Optional.ofNullable(hc.getCirugias()).orElse(Collections.emptyList()).stream()
+                Optional.ofNullable(hc.getCirugias()).orElse(Collections.emptySet()).stream()
                         .filter(c -> c.getEstado() == EstadoUsuario.Activo) // Asegurar que solo mapeamos activos
                         .map(this::mapCirugiaToDTO)
                         .collect(Collectors.toList())
         );
         dto.setMedicamentos(
-                Optional.ofNullable(hc.getMedicamentos()).orElse(Collections.emptyList()).stream()
+                Optional.ofNullable(hc.getMedicamentos()).orElse(Collections.emptySet()).stream()
                         .filter(m -> m.getEstado() == EstadoUsuario.Activo)
                         .map(this::mapMedicamentoRelationToDTO)
                         .collect(Collectors.toList())
         );
         dto.setEnfermedades(
-                Optional.ofNullable(hc.getEnfermedades()).orElse(Collections.emptyList()).stream()
+                Optional.ofNullable(hc.getEnfermedades()).orElse(Collections.emptySet()).stream()
                         .filter(e -> e.getEstado() == EstadoUsuario.Activo)
                         .map(this::mapEnfermedadRelationToDTO)
                         .collect(Collectors.toList())

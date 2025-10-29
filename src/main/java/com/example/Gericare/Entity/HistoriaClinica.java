@@ -1,14 +1,14 @@
 package com.example.Gericare.Entity;
 
-import com.example.Gericare.Enums.EstadoUsuario; // o EstadoRegistro
+import com.example.Gericare.Enums.EstadoUsuario;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tb_historia_clinica")
@@ -22,12 +22,12 @@ public class HistoriaClinica {
     private Long idHistoriaClinica;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_paciente", nullable = false, unique = true) // unique=true si solo puede haber una por paciente
+    @JoinColumn(name = "id_paciente", nullable = false, unique = true)
     private Paciente paciente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_administrador")
-    private Administrador administrador; // Asumiendo que solo administradores la crean/modifican
+    private Administrador administrador;
 
     @Column(name = "estado_salud", columnDefinition = "TEXT")
     private String estadoSalud;
@@ -52,16 +52,17 @@ public class HistoriaClinica {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoUsuario estado = EstadoUsuario.Activo; // o EstadoRegistro
+    private EstadoUsuario estado = EstadoUsuario.Activo;
 
     // Relaciones inversas (mappedBy)
 
     @OneToMany(mappedBy = "historiaClinica", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoriaClinicaCirugia> cirugias = new ArrayList<>();
+    private Set<HistoriaClinicaCirugia> cirugias = new HashSet<>();
+
 
     @OneToMany(mappedBy = "historiaClinica", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoriaClinicaMedicamento> medicamentos = new ArrayList<>();
+    private Set<HistoriaClinicaMedicamento> medicamentos = new HashSet<>();
 
     @OneToMany(mappedBy = "historiaClinica", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistoriaClinicaEnfermedad> enfermedades = new ArrayList<>();
+    private Set<HistoriaClinicaEnfermedad> enfermedades = new HashSet<>();
 }

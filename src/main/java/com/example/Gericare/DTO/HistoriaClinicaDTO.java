@@ -26,7 +26,7 @@ public class HistoriaClinicaDTO {
     private String dietasEspeciales;
     private LocalDate fechaUltimaConsulta;
     private String observaciones;
-    private boolean completada; // Indicador para la "burbuja"
+    private boolean completada;
 
     // Listas para los detalles
     private List<HistoriaClinicaCirugiaDTO> cirugias = new ArrayList<>();
