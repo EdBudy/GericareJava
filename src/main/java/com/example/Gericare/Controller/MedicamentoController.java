@@ -39,7 +39,7 @@ public class MedicamentoController {
             // Añadir lista vacía para evitar errores en Thymeleaf si 'medicamentos' no existe
             model.addAttribute("medicamentos", List.of());
         }
-        return "gestion-medicamentos"; // Nombre de la vista Thymeleaf
+        return "historia/admin-medicamentos-gestion";
     }
 
     @GetMapping("/nuevo")
@@ -49,7 +49,7 @@ public class MedicamentoController {
         if (!model.containsAttribute("medicamento")) {
             model.addAttribute("medicamento", new MedicamentoDTO());
         }
-        return "formulario-medicamento"; // Nombre de la vista Thymeleaf
+        return "historia/admin-medicamentos-formulario";
     }
 
     @GetMapping("/editar/{id}")
@@ -58,7 +58,7 @@ public class MedicamentoController {
         return medicamentoService.obtenerMedicamentoPorId(id)
                 .map(med -> {
                     model.addAttribute("medicamento", med);
-                    return "formulario-medicamento"; // Reutiliza la misma vista
+                    return "historia/admin-medicamentos-formulario";
                 })
                 .orElseGet(() -> {
                     log.warn("Medicamento ID: {} no encontrado para editar", id);
@@ -83,7 +83,7 @@ public class MedicamentoController {
             // para que Thymeleaf muestre los errores en el mismo formulario.
             // Aseguramos que el objeto 'medicamento' con errores se mantenga.
             model.addAttribute("medicamento", medicamentoDTO);
-            return "formulario-medicamento"; // Vuelve a mostrar el formulario
+            return "historia/admin-medicamentos-formulario";
         }
 
         try {

@@ -59,7 +59,7 @@ public class HistoriaClinicaController {
                     log.debug("HC encontrada para paciente ID: {}", pacienteId);
                     model.addAttribute("historia", hc);
                     // No necesita catálogos aquí, es solo vista
-                    return "ver-historia"; // Nombre de la vista Thymeleaf
+                    return "historia/admin-historia-vista";
                 })
                 .orElseGet(() -> {
                     // Esto podría pasar si la creación inicial falló o fue eliminada incorrectamente
@@ -134,7 +134,7 @@ public class HistoriaClinicaController {
             model.addAttribute("formError", "Error al cargar la lista de medicamentos.");
         }
 
-        return "formulario-historia";
+        return "historia/admin-historia-formulario";
     }
 
     @PostMapping("/editar/paciente/{pacienteId}") // Se usa el ID del paciente en la URL
@@ -158,7 +158,7 @@ public class HistoriaClinicaController {
                 model.addAttribute("medicamentosCatalogo", List.of());
                 model.addAttribute("formError", "Error al recargar lista de medicamentos.");
             }
-            return "formulario-historia";
+            return "historia/admin-historia-formulario";
         }
 
         try {
