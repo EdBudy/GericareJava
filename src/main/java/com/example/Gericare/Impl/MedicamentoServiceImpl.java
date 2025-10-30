@@ -102,7 +102,7 @@ public class MedicamentoServiceImpl implements MedicamentoService {
 
     //Carga masiva de datos (medicamentos)
     @Override
-    @Transactional // Asegura que si algo falla, no se guarde nada
+    @Transactional // Asegura que si algo falla no se guarde nada
     public void cargarDesdeExcel(InputStream inputStream) throws Exception {
         List<Medicamento> medicamentos = new ArrayList<>();
 
