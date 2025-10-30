@@ -9,6 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import com.example.Gericare.Enums.EstadoUsuario;
 
 import java.util.List;
 import java.util.Optional;
@@ -88,5 +98,52 @@ public class MedicamentoServiceImpl implements MedicamentoService {
     private MedicamentoDTO mapToDTO(Medicamento med) {
         if (med == null) return null;
         return new MedicamentoDTO(med.getIdMedicamento(), med.getNombreMedicamento(), med.getDescripcionMedicamento());
+    }
+
+    //Carga masiva de datos (medicamentos)
+    @Override
+    @Transactional // Asegura que si algo falla, no se guarde nada
+    public void cargarDesdeExcel(InputStream inputStream) throws Exception {
+        List<Medicamento> medicamentos = new ArrayList<>();
+
+        // Usar Apache POI para leer el archivo Excel
+        Workbook workbook = new XSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0); // Obtiene primera hoja del Excel
+
+        Iterator<Row> rowIterator = sheet.iterator();
+
+        // Omitir fila de encabezado
+        if (rowIterator.hasNext()) {
+            rowIterator.next();
+        }
+
+        // Recorrer todas las filas restantes
+        while (rowIterator.hasNext()) {
+            Row row = rowIterator.next();
+
+            Cell cellNombre = row.getCell(0); // Columna A (Nombre)
+            Cell cellDescripcion = row.getCell(1); // Columna B (Descripción)
+
+            // Solo procesar si la celda del nombre tiene texto
+            if (cellNombre != null && !cellNombre.getStringCellValue().isBlank()) {
+                Medicamento med = new Medicamento();
+                med.setNombreMedicamento(cellNombre.getStringCellValue().trim());
+
+                // Descripción es opcional
+                if (cellDescripcion != null) {
+                    med.setDescripcionMedicamento(cellDescripcion.getStringCellValue().trim());
+                }
+
+                med.setEstado(EstadoUsuario.Activo);
+                medicamentos.add(med);
+            }
+        }
+
+        workbook.close();
+
+        // Guardar todos los medicamentos en la base de datos de una vez
+        if (!medicamentos.isEmpty()) {
+            medicamentoRepository.saveAll(medicamentos);
+        }
     }
 }

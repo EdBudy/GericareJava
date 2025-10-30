@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult; // Para validación
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.InputStream;
 
 import java.util.List;
 
@@ -26,9 +28,6 @@ public class MedicamentoController {
     @Autowired
     private MedicamentoService medicamentoService; // Inyecta el servicio dedicado
 
-    /**
-     * Muestra la página de gestión del catálogo de medicamentos.
-     */
     @GetMapping
     public String listarMedicamentos(Model model) {
         log.info("Accediendo a la lista de medicamentos");
@@ -43,9 +42,6 @@ public class MedicamentoController {
         return "gestion-medicamentos"; // Nombre de la vista Thymeleaf
     }
 
-    /**
-     * Muestra el formulario para crear un nuevo medicamento.
-     */
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevo(Model model) {
         log.debug("Mostrando formulario para nuevo medicamento");
@@ -56,9 +52,6 @@ public class MedicamentoController {
         return "formulario-medicamento"; // Nombre de la vista Thymeleaf
     }
 
-    /**
-     * Muestra el formulario para editar un medicamento existente.
-     */
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditar(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         log.debug("Mostrando formulario para editar medicamento ID: {}", id);
@@ -74,9 +67,6 @@ public class MedicamentoController {
                 });
     }
 
-    /**
-     * Procesa el guardado (creación o actualización) de un medicamento.
-     */
     @PostMapping("/guardar")
     public String guardarMedicamento(@Valid @ModelAttribute("medicamento") MedicamentoDTO medicamentoDTO,
                                      BindingResult bindingResult, // Captura errores de validación (si añades @Valid y anotaciones en DTO)
@@ -126,10 +116,6 @@ public class MedicamentoController {
         }
     }
 
-    /**
-     * Procesa la creación de un nuevo medicamento vía AJAX (desde el modal).
-     * Responde con JSON.
-     */
     @PostMapping("/nuevo-ajax")
     @ResponseBody // Importante: indica que la respuesta es el cuerpo, no una vista
     public ResponseEntity<?> guardarMedicamentoAjax(@RequestBody MedicamentoDTO medicamentoDTO) {
@@ -155,9 +141,6 @@ public class MedicamentoController {
         }
     }
 
-    /**
-     * Procesa el borrado lógico (inactivación) de un medicamento.
-     */
     @PostMapping("/eliminar/{id}")
     public String eliminarMedicamento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         log.info("Intentando eliminar (inactivar) medicamento ID: {}", id);
@@ -172,10 +155,6 @@ public class MedicamentoController {
         return "redirect:/medicamentos"; // Vuelve a la lista
     }
 
-    /**
-     * Endpoint AJAX para obtener la lista de medicamentos activos (útil para selects dinámicos).
-     * Responde con JSON.
-     */
     @GetMapping("/listar-activos-ajax")
     @ResponseBody
     public ResponseEntity<List<MedicamentoDTO>> listarActivosAjax() {
@@ -187,5 +166,26 @@ public class MedicamentoController {
             log.error("Error AJAX al listar medicamentos activos", e);
             return ResponseEntity.internalServerError().build(); // Error 500 sin cuerpo
         }
+    }
+
+    // Carga masiva de datos medicamentos
+    @PostMapping("/cargar-excel")
+    public String cargarMedicamentosExcel(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
+
+        // Validar que el archivo no esté vacío
+        if (file.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Por favor, seleccione un archivo Excel para cargar.");
+            return "redirect:/medicamentos";
+        }
+
+        try (InputStream inputStream = file.getInputStream()) {
+            // Llamar al servicio
+            medicamentoService.cargarDesdeExcel(inputStream);
+            redirectAttributes.addFlashAttribute("successMessage", "¡Medicamentos cargados exitosamente desde el Excel!");
+        } catch (Exception e) {
+            log.error("Error al cargar archivo Excel de medicamentos", e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el archivo: " + e.getMessage());
+        }
+        return "redirect:/medicamentos";
     }
 }

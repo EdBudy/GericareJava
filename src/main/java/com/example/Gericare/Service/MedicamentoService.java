@@ -3,6 +3,8 @@ package com.example.Gericare.Service;
 import com.example.Gericare.DTO.MedicamentoDTO;
 import java.util.List;
 import java.util.Optional;
+// Carga masiva datos
+import java.io.InputStream;
 
 public interface MedicamentoService {
 
@@ -17,4 +19,6 @@ public interface MedicamentoService {
 
     // Obtiene un medicamento por su ID.
     Optional<MedicamentoDTO> obtenerMedicamentoPorId(Long id);
+
+    void cargarDesdeExcel(InputStream inputStream) throws Exception;
 }
