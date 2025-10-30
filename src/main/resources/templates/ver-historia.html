@@ -10,7 +10,7 @@
 <main class="container mt-5 mb-5">
     <h2 th:text="|Historia Clínica de ${historia.nombrePacienteCompleto}|"></h2>
     <div sec:authorize="hasRole('Administrador')" class="mb-3">
-        <a th:href="@{|/historias-clinicas/editar/${historia.idHistoriaClinica}|}" class="btn btn-warning">
+        <a th:href="@{|/historias-clinicas/editar/paciente/${historia.idPaciente}|}" class="btn btn-warning">
             <i class="bi bi-pencil-square me-2"></i> Editar Historia Clínica
         </a>
     </div>
@@ -37,13 +37,13 @@
             <hr>
             <h5>Enfermedades</h5>
             <ul th:if="${not #lists.isEmpty(historia.enfermedades)}">
-                <li th:each="e : ${historia.enfermedades}" th:text="|${e.nombreEnfermedad} (Diagnosticado: ${#temporals.format(e.fechaDiagnostico, 'dd/MM/yyyy')}) - Obs: ${e.observaciones}|"></li>
+                <li th:each="e : ${historia.enfermedades}" th:text="|${e.descripcionEnfermedad} (Diagnosticado: ${#temporals.format(e.fechaDiagnostico, 'dd/MM/yyyy')}) - Obs: ${e.observaciones}|"></li>
             </ul>
             <p th:if="${#lists.isEmpty(historia.enfermedades)}">No hay enfermedades registradas.</p>
         </div>
     </div>
     <div class="mt-3">
-        <a th:href="@{/pacientes}" class="btn btn-secondary">Volver a Pacientes</a>
+        <a th:href="@{/pacientes}" class="btn btn-secondary">Volver a la Lista de Pacientes</a>
     </div>
 </main>
 <footer th:insert="~{fragments/layout :: footer-content}"></footer>

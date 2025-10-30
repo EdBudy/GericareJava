@@ -3,9 +3,8 @@ package com.example.Gericare.Controller;
 import com.example.Gericare.DTO.HistoriaClinicaDTO;
 import com.example.Gericare.Entity.Paciente;
 import com.example.Gericare.Repository.PacienteRepository;
-import com.example.Gericare.Service.EnfermedadService; // Necesario
 import com.example.Gericare.Service.HistoriaClinicaService;
-import com.example.Gericare.Service.MedicamentoService; // Necesario
+import com.example.Gericare.Service.MedicamentoService;
 import com.example.Gericare.Service.UsuarioService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException; // Para control de acceso si es necesario
 import org.springframework.security.access.prepost.PreAuthorize; // Alternativa para seguridad a nivel de metodo
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority; // Para verificar roles
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult; // Para validación de formularios
@@ -37,8 +35,6 @@ public class HistoriaClinicaController {
     private UsuarioService usuarioService; // Para obtener ID del admin logueado
     @Autowired
     private MedicamentoService medicamentoService; // Para obtener catálogo
-    @Autowired
-    private EnfermedadService enfermedadService; // Para obtener catálogo
     @Autowired
     private PacienteRepository pacienteRepository;
 
@@ -105,7 +101,6 @@ public class HistoriaClinicaController {
         // Este bloque ahora se alcanza en ambos casos (crear o editar)
         try {
             model.addAttribute("medicamentosCatalogo", medicamentoService.listarMedicamentosActivos());
-            model.addAttribute("enfermedadesCatalogo", enfermedadService.listarEnfermedadesActivas());
             log.debug("Catálogos cargados para el formulario de HC del paciente ID: {}", pacienteId);
         } catch (Exception e) {
             log.error("Error al cargar catálogos para el formulario de HC del paciente ID: {}", pacienteId, e);

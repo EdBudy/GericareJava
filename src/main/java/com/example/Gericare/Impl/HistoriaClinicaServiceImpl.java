@@ -6,7 +6,6 @@ import com.example.Gericare.Enums.EstadoUsuario;
 import com.example.Gericare.Repository.HistoriaClinicaRepository;
 import com.example.Gericare.Repository.PacienteRepository;
 import com.example.Gericare.Repository.UsuarioRepository;
-import com.example.Gericare.Service.EnfermedadService;
 import com.example.Gericare.Service.HistoriaClinicaService;
 import com.example.Gericare.Service.MedicamentoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,6 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
     // Inyectar los servicios dedicados para catálogos
     @Autowired
     private MedicamentoService medicamentoService;
-    @Autowired
-    private EnfermedadService enfermedadService;
 
     @Override
     @Transactional
@@ -188,25 +185,15 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         if (dto.getEnfermedades() != null) {
             log.debug("Procesando {} enfermedades", dto.getEnfermedades().size());
             dto.getEnfermedades().forEach(enfDto -> {
-                // Válida que el ID de la enfermedad exista y esté activa
-                Enfermedad enfEntity = enfermedadService.obtenerEnfermedadPorId(enfDto.getIdEnfermedad())
-                        .map(eDto -> {
-                            Enfermedad e = new Enfermedad();
-                            e.setIdEnfermedad(eDto.getIdEnfermedad());
-                            return e;
-                        })
-                        .orElseThrow(() -> {
-                            log.error("Enfermedad ID: {} no encontrada o inactiva al guardar HC", enfDto.getIdEnfermedad());
-                            return new RuntimeException("Enfermedad no encontrada o inactiva con ID: " + enfDto.getIdEnfermedad());
-                        });
-
-                HistoriaClinicaEnfermedad hce = new HistoriaClinicaEnfermedad();
-                hce.setHistoriaClinica(hc);
-                hce.setEnfermedad(enfEntity);
-                hce.setFechaDiagnostico(enfDto.getFechaDiagnostico());
-                hce.setObservaciones(enfDto.getObservaciones());
-                hce.setEstado(EstadoUsuario.Activo);
-                hc.getEnfermedades().add(hce);
+                if (enfDto.getDescripcionEnfermedad() != null && !enfDto.getDescripcionEnfermedad().isBlank()) {
+                    HistoriaClinicaEnfermedad hce = new HistoriaClinicaEnfermedad();
+                    hce.setHistoriaClinica(hc);
+                    hce.setDescripcionEnfermedad(enfDto.getDescripcionEnfermedad());
+                    hce.setFechaDiagnostico(enfDto.getFechaDiagnostico());
+                    hce.setObservaciones(enfDto.getObservaciones());
+                    hce.setEstado(EstadoUsuario.Activo);
+                    hc.getEnfermedades().add(hce);
+                }
             });
         }
 
@@ -320,14 +307,13 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
     }
 
     private HistoriaClinicaEnfermedadDTO mapEnfermedadRelationToDTO(HistoriaClinicaEnfermedad hce) {
-        if (hce == null || hce.getEnfermedad() == null) {
-            log.warn("Intentando mapear una relación HistoriaClinicaEnfermedad nula o con Enfermedad nula.");
+        if (hce == null) {
+            log.warn("Intentando mapear una relación HistoriaClinicaEnfermedad nula.");
             return null;
         }
         return new HistoriaClinicaEnfermedadDTO(
                 hce.getIdHcEnfermedad(),
-                hce.getEnfermedad().getIdEnfermedad(),
-                hce.getEnfermedad().getNombreEnfermedad(), // Requiere que Enfermedad esté cargado (FETCH JOIN)
+                hce.getDescripcionEnfermedad(),
                 hce.getFechaDiagnostico(),
                 hce.getObservaciones()
         );

@@ -12,8 +12,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class HistoriaClinicaEnfermedadDTO {
     private Long idHcEnfermedad;
-    private Long idEnfermedad; // Para la selección
-    private String nombreEnfermedad; // Para mostrar
+    private String descripcionEnfermedad;
     private LocalDate fechaDiagnostico;
     private String observaciones;
 }

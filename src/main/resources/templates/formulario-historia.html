@@ -52,7 +52,7 @@
                     <h2 class="card-title text-center mb-4">Editar Historia Clínica de <span th:text="${historia.nombrePacienteCompleto}"></span></h2>
 
                     <!-- Formulario principal -->
-                    <form th:action="@{|/historias-clinicas/editar/${historia.idHistoriaClinica}|}" th:object="${historia}" method="post" id="historiaClinicaForm">
+                    <form th:action="@{|/historias-clinicas/editar/paciente/${historia.idPaciente}|}" th:object="${historia}" method="post" id="historiaClinicaForm">
                         <!-- Campo oculto para ID de HC y Paciente (necesario para el backend y redirección) -->
                         <input type="hidden" th:field="*{idHistoriaClinica}" />
                         <input type="hidden" th:field="*{idPaciente}" />
@@ -170,21 +170,17 @@
                         <h5 class="mt-4">Enfermedades</h5>
                         <hr class="mb-3 mt-1">
                         <div id="enfermedades-wrapper">
-                            <!-- Iterar sobre las enfermedades existentes -->
                             <div th:each="enf, iterStat : *{enfermedades}" class="row dynamic-item-row enfermedad-item align-items-end">
                                 <input type="hidden" th:name="|enfermedades[${iterStat.index}].idHcEnfermedad|" th:value="${enf.idHcEnfermedad}" />
-                                <div class="col-md-3">
-                                    <label th:for="|enf-select-${iterStat.index}|" class="form-label">Enfermedad:</label>
-                                    <select th:id="|enf-select-${iterStat.index}|" class="form-select form-select-sm" th:name="|enfermedades[${iterStat.index}].idEnfermedad|" required th:attr="data-selected-id=${enf.idEnfermedad}">
-                                        <!-- Opciones se llenarán con JS -->
-                                    </select>
-                                    <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="abrirModalNuevaEnfermedad(this)">+ Nueva Enfermedad</button>
+                                <div class="col-md-5">
+                                    <label th:for="|enf-desc-${iterStat.index}|" class="form-label">Enfermedad/Condición:</label>
+                                    <input type="text" th:id="|enf-desc-${iterStat.index}|" class="form-control form-control-sm" th:name="|enfermedades[${iterStat.index}].descripcionEnfermedad|" th:value="${enf.descripcionEnfermedad}" required />
                                 </div>
                                 <div class="col-md-3">
                                     <label th:for="|enf-fecha-${iterStat.index}|" class="form-label">Fecha Diagnóstico:</label>
                                     <input type="date" th:id="|enf-fecha-${iterStat.index}|" class="form-control form-control-sm" th:name="|enfermedades[${iterStat.index}].fechaDiagnostico|" th:value="${enf.fechaDiagnostico}" />
                                 </div>
-                                <div class="col-md-5">
+                                <div class="col-md-3">
                                     <label th:for="|enf-obs-${iterStat.index}|" class="form-label">Observaciones:</label>
                                     <input type="text" th:id="|enf-obs-${iterStat.index}|" class="form-control form-control-sm" th:name="|enfermedades[${iterStat.index}].observaciones|" th:value="${enf.observaciones}" />
                                 </div>
@@ -201,7 +197,7 @@
 
                         <!-- Botones Finales -->
                         <div class="d-grid gap-2 d-md-flex justify-content-end mt-4 pt-3 border-top">
-                            <a th:href="@{|/historias-clinicas/paciente/${historia.idPaciente}|}" class="btn btn-secondary">
+                            <a th:href="@{/pacientes}" class="btn btn-secondary">
                                 <i class="bi bi-x-circle me-1"></i>Cancelar
                             </a>
                             <button type="submit" class="btn btn-primary">
@@ -280,378 +276,20 @@
             </div>
         </div>
     </div>
-    <!-- ========= FIN MODALES ========= -->
 
 </main>
-<!-- Incluye el footer del layout -->
 <footer th:insert="~{fragments/layout :: footer-content}"></footer>
 
-<!-- ========= JAVASCRIPT ========= -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-
-    // --- Variables Globales y Datos Iniciales ---
-    const medicamentosCatalogo = /*[[${medicamentosCatalogo ?: null}]]*/ []; // Lista inicial de DTOs
-    const enfermedadesCatalogo = /*[[${enfermedadesCatalogo ?: null}]]*/ []; // Lista inicial de DTOs
-    const csrfToken = /*[[${_csrf?.token}]]*/ null; // Token CSRF para AJAX POST
-    const csrfHeaderName = /*[[${_csrf?.headerName}]]*/ null; // Nombre del header CSRF
-
-    let medicamentoSelectTarget = null; // Guarda el <select> a actualizar tras crear nuevo med
-    let enfermedadSelectTarget = null; // Guarda el <select> a actualizar tras crear nueva enf
-
-    // --- Funciones Helper ---
-
-    /** Genera las opciones HTML para un <select> a partir de un catálogo */
-    function generateOptions(catalogo, valueField, textField, selectedValue = null) {
-        if (!catalogo || catalogo.length === 0) return '<option value="">-- No hay opciones --</option>';
-        return catalogo.map(item =>
-            `<option value="${item[valueField]}" ${selectedValue == item[valueField] ? 'selected' : ''}>${item[textField]}</option>`
-        ).join('');
-    }
-
-    /** Elimina un item dinámico (cirugía, medicamento, enfermedad) */
-    function removeItem(button) {
-        const item = button.closest('.dynamic-item-row');
-        if (item) {
-            const wrapperId = item.parentElement.id;
-            item.remove();
-            // Reindexar después de eliminar para que Spring Boot los reciba correctamente
-            if (wrapperId === 'cirugias-wrapper') reindexItems(wrapperId, 'cirugias');
-            if (wrapperId === 'medicamentos-wrapper') reindexItems(wrapperId, 'medicamentos');
-            if (wrapperId === 'enfermedades-wrapper') reindexItems(wrapperId, 'enfermedades');
-        }
-    }
-
-    /** Reajusta los índices [i] en los nombres de los inputs dentro de un wrapper */
-    function reindexItems(wrapperId, baseName) {
-        const wrapper = document.getElementById(wrapperId);
-        if (!wrapper) return;
-        const items = wrapper.children; // Usar children que es una HTMLCollection live
-        for (let i = 0; i < items.length; i++) {
-            const inputs = items[i].querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                const name = input.getAttribute('name');
-                if (name && name.startsWith(baseName + '[')) {
-                    // Reemplaza el índice viejo (cualquier número) por el nuevo índice 'i'
-                    const newName = name.replace(/\[\d+\]/, `[${i}]`);
-                    input.setAttribute('name', newName);
-                    // Actualizar IDs también si dependen del índice (para las labels)
-                    if(input.id && input.id.includes('-')) {
-                        const baseId = input.id.substring(0, input.id.lastIndexOf('-'));
-                        input.id = `${baseId}-${i}`;
-                        // Actualizar 'for' de la label si existe
-                        const label = items[i].querySelector(`label[for="${input.id.replace(`-${i}`, '-\\d+') }"]`);
-                        if(label) label.setAttribute('for', input.id);
-                    }
-                }
-            });
-        }
-    }
-
-    // --- Funciones Específicas para Cirugías ---
-    function addCirugiaItem() {
-        const wrapper = document.getElementById('cirugias-wrapper');
-        const index = wrapper.children.length; // El nuevo índice será la longitud actual
-        const newItem = document.createElement('div');
-        newItem.className = 'row dynamic-item-row cirugia-item align-items-end';
-        newItem.innerHTML = `
-            <input type="hidden" name="cirugias[${index}].idCirugia" value="" /> <!-- ID vacío para nuevos -->
-            <div class="col-md-5">
-                <label for="cirugia-desc-${index}" class="form-label small">Descripción:</label>
-                <input type="text" id="cirugia-desc-${index}" class="form-control form-control-sm" name="cirugias[${index}].descripcionCirugia" required />
-            </div>
-            <div class="col-md-3">
-                <label for="cirugia-fecha-${index}" class="form-label small">Fecha:</label>
-                <input type="date" id="cirugia-fecha-${index}" class="form-control form-control-sm" name="cirugias[${index}].fechaCirugia" />
-            </div>
-            <div class="col-md-3">
-                <label for="cirugia-obs-${index}" class="form-label small">Observaciones:</label>
-                <input type="text" id="cirugia-obs-${index}" class="form-control form-control-sm" name="cirugias[${index}].observaciones" />
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Cirugía">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-        `;
-        wrapper.appendChild(newItem);
-    }
-
-    // --- Funciones Específicas para Medicamentos ---
-    function addMedicamentoItem() {
-        const wrapper = document.getElementById('medicamentos-wrapper');
-        const index = wrapper.children.length;
-        const newItem = document.createElement('div');
-        newItem.className = 'row dynamic-item-row medicamento-item align-items-end';
-        newItem.innerHTML = `
-            <input type="hidden" name="medicamentos[${index}].idHcMedicamento" value="" />
-            <div class="col-md-3">
-                <label for="med-select-${index}" class="form-label small">Medicamento:</label>
-                <select id="med-select-${index}" class="form-select form-select-sm" name="medicamentos[${index}].idMedicamento" required>
-                    <option value="">Seleccione...</option>
-                    ${generateOptions(medicamentosCatalogo, 'idMedicamento', 'nombreMedicamento')}
-                </select>
-                 <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="abrirModalNuevoMedicamento(this)">+ Nuevo Medicamento</button>
-            </div>
-            <div class="col-md-2">
-                <label for="med-dosis-${index}" class="form-label small">Dosis:</label>
-                <input type="text" id="med-dosis-${index}" class="form-control form-control-sm" name="medicamentos[${index}].dosis" />
-            </div>
-            <div class="col-md-2">
-                <label for="med-frec-${index}" class="form-label small">Frecuencia:</label>
-                <input type="text" id="med-frec-${index}" class="form-control form-control-sm" name="medicamentos[${index}].frecuencia" />
-            </div>
-            <div class="col-md-3">
-                <label for="med-inst-${index}" class="form-label small">Instrucciones:</label>
-                <input type="text" id="med-inst-${index}" class="form-control form-control-sm" name="medicamentos[${index}].instrucciones" />
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Medicamento">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-            <div class="col-md-1"></div> <!-- Espacio extra -->
-        `;
-        wrapper.appendChild(newItem);
-    }
-
-    function abrirModalNuevoMedicamento(button) {
-        // Guarda la referencia al <select> que disparó el evento para actualizarlo después
-        medicamentoSelectTarget = button.closest('.medicamento-item').querySelector('select');
-        // Limpiar campos y errores del modal antes de mostrarlo
-        document.getElementById('formNuevoMedicamento').reset();
-        document.getElementById('nuevoMedNombre').classList.remove('is-invalid'); // Quitar posible estilo de error
-        document.getElementById('errorNuevoMedicamento').textContent = '';
-        // Obtener instancia del modal y mostrarlo
-        const modalElement = document.getElementById('modalNuevoMedicamento');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-        modal.show();
-    }
-
-    function guardarNuevoMedicamento() {
-        const nombreInput = document.getElementById('nuevoMedNombre');
-        const nombre = nombreInput.value.trim();
-        const descripcion = document.getElementById('nuevoMedDesc').value.trim();
-        const errorDiv = document.getElementById('errorNuevoMedicamento');
-        const submitButton = document.querySelector('#modalNuevoMedicamento .modal-footer button.btn-primary');
-        errorDiv.textContent = ''; // Limpiar errores previos
-        nombreInput.classList.remove('is-invalid'); // Quitar borde rojo
-
-        if (!nombre) {
-            errorDiv.textContent = 'El nombre es obligatorio.';
-            nombreInput.classList.add('is-invalid'); // Añadir borde rojo
-            return;
-        }
-
-        // Deshabilitar botón para evitar doble envío
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
-
-        const data = { nombreMedicamento: nombre, descripcionMedicamento: descripcion };
-        const headers = { 'Content-Type': 'application/json' };
-        // Incluir token CSRF si está disponible
-        const csrfTokenModal = document.getElementById('csrfTokenModalMed')?.value;
-        if (csrfHeaderName && csrfTokenModal) {
-            headers[csrfHeaderName] = csrfTokenModal;
-        } else if (csrfHeaderName && csrfToken) { // Fallback al global si el del modal no está
-            headers[csrfHeaderName] = csrfToken;
-        }
-
-        fetch('/medicamentos/nuevo-ajax', { // Llama al endpoint del controlador
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(data)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    // Si la respuesta no es OK, intenta leer el cuerpo como texto (el mensaje de error)
-                    return response.text().then(text => {
-                        throw new Error(text || `Error ${response.status}: ${response.statusText}`);
-                    });
-                }
-                return response.json(); // Si es OK, procesa el JSON
-            })
-            .then(nuevoMedicamento => { // Éxito
-                console.log("Medicamento guardado:", nuevoMedicamento);
-                // 1. Añadir el nuevo medicamento al catálogo JS global
-                medicamentosCatalogo.push(nuevoMedicamento);
-
-                // 2. Crear la nueva opción HTML
-                const nuevaOpcionHTML = `<option value="${nuevoMedicamento.idMedicamento}">${nuevoMedicamento.nombreMedicamento}</option>`;
-
-                // 3. Añadir la nueva opción a TODOS los selects de medicamento en el formulario
-                document.querySelectorAll('#medicamentos-wrapper select[name*="idMedicamento"]').forEach(select => {
-                    // Evita añadirla si ya existe (por si acaso)
-                    if (!select.querySelector(`option[value="${nuevoMedicamento.idMedicamento}"]`)) {
-                        select.insertAdjacentHTML('beforeend', nuevaOpcionHTML);
-                    }
-                });
-
-                // 4. Seleccionar la nueva opción en el <select> específico que abrió el modal
-                if (medicamentoSelectTarget) {
-                    medicamentoSelectTarget.value = nuevoMedicamento.idMedicamento;
-                }
-
-                // 5. Cerrar el modal
-                const modalElement = document.getElementById('modalNuevoMedicamento');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                if (modal) {
-                    modal.hide();
-                }
-                medicamentoSelectTarget = null; // Limpiar la referencia
-            })
-            .catch(error => { // Manejo de errores de red o del backend
-                console.error('Error al guardar medicamento vía AJAX:', error);
-                errorDiv.textContent = `Error: ${error.message}`;
-            })
-            .finally(() => { // Siempre se ejecuta, para rehabilitar el botón
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Guardar y Seleccionar';
-            });
-    }
-
-    // --- Funciones Específicas para Enfermedades ---
-    function addEnfermedadItem() {
-        const wrapper = document.getElementById('enfermedades-wrapper');
-        const index = wrapper.children.length;
-        const newItem = document.createElement('div');
-        newItem.className = 'row dynamic-item-row enfermedad-item align-items-end';
-        newItem.innerHTML = `
-            <input type="hidden" name="enfermedades[${index}].idHcEnfermedad" value="" />
-            <div class="col-md-3">
-                <label for="enf-select-${index}" class="form-label small">Enfermedad:</label>
-                <select id="enf-select-${index}" class="form-select form-select-sm" name="enfermedades[${index}].idEnfermedad" required>
-                     <option value="">Seleccione...</option>
-                    ${generateOptions(enfermedadesCatalogo, 'idEnfermedad', 'nombreEnfermedad')}
-                </select>
-                 <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="abrirModalNuevaEnfermedad(this)">+ Nueva Enfermedad</button>
-            </div>
-            <div class="col-md-3">
-                <label for="enf-fecha-${index}" class="form-label small">Fecha Diagnóstico:</label>
-                <input type="date" id="enf-fecha-${index}" class="form-control form-control-sm" name="enfermedades[${index}].fechaDiagnostico" />
-            </div>
-            <div class="col-md-4">
-                <label for="enf-obs-${index}" class="form-label small">Observaciones:</label>
-                <input type="text" id="enf-obs-${index}" class="form-control form-control-sm" name="enfermedades[${index}].observaciones" />
-            </div>
-            <div class="col-md-1">
-                <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Enfermedad">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-             <div class="col-md-1"></div> <!-- Espacio extra -->
-        `;
-        wrapper.appendChild(newItem);
-    }
-
-    function abrirModalNuevaEnfermedad(button) {
-        enfermedadSelectTarget = button.closest('.enfermedad-item').querySelector('select');
-        document.getElementById('formNuevaEnfermedad').reset();
-        document.getElementById('nuevaEnfNombre').classList.remove('is-invalid');
-        document.getElementById('errorNuevaEnfermedad').textContent = '';
-        const modalElement = document.getElementById('modalNuevaEnfermedad');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
-        modal.show();
-    }
-
-    function guardarNuevaEnfermedad() {
-        const nombreInput = document.getElementById('nuevaEnfNombre');
-        const nombre = nombreInput.value.trim();
-        const descripcion = document.getElementById('nuevaEnfDesc').value.trim();
-        const errorDiv = document.getElementById('errorNuevaEnfermedad');
-        const submitButton = document.querySelector('#modalNuevaEnfermedad .modal-footer button.btn-primary');
-        errorDiv.textContent = '';
-        nombreInput.classList.remove('is-invalid');
-
-        if (!nombre) {
-            errorDiv.textContent = 'El nombre es obligatorio.';
-            nombreInput.classList.add('is-invalid');
-            return;
-        }
-
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
-
-        const data = { nombreEnfermedad: nombre, descripcionEnfermedad: descripcion };
-        const headers = { 'Content-Type': 'application/json' };
-        const csrfTokenModal = document.getElementById('csrfTokenModalEnf')?.value;
-        if (csrfHeaderName && csrfTokenModal) {
-            headers[csrfHeaderName] = csrfTokenModal;
-        } else if (csrfHeaderName && csrfToken) {
-            headers[csrfHeaderName] = csrfToken;
-        }
-
-
-        fetch('/enfermedades/nuevo-ajax', { // Endpoint AJAX de enfermedades
-            method: 'POST',
-            headers: headers,
-            body: JSON.stringify(data)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text || `Error ${response.status}`) });
-                }
-                return response.json();
-            })
-            .then(nuevaEnfermedad => {
-                console.log("Enfermedad guardada:", nuevaEnfermedad);
-                enfermedadesCatalogo.push(nuevaEnfermedad); // Actualizar catálogo global JS
-                const nuevaOpcionHTML = `<option value="${nuevaEnfermedad.idEnfermedad}">${nuevaEnfermedad.nombreEnfermedad}</option>`;
-
-                // Añadir a todos los selects de enfermedad
-                document.querySelectorAll('#enfermedades-wrapper select[name*="idEnfermedad"]').forEach(select => {
-                    if (!select.querySelector(`option[value="${nuevaEnfermedad.idEnfermedad}"]`)) {
-                        select.insertAdjacentHTML('beforeend', nuevaOpcionHTML);
-                    }
-                });
-
-                // Seleccionar en el target
-                if (enfermedadSelectTarget) {
-                    enfermedadSelectTarget.value = nuevaEnfermedad.idEnfermedad;
-                }
-
-                // Cerrar modal
-                const modalElement = document.getElementById('modalNuevaEnfermedad');
-                const modal = bootstrap.Modal.getInstance(modalElement);
-                if (modal) {
-                    modal.hide();
-                }
-                enfermedadSelectTarget = null;
-            })
-            .catch(error => {
-                console.error('Error al guardar enfermedad vía AJAX:', error);
-                errorDiv.textContent = `Error: ${error.message}`;
-            })
-            .finally(() => {
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Guardar y Seleccionar';
-            });
-    }
-
-    // --- Inicialización al Cargar la Página ---
-    document.addEventListener('DOMContentLoaded', function() {
-        // Poblar selects de medicamentos existentes con datos del catálogo y seleccionar el valor guardado
-        document.querySelectorAll('#medicamentos-wrapper select[name*="idMedicamento"]').forEach(select => {
-            const selectedValue = select.getAttribute('data-selected-id'); // Obtiene el ID guardado del atributo data-*
-            // Limpia opciones previas (excepto la primera "Seleccione...") y añade las del catálogo
-            select.innerHTML = '<option value="">Seleccione...</option>' + generateOptions(medicamentosCatalogo, 'idMedicamento', 'nombreMedicamento', selectedValue);
-        });
-
-        // Poblar selects de enfermedades existentes
-        document.querySelectorAll('#enfermedades-wrapper select[name*="idEnfermedad"]').forEach(select => {
-            const selectedValue = select.getAttribute('data-selected-id');
-            select.innerHTML = '<option value="">Seleccione...</option>' + generateOptions(enfermedadesCatalogo, 'idEnfermedad', 'nombreEnfermedad', selectedValue);
-        });
-
-        // Inicializar reindexación por si acaso hubo errores y se recargó la página con items eliminados
-        reindexItems('cirugias-wrapper', 'cirugias');
-        reindexItems('medicamentos-wrapper', 'medicamentos');
-        reindexItems('enfermedades-wrapper', 'enfermedades');
-    });
-
+    // Pasa las variables del servidor a variables globales de JavaScript
+    var medicamentosCatalogo = /*[[${medicamentosCatalogo}]]*/;
+    var csrfToken = /*[[${_csrf?.token}]]*/ null;
+    var csrfHeaderName = /*[[${_csrf?.headerName}]]*/ null;
     /*]]>*/
 </script>
-<!-- ========= FIN JAVASCRIPT ========= -->
+
+<script th:src="@{/js/admin-formulario-historia.js}"></script>
 
 </body>
 </html>

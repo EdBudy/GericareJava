@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class HistoriaClinicaDTO {
     private String antecedentesMedicos;
     private String alergias;
     private String dietasEspeciales;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaUltimaConsulta;
     private String observaciones;
     private boolean completada;

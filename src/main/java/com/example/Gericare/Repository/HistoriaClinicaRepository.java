@@ -15,14 +15,14 @@ public interface HistoriaClinicaRepository extends JpaRepository<HistoriaClinica
     @Query("SELECT hc FROM HistoriaClinica hc " +
             "LEFT JOIN FETCH hc.cirugias c " +
             "LEFT JOIN FETCH hc.medicamentos hm LEFT JOIN FETCH hm.medicamento m " +
-            "LEFT JOIN FETCH hc.enfermedades he LEFT JOIN FETCH he.enfermedad e " +
+            "LEFT JOIN FETCH hc.enfermedades he " +
             "WHERE hc.idHistoriaClinica = :id")
     Optional<HistoriaClinica> findByIdWithDetails(Long id);
 
     @Query("SELECT hc FROM HistoriaClinica hc " +
             "LEFT JOIN FETCH hc.cirugias c " +
             "LEFT JOIN FETCH hc.medicamentos hm LEFT JOIN FETCH hm.medicamento m " +
-            "LEFT JOIN FETCH hc.enfermedades he LEFT JOIN FETCH he.enfermedad e " +
+            "LEFT JOIN FETCH hc.enfermedades he " +
             "WHERE hc.paciente.idPaciente = :pacienteId")
     Optional<HistoriaClinica> findByPacienteIdWithDetails(Long pacienteId);
 }

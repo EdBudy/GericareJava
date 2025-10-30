@@ -23,9 +23,8 @@ public class HistoriaClinicaEnfermedad {
     @JoinColumn(name = "id_historia_clinica", nullable = false)
     private HistoriaClinica historiaClinica;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_enfermedad", nullable = false)
-    private Enfermedad enfermedad;
+    @Column(name = "descripcion_enfermedad", nullable = false, length = 250)
+    private String descripcionEnfermedad;
 
     @Column(name = "fecha_diagnostico")
     private LocalDate fechaDiagnostico;
@@ -35,5 +34,5 @@ public class HistoriaClinicaEnfermedad {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoUsuario estado = EstadoUsuario.Activo; // o EstadoRegistro
+    private EstadoUsuario estado = EstadoUsuario.Activo;
 }
