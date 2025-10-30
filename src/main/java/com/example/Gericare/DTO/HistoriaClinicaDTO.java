@@ -8,6 +8,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 
 @Getter
 @Setter
@@ -20,6 +22,13 @@ public class HistoriaClinicaDTO {
     private Long idAdministrador; // Quién la creó/última modificó
     private String nombreAdministrador; // Para mostrar
 
+    // Info paciente
+    private String pacienteDocumento;
+    private String pacienteContactoEmergencia;
+    private String familiarNombreCompleto;
+    private List<String> familiarTelefonos;
+
+    @NotBlank(message = "El estado de salud no puede estar vacío.")
     private String estadoSalud;
     private String condiciones;
     private String antecedentesMedicos;

@@ -2,8 +2,10 @@ package com.example.Gericare.Impl;
 
 import com.example.Gericare.DTO.*;
 import com.example.Gericare.Entity.*;
+import com.example.Gericare.Enums.EstadoAsignacion;
 import com.example.Gericare.Enums.EstadoUsuario;
 import com.example.Gericare.Repository.HistoriaClinicaRepository;
+import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Repository.PacienteRepository;
 import com.example.Gericare.Repository.UsuarioRepository;
 import com.example.Gericare.Service.HistoriaClinicaService;
@@ -15,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -31,8 +32,8 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
     private PacienteRepository pacienteRepository;
     @Autowired
     private UsuarioRepository usuarioRepository; // Para buscar el Administrador
-
-    // Inyectar los servicios dedicados para catálogos
+    @Autowired
+    private PacienteAsignadoRepository pacienteAsignadoRepository;
     @Autowired
     private MedicamentoService medicamentoService;
 
@@ -219,11 +220,34 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
 
         // Mapeo seguro de Paciente
         if (hc.getPaciente() != null) {
-            dto.setIdPaciente(hc.getPaciente().getIdPaciente());
+            Paciente paciente = hc.getPaciente();
+            dto.setIdPaciente(paciente.getIdPaciente());
             dto.setNombrePacienteCompleto(
-                    (hc.getPaciente().getNombre() != null ? hc.getPaciente().getNombre() : "") + " " +
-                            (hc.getPaciente().getApellido() != null ? hc.getPaciente().getApellido() : "")
+                    (paciente.getNombre() != null ? paciente.getNombre() : "") + " " +
+                            (paciente.getApellido() != null ? paciente.getApellido() : "")
             );
+
+            dto.setPacienteDocumento(paciente.getDocumentoIdentificacion());
+            dto.setPacienteContactoEmergencia(paciente.getContactoEmergencia());
+
+            // Buscar la asignación activa de este paciente para encontrar a familiar
+            Optional<PacienteAsignado> asignacionActiva = pacienteAsignadoRepository
+                    .findByPacienteIdPacienteAndEstado(paciente.getIdPaciente(), EstadoAsignacion.Activo)
+                    .stream()
+                    .findFirst();
+
+            if (asignacionActiva.isPresent() && asignacionActiva.get().getFamiliar() != null) {
+                Familiar familiar = asignacionActiva.get().getFamiliar();
+                dto.setFamiliarNombreCompleto(familiar.getNombre() + " " + familiar.getApellido());
+                // Mapear teléfonos de familiar
+                dto.setFamiliarTelefonos(familiar.getTelefonos().stream()
+                        .map(Telefono::getNumero)
+                        .collect(Collectors.toList()));
+            } else {
+                dto.setFamiliarNombreCompleto("N/A");
+                dto.setFamiliarTelefonos(Collections.emptyList());
+            }
+
         } else {
             log.warn("HistoriaClinica ID {} no tiene Paciente asociado.", hc.getIdHistoriaClinica());
         }
@@ -254,7 +278,7 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         dto.setCompletada(
                 isNotBlank(hc.getEstadoSalud()) || isNotBlank(hc.getCondiciones()) ||
                         isNotBlank(hc.getAntecedentesMedicos()) || isNotBlank(hc.getAlergias()) ||
-                        isNotBlank(hc.getDietasEspeciales()) || hc.getFechaUltimaConsulta() != null || // Considerar fecha también
+                        isNotBlank(hc.getDietasEspeciales()) || hc.getFechaUltimaConsulta() != null ||
                         isNotBlank(hc.getObservaciones()) ||
                         (hc.getCirugias() != null && !hc.getCirugias().isEmpty()) ||
                         (hc.getMedicamentos() != null && !hc.getMedicamentos().isEmpty()) ||
@@ -262,10 +286,10 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
         );
 
 
-// Mapeo de listas (filtrando por estado activo si es necesario y manejando nulos)
+        // Mapeo de listas
         dto.setCirugias(
                 Optional.ofNullable(hc.getCirugias()).orElse(Collections.emptySet()).stream()
-                        .filter(c -> c.getEstado() == EstadoUsuario.Activo) // Asegurar que solo mapeamos activos
+                        .filter(c -> c.getEstado() == EstadoUsuario.Activo) // Asegurar que solo mapea activos
                         .map(this::mapCirugiaToDTO)
                         .collect(Collectors.toList())
         );

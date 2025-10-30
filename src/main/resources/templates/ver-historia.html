@@ -16,11 +16,34 @@
     </div>
 
     <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Información del Paciente y Contacto</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Documento:</strong> <span th:text="${historia.pacienteDocumento}"></span></p>
+                    <p class="mb-1"><strong>Contacto Emergencia (Paciente):</strong> <span th:text="${historia.pacienteContactoEmergencia}"></span></p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Familiar Asociado:</strong> <span th:text="${historia.familiarNombreCompleto}"></span></p>
+                    <p class="mb-1"><strong>Teléfono(s) Familiar:</strong>
+                        <span th:if="${#lists.isEmpty(historia.familiarTelefonos)}">N/A</span>
+                        <th:block th:each="tel, iter : ${historia.familiarTelefonos}">
+                            <span th:text="${tel}"></span><span th:if="${!iter.last}">, </span>
+                        </th:block>
+                    </p>
+                </div>
+            </div>
+        </div>
         <div class="card-body">
             <h5 class="card-title">Datos Generales</h5>
-            <p><strong>Estado Salud:</strong> <span th:text="${historia.estadoSalud}"></span></p>
+            <p><strong>Estado De Salud:</strong> <span th:text="${historia.estadoSalud}"></span></p>
             <p><strong>Condiciones:</strong> <span th:text="${historia.condiciones}"></span></p>
-            <p><strong>Última Consulta:</strong> <span th:text="${#temporals.format(historia.fechaUltimaConsulta, 'dd/MM/yyyy')}"></span></p>
+            <p><strong>Antecedentes Médicos:</strong> <span th:text="${historia.antecedentesMedicos}"></span></p>
+            <p><strong>Alergias:</strong> <span th:text="${historia.alergias}"></span></p>
+            <p><strong>Dietas Especiales:</strong> <span th:text="${historia.dietasEspeciales}"></span></p>
+            <p><strong>Última Consulta:</strong> <span th:text="${historia.fechaUltimaConsulta != null ? #temporals.format(historia.fechaUltimaConsulta, 'dd/MM/yyyy') : 'N/A'}"></span></p>
             <p><strong>Observaciones Generales:</strong> <span th:text="${historia.observaciones}"></span></p>
             <hr>
             <h5>Cirugías</h5>

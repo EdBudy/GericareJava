@@ -2,7 +2,7 @@
 <!--suppress ALL -->
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <title th:text="|Editar HC: ${historia.nombrePacienteCompleto}|"></title>
+    <title th:text="|Historia Clínica: ${historia.nombrePacienteCompleto}|"></title>
     <!-- Incluye el fragmento head del layout -->
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
     <style>
@@ -27,7 +27,7 @@
 
 <main class="container mt-4 mb-5">
     <div class="row justify-content-center">
-        <div class="col-lg-10 col-xl-9"> <!-- Ancho un poco mayor para el formulario -->
+        <div class="col-lg-10 col-xl-9">
 
             <!-- Mensajes de éxito/error -->
             <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
@@ -49,7 +49,7 @@
 
             <div class="card shadow-sm">
                 <div class="card-body p-4">
-                    <h2 class="card-title text-center mb-4">Editar Historia Clínica de <span th:text="${historia.nombrePacienteCompleto}"></span></h2>
+                    <h2 class="card-title text-center mb-4">Historia Clínica de <span th:text="${historia.nombrePacienteCompleto}"></span></h2>
 
                     <!-- Formulario principal -->
                     <form th:action="@{|/historias-clinicas/editar/paciente/${historia.idPaciente}|}" th:object="${historia}" method="post" id="historiaClinicaForm">
@@ -62,13 +62,35 @@
                         <input type="hidden" th:field="*{nombrePacienteCompleto}" />
                         <input type="hidden" th:field="*{completada}" />
 
+                        <h5 class="mt-3">Datos del Paciente y Familiar</h5>
+                        <hr class="mb-3 mt-1">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Documento Paciente:</label>
+                                <input type="text" class="form-control" th:value="${historia.pacienteDocumento}" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Contacto Emergencia (Paciente):</label>
+                                <input type="text" class="form-control" th:value="${historia.pacienteContactoEmergencia}" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Familiar Asociado:</label>
+                                <input type="text" class="form-control" th:value="${historia.familiarNombreCompleto}" disabled />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Teléfono(s) Familiar:</label>
+                                <input type="text" class="form-control" th:value="${#strings.listJoin(historia.familiarTelefonos, ', ')}" disabled />
+                            </div>
+                        </div>
+
                         <!-- Sección Datos Generales -->
-                        <h5 class="mt-3">Datos Generales</h5>
+                        <h5 class="mt-3">Datos Generales de Salud</h5>
                         <hr class="mb-3 mt-1">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="estadoSalud" class="form-label">Estado General de Salud:</label>
                                 <textarea class="form-control" id="estadoSalud" th:field="*{estadoSalud}" rows="3"></textarea>
+                                <div class="text-danger small" th:if="${#fields.hasErrors('estadoSalud')}" th:errors="*{estadoSalud}"></div>
                             </div>
                             <div class="col-md-6">
                                 <label for="condiciones" class="form-label">Condiciones Médicas Preexistentes:</label>
