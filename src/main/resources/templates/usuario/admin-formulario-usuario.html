@@ -110,7 +110,8 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label for="fechaNacimiento" class="form-label">Fecha de Nacimiento</label>
-                                    <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}" class="form-control"/>
+                                    <input type="date" id="fechaNacimiento" th:field="*{fechaNacimiento}" th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" class="form-control"/>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('fechaNacimiento')}" th:errors="*{fechaNacimiento}"></div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
@@ -120,11 +121,18 @@
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="fechaContratacion" class="form-label">Fecha de Contratación</label>
-                                    <input type="date" id="fechaContratacion" th:field="*{fechaContratacion}" class="form-control"/>
+                                    <input type="date" id="fechaContratacion" th:field="*{fechaContratacion}" th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" class="form-control"/>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('fechaContratacion')}" th:errors="*{fechaContratacion}"></div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="tipoContrato" class="form-label">Tipo de Contrato</label>
-                                    <input type="text" id="tipoContrato" th:field="*{tipoContrato}" class="form-control"/>
+                                    <select id="tipoContrato" th:field="*{tipoContrato}" class="form-select">
+                                        <option value="">Seleccione un contrato...</option>
+                                        <option th:each="tipo : ${T(com.example.Gericare.Enums.TipoContrato).values()}"
+                                                th:value="${tipo.name()}"
+                                                th:text="${tipo.descripcion}"></option>
+                                    </select>
+                                    <div class="text-danger" th:if="${#fields.hasErrors('tipoContrato')}" th:errors="*{tipoContrato}"></div>
                                 </div>
                             </div>
                         </div>

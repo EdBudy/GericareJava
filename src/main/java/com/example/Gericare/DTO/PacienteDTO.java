@@ -3,6 +3,7 @@ package com.example.Gericare.DTO;
 import com.example.Gericare.Enums.TipoSangre;
 import com.example.Gericare.Enums.Genero;
 import com.example.Gericare.Enums.EstadoPaciente;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import java.time.LocalDate;
 import jakarta.validation.constraints.Pattern;
@@ -20,6 +21,7 @@ public class PacienteDTO {
     private String documentoIdentificacion;
     private String nombre;
     private String apellido;
+    @PastOrPresent(message = "La fecha de nacimiento no puede ser futura.")
     private LocalDate fechaNacimiento;
     private Genero genero;
     @Pattern(regexp = "[0-9]+", message = "El contacto de emergencia solo debe contener números")

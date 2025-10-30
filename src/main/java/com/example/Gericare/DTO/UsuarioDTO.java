@@ -3,8 +3,10 @@ package com.example.Gericare.DTO;
 import com.example.Gericare.Entity.Rol;
 import com.example.Gericare.Enums.EstadoUsuario;
 import com.example.Gericare.Enums.TipoDocumento;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.*;
 import java.time.LocalDate;
+import com.example.Gericare.Enums.TipoContrato;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -52,14 +54,14 @@ public class UsuarioDTO {
     private List<String> telefonos;
 
     // Campos empleados
-
+    @PastOrPresent(message = "La fecha de contratación no puede ser futura.")
     private LocalDate fechaContratacion;
-    private String tipoContrato;
+    private TipoContrato tipoContrato;
 
     // La validación se aplica solo si el campo no es nulo o vacío
     @Pattern(regexp = "[0-9]*", message = "El contacto de emergencia solo debe contener números.")
     private String contactoEmergencia;
-
+    @PastOrPresent(message = "La fecha de nacimiento no puede ser futura.")
     private LocalDate fechaNacimiento;
 
     // Campo familiar

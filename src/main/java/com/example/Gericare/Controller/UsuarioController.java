@@ -116,9 +116,11 @@ public class UsuarioController {
             boolean onlyPasswordErrors = bindingResult.getFieldErrors().stream()
                     .allMatch(fe -> fe.getField().equals("contrasena"));
 
-            // Si hay otros errores O si hay errores de contraseña y mas errores
+            // Si hay otros errores o si hay errores de contraseña y más errores
             if (!onlyPasswordErrors || bindingResult.getErrorCount() > bindingResult.getFieldErrorCount("contrasena")) {
-                redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.usuario", bindingResult);
+
+                // Sí hay un error no redirigir. Devolver la vista directamente
+                // Recargar el modelo con los roles para que el <select> funcione
                 redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
                 return "redirect:/usuarios/nuevo";
             }

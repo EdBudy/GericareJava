@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import com.example.Gericare.Enums.TipoContrato;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -62,7 +63,7 @@ public class DataInitializer {
                 adminTelefono.setUsuario(admin);
                 admin.setTelefonos(Collections.singletonList(adminTelefono));
                 admin.setFechaContratacion(LocalDate.now());
-                admin.setTipoContrato("Indefinido");
+                admin.setTipoContrato(TipoContrato.TERMINO_INDEFINIDO);
                 admin.setContactoEmergencia("3131234567");
                 admin.setFechaNacimiento(LocalDate.of(1990, 1, 1));
                 usuarioRepository.save(admin);
@@ -88,7 +89,7 @@ public class DataInitializer {
                     cuidadorTelefono.setUsuario(cuidador);
                     cuidador.setTelefonos(Collections.singletonList(cuidadorTelefono));
                     cuidador.setFechaContratacion(LocalDate.now());
-                    cuidador.setTipoContrato("Por Horas");
+                    cuidador.setTipoContrato(TipoContrato.PRESTACION_DE_SERVICIOS);
                     cuidador.setContactoEmergencia("313876543" + userIndex);
                     cuidador.setFechaNacimiento(LocalDate.of(1995, 5, 15));
                     usuarioRepository.save(cuidador);
