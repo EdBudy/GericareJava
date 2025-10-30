@@ -110,7 +110,10 @@
                             </div>
                             <div class="col-md-6">
                                 <label for="fechaUltimaConsulta" class="form-label">Fecha Última Consulta Médica:</label>
-                                <input type="date" class="form-control" id="fechaUltimaConsulta" th:field="*{fechaUltimaConsulta}" />
+                                <input type="date" class="form-control" id="fechaUltimaConsulta" th:field="*{fechaUltimaConsulta}"
+                                       th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}"
+                                       th:min="*{fechaUltimaConsulta != null ? #temporals.format(fechaUltimaConsulta, 'yyyy-MM-dd') : null}" />
+                                <div class="text-danger small" th:if="${#fields.hasErrors('fechaUltimaConsulta')}" th:errors="*{fechaUltimaConsulta}"></div>
                             </div>
                             <div class="col-12">
                                 <label for="observaciones" class="form-label">Observaciones Generales Adicionales:</label>

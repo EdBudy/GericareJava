@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -94,6 +95,16 @@ public class HistoriaClinicaServiceImpl implements HistoriaClinicaService {
                         log.error("Historia Clínica no encontrada con id: {} para actualizar", id);
                         return new RuntimeException("Historia Clínica no encontrada con id: " + id);
                     });
+
+            // Validar que la nueva fecha de consulta no sea anterior a la ya guardada
+            LocalDate fechaAntigua = hc.getFechaUltimaConsulta();
+            LocalDate fechaNueva = dto.getFechaUltimaConsulta();
+
+            if (fechaNueva != null && fechaAntigua != null && fechaNueva.isBefore(fechaAntigua)) {
+                log.warn("Intento de guardar una fecha de consulta anterior a la existente. Antigua: {}, Nueva: {}", fechaAntigua, fechaNueva);
+                throw new IllegalArgumentException("La nueva fecha de consulta no puede ser anterior a la que ya estaba registrada (" + fechaAntigua + ").");
+            }
+
             // Asegurar que el paciente no se cambie accidentalmente
             if (!hc.getPaciente().getIdPaciente().equals(dto.getIdPaciente())){
                 log.error("Intento de cambiar el paciente asociado a la HC ID: {}. Original: {}, Nuevo: {}", id, hc.getPaciente().getIdPaciente(), dto.getIdPaciente());

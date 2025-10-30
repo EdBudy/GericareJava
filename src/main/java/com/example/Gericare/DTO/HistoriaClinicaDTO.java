@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 
 @Getter
@@ -34,6 +35,7 @@ public class HistoriaClinicaDTO {
     private String antecedentesMedicos;
     private String alergias;
     private String dietasEspeciales;
+    @PastOrPresent(message = "La fecha de la consulta no puede ser futura.")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate fechaUltimaConsulta;
     private String observaciones;
