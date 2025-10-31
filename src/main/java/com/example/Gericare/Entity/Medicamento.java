@@ -20,7 +20,7 @@ public class Medicamento {
     @Column(name = "nombre_medicamento", nullable = false, length = 100)
     private String nombreMedicamento;
 
-    @Column(name = "descripcion_medicamento", length = 250)
+    @Column(name = "descripcion_medicamento", nullable = false, length = 250)
     private String descripcionMedicamento;
 
     @Enumerated(EnumType.STRING)

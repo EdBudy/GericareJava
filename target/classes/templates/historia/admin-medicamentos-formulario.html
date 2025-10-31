@@ -20,8 +20,8 @@
                             <input type="text" class="form-control" id="nombreMedicamento" th:field="*{nombreMedicamento}" required />
                         </div>
                         <div class="mb-3">
-                            <label for="descripcionMedicamento" class="form-label">Descripción (Opcional)</label>
-                            <textarea class="form-control" id="descripcionMedicamento" th:field="*{descripcionMedicamento}" rows="3"></textarea>
+                            <label for="descripcionMedicamento" class="form-label">Descripción <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="descripcionMedicamento" th:field="*{descripcionMedicamento}" rows="3" required></textarea>
                         </div>
                         <div class="d-flex justify-content-end">
                             <a th:href="@{/medicamentos}" class="btn btn-secondary me-2">Cancelar</a>
