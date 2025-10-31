@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+
+    <div th:if="${mostrarAlertaCambioContrasena}" class="alert alert-warning alert-dismissible fade show sticky-top" role="alert" style="z-index: 1050;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <strong>¡Cambio de contraseña requerido!</strong> Está utilizando su número de documento como contraseña, cámbiela lo antes posible.
+        <hr>
+        <p class="mb-0"><strong>Como cambiar su contraseña:</strong> Haga clic en su correo (<span sec:authentication="name"></span>) ubicado en la esquina superior derecha <strong>→</strong> Seleccione "<a th:href="@{/perfil}" class="alert-link">Editar Mi Perfil</a>" <strong>→</strong> Luego haga clic en el botón "Solicitar cambio de contraseña". Recibirá un correo para continuar con el proceso.</p>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+
+    <!-- Mensajes de éxito o error -->
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <!-- dashboard.html
+    sec:authorize="hasRole('ROL')" es como un if en el HTML
+    usando Thymeleaf con integración de Spring Security -->
+
+    <!-- Sección para el Administrador -->
+    <div sec:authorize="hasRole('Administrador')">
+        <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios}, familiarAssignmentsText=${familiarAssignmentsText})}"></div>
+    </div>
+
+    <!-- Sección para el Cuidador -->
+    <div sec:authorize="hasRole('Cuidador')">
+        <h2 class="mb-4">Mis Pacientes Asignados</h2>
+        <div th:if="${pacientesAsignados.isEmpty()}">
+            <div class="alert alert-info mt-4">Aún no tienes pacientes asignados.</div>
+        </div>
+        <div th:if="${not pacientesAsignados.isEmpty()}" class="card shadow-sm mb-5">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID Paciente</th>
+                            <th>Nombre Paciente</th>
+                            <th>Documento</th>
+                            <th>Familiar Asignado</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="asignacion : ${pacientesAsignados}">
+                            <td th:text="${asignacion.paciente.idPaciente}"></td>
+                            <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
+                            <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
+                            <td th:text="${asignacion.familiar != null ? asignacion.familiar.nombre + ' ' + asignacion.familiar.apellido : 'N/A'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección para el Familiar -->
+    <div sec:authorize="hasRole('Familiar')">
+        <h2>Mis Pacientes Asignados</h2>
+        <div th:if="${pacientesAsignados.isEmpty()}">
+            <div class="alert alert-warning mt-4">Usted aún no ha sido asignado a ningún paciente.</div>
+        </div>
+        <div th:if="${not pacientesAsignados.isEmpty()}" class="card shadow-sm mt-4">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>Nombre Paciente</th>
+                            <th>Documento</th>
+                            <th>Cuidador Asignado</th>
+                            <th>Fecha de Asignación</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="asignacion : ${pacientesAsignados}">
+                            <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
+                            <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
+                            <td th:text="${asignacion.cuidador.nombre + ' ' + asignacion.cuidador.apellido}"></td>
+                            <td th:text="${#temporals.format(asignacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
+
+</body>
+</html>

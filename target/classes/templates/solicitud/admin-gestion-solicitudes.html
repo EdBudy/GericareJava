@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+    <title>Gestionar Solicitudes</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+
+    <h2 class="mb-4">Gestionar Solicitudes de Familiares</h2>
+    <p class="text-muted">Revisa, aprueba, rechaza o archiva las solicitudes realizadas por los familiares.</p>
+
+
+    <div th:if="${solicitudes.isEmpty()}">
+        <div class="alert alert-info mt-4">No hay solicitudes activas para gestionar.</div>
+    </div>
+
+    <div th:if="${not solicitudes.isEmpty()}" class="card shadow-sm">
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Familiar</th>
+                        <th>Paciente</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                        <th>Motivo</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="solicitud : ${solicitudes}">
+                        <td th:text="${solicitud.idSolicitud}"></td>
+                        <td th:text="${solicitud.familiarNombreCompleto}"></td>
+                        <td th:text="${solicitud.pacienteNombreCompleto}"></td>
+                        <td th:text="${solicitud.tipoSolicitud}"></td>
+                        <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${#strings.abbreviate(solicitud.motivoSolicitud, 50)}"></td>
+                        <td class="text-center">
+                             <span th:text="${solicitud.estadoSolicitud}" class="badge"
+                                   th:classappend="${solicitud.estadoSolicitud.toString() == 'PENDIENTE'} ? 'bg-warning text-dark' : (${solicitud.estadoSolicitud.toString() == 'APROBADA'} ? 'bg-success' : 'bg-danger')">
+                             </span>
+                        </td>
+                        <td class="text-center">
+                            <div th:if="${solicitud.estadoSolicitud.toString() == 'PENDIENTE'}">
+                                <form th:action="@{|/solicitudes/aprobar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm" title="Aprobar">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+                                <form th:action="@{|/solicitudes/rechazar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm" title="Rechazar">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <form th:if="${solicitud.estadoSolicitud.toString() == 'APROBADA' or solicitud.estadoSolicitud.toString() == 'RECHAZADA'}"
+                                  th:action="@{|/solicitudes/eliminar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
+                                <button type="button" class="btn btn-secondary btn-sm" title="Archivar (Eliminar Lógico)"
+                                        th:onclick="'confirmarArchivarSolicitudAdmin(\'' + ${solicitud.idSolicitud} + '\')'">
+                                    <i class="bi bi-archive-fill"></i> </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:insert="~{fragments/layout :: footer-content}">
+    <script>
+        function confirmarArchivarSolicitudAdmin(solicitudId) {
+            Swal.fire({
+                title: '¿Archivar Solicitud?',
+                text: "La solicitud se marcará como inactiva y no será visible. ¿Deseas continuar?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6', // Azul confirmar acción
+                cancelButtonColor: '#6c757d', // Gris cancelar
+                confirmButtonText: 'Sí, ¡Archivar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     const formId = `form-archivar-solicitud-${solicitudId}`;
+                     let form = document.getElementById(formId);
+                     if (!form) {
+                          form = document.querySelector(`form[action='/solicitudes/eliminar/${solicitudId}']`);
+                     }
+                     if(form){
+                        // Si el form no tiene ID asigna uno temporalmente si es necesario
+                        if (!form.id) form.id = `temp-form-eliminar-${solicitudId}`;
+                        document.getElementById(form.id).submit();
+                     } else {
+                         console.error("Formulario de archivar no encontrado para solicitud ID:", solicitudId);
+                     }
+                }
+            });
+        }
+    </script>
+</footer>
+
+</body>
+</html>
