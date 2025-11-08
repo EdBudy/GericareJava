@@ -124,46 +124,4 @@ body {
 }
 
 .fab-button {
-    width: 60px;
-    height: 60px;
-    background-color: var(--dark-bg); /* Negro estético */
-    color: white;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s ease;
-    text-decoration: none;
-}
-
-.fab-button:hover {
-    background-color: #007bff; /* Azul al pasar el mouse */
-    color: white;
-    transform: scale(1.1) rotate(15deg); /* Animación estética */
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-}
-
-/*
- * =========================================
- * ESTÉTICA PARA VENTANA EMERGENTE (SweetAlert)
- * =========================================
- */
-.swal2-popup.swal-estetico {
-    background-color: #343a40; /* Fondo oscuro */
-    color: #f8f9fa; /* Texto blanco */
-    border-radius: 10px;
-}
-.swal-estetico .swal2-title {
-    color: #ffffff;
-}
-.swal-estetico .swal2-confirm {
-    background-color: #198754 !important; /* Verde */
-    box-shadow: none !important;
-}
-.swal-estetico .swal2-cancel {
-    background-color: #dc3545 !important; /* Rojo */
-    box-shadow: none !important;
-}
+    width: 60px
