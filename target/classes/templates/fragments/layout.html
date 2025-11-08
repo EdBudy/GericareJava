@@ -1,25 +1,14 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
-<head th:fragment="head">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle} ?: 'Gericare Connect'"></title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
-    <link th:href="@{/css/styles.css}" rel="stylesheet">
-</head>
 <body>
 
 <header th:fragment="header">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
 
-            <a class="navbar-brand" th:href="@{/dashboard}">
+        <div id="particles-js-header"></div>
+
+        <div class="container-fluid header-content">
+
+            <a class="navbar-brand d-flex align-items-center" th:href="@{/dashboard}">
+                <img th:src="@{/images/Geri_Logo-_blanco.png}" alt="Gericare Logo" class="header-logo me-2">
                 <strong>Gericare Connect</strong>
             </a>
 
@@ -44,7 +33,7 @@
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownCatalogos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Catálogos
                         </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownCatalogos">
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdownCatalogos">
                             <li><a class="dropdown-item" th:href="@{/medicamentos}">Medicamentos</a></li>
                         </ul>
                     </li>
@@ -60,23 +49,9 @@
                 </ul>
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0" sec:authorize="hasRole('Cuidador')">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/dashboard}">Mis Pacientes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/actividades/actividades-pacientes}">Actividades</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/tratamientos/mis-tratamientos}">Tratamientos</a>
-                    </li>
                 </ul>
 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0" sec:authorize="hasRole('Familiar')">
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/dashboard}">Mis Pacientes Asignados</a> </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/solicitudes/mis-solicitudes}">Mis Solicitudes</a>
-                    </li>
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
@@ -86,7 +61,7 @@
                             <i class="bi bi-person-circle me-1"></i>
                             <span sec:authentication="name"></span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="navbarDropdown">
                             <li><a class="dropdown-item" th:href="@{/perfil}">
                                 <i class="bi bi-gear me-2"></i>Editar Mi Perfil
                             </a></li>
@@ -105,88 +80,3 @@
         </div>
     </nav>
 </header>
-
-<div th:fragment="footer-content">
-    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.05);">
-        © 2025 Gericare Connect
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script th:src="@{/js/form-telefonos.js}"></script>
-    <script th:src="@{/js/contraseña-hidden.js}"></script>
-    <script th:src="@{/js/confirm-dialogs.js}"></script>
-    <script>
-        // Función de JavaScript para confirmar eliminación
-        function confirmarEliminacion(button) {
-            const usuarioId = button.getAttribute('data-usuario-id');
-            const rol = button.getAttribute('data-usuario-rol');
-            const nombreUsuario = button.getAttribute('data-usuario-nombre');
-            const warningText = button.getAttribute('data-warning-text');
-
-            let title = '¿Estás seguro?';
-            let text = `¡El usuario ${nombreUsuario} será eliminado y no podrás revertir esto!`;
-            let icon = 'warning';
-
-            // Si existe un texto de advertencia (para familiares con pacientes) se usa
-            if (warningText) {
-                title = 'Advertencia de Asignación';
-                text = warningText;
-            }
-
-            Swal.fire({
-                title: title,
-                text: text,
-                icon: icon,
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, ¡Eliminar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('form-eliminar-' + usuarioId).submit();
-                }
-            });
-        }
-
-        // Función para confirmar eliminación de PACIENTE
-        function confirmarEliminacionPaciente(pacienteId) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "¡El paciente será Eliminado y no podrás revertir esto!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, ¡Eliminar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('form-eliminar-paciente-' + pacienteId).submit();
-                }
-            });
-        }
-
-        // Función para confirmar eliminación de ACTIVIDAD
-        function confirmarEliminacionActividad(actividadId) {
-            Swal.fire({
-                title: '¿Estás seguro?',
-                text: "¡La actividad será eliminada y no podrás revertir esto!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Sí, ¡Eliminar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('form-eliminar-actividad-' + actividadId).submit();
-                }
-            });
-        }
-    </script>
-</div>
-
-</body>
-</html>

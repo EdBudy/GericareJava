@@ -1,149 +1,169 @@
-/* ========= BASE STYLES & LOGIN/REGISTER PAGE ========= */
+/*
+ * =========================================
+ * CSS PRINCIPAL (STYLES.CSS)
+ * (Arreglos de Logo, Dropdown, Font y Botones Flotantes)
+ * =========================================
+ */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* Importamos la fuente personalizada */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-/* Mantenemos tus variables de color personalizadas */
 :root {
     --primary-color: #007bff;
-    --primary-color-hover: #0056b3;
-    --background-color: #f4f7f6;
-    --form-background: #ffffff;
+    --background-color: #f4f7f6; /* Fondo gris claro */
     --text-color: #333;
-    --border-color: #ddd;
-    --error-color: #d9534f;
-    --success-color: #5cb85c;
-    --shadow-color: rgba(0, 0, 0, 0.1);
+    --dark-bg: #212529; /* Color del header 'bg-dark' */
 }
 
-/* Estilos generales para el body */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    /* Eliminamos el flexbox de aquí para que no afecte al dashboard */
 }
 
-.container-login {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-image: url('../images/background.jpg');
-    background-size: cover;
-    background-position: center;
+/*
+ * =========================================
+ * ARREGLO DE LINKS Y DROPDOWN (Z-INDEX)
+ * =========================================
+ */
+.navbar {
+    position: relative;
+    /* * ARREGLO DROPDOWN: Quitamos 'overflow: hidden;'
+     * Esto impedía que el menú de perfil se viera.
+     */
+    z-index: 1050; /* Encima de otro contenido */
 }
 
-/* El contenedor del formulario en sí */
-.form-container {
-    background-color: var(--form-background);
-    padding: 2.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px var(--shadow-color);
+/* Capa 1: Partículas (AL FONDO) */
+#particles-js-header {
+    position: absolute;
     width: 100%;
-    max-width: 400px;
-    text-align: center;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Nivel 1 */
 }
 
-.form-container h1 {
-    margin-bottom: 1.5rem;
-    color: var(--primary-color);
+/* Capa 2: Contenido (ADELANTE) */
+.header-content {
+    position: relative;
+    z-index: 2; /* Nivel 2 (Encima de las partículas) */
 }
 
-.form-container .form-group {
-    margin-bottom: 1.5rem;
-    text-align: left;
+/*
+ * =========================================
+ * ARREGLO TAMAÑO DE LOGO Y FUENTE
+ * =========================================
+ */
+.header-logo {
+    height: 30px; /* Tamaño adecuado (antes estaba sin definir) */
+    width: auto;
 }
 
-.form-container label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 600;
+.navbar-dark .navbar-brand {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.2rem; /* Tamaño aumentado */
 }
 
-/* Estilos para los inputs, compatibles con Bootstrap */
-.form-container input[type="email"],
-.form-container input[type="password"],
-.form-container input[type="text"] {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    box-sizing: border-box;
-    transition: border-color 0.3s;
+.navbar-dark .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    transition: color 0.2s ease-in-out;
+    font-weight: 500;
+    font-size: 1.05rem; /* Tamaño aumentado */
 }
 
-.form-container input:focus {
-    outline: none;
-    border-color: var(--primary-color);
+.navbar-dark .nav-link:hover,
+.navbar-dark .nav-link.active,
+.navbar-dark .navbar-brand:hover {
+    color: #ffffff;
 }
 
-/* Botón principal para formularios */
-.form-container .btn-primary {
-    width: 100%;
-    padding: 0.85rem;
+/* Dropdown de usuario oscuro */
+.dropdown-menu-dark .dropdown-item {
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease-in-out;
+}
+
+.dropdown-menu-dark .dropdown-item:hover,
+.dropdown-menu-dark .dropdown-item:focus {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/*
+ * =========================================
+ * ESTILOS DEL CONTENIDO DE LA PÁGINA
+ * =========================================
+ */
+.page-content {
+    padding: 2rem;
+}
+
+.content-card {
+    background-color: #ffffff;
     border: none;
-    border-radius: 5px;
-    background-color: var(--primary-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    padding: 2rem;
+}
+
+/*
+ * =========================================
+ * BOTONES FLOTANTES ESTÉTICOS (FAB)
+ * =========================================
+ */
+.fab-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre botones */
+}
+
+.fab-button {
+    width: 60px;
+    height: 60px;
+    background-color: var(--dark-bg); /* Negro estético */
     color: white;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.form-container .btn:hover {
-    background-color: var(--primary-color-hover);
-}
-
-/* Alertas personalizadas */
-.alert {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-    border-radius: 5px;
-}
-
-.alert-error {
-    background-color: #f2dede;
-    color: var(--error-color);
-    border: 1px solid var(--error-color);
-}
-
-.alert-success {
-    background-color: #dff0d8;
-    color: var(--success-color);
-    border: 1px solid var(--success-color);
-}
-
-/* Enlaces en formularios */
-.form-link {
-    margin-top: 1.5rem;
-}
-
-.form-link a {
-    color: var(--primary-color);
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
     text-decoration: none;
-    font-weight: 600;
 }
 
-.form-link a:hover {
-    text-decoration: underline;
+.fab-button:hover {
+    background-color: #007bff; /* Azul al pasar el mouse */
+    color: white;
+    transform: scale(1.1) rotate(15deg); /* Animación estética */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
-
-.filter-form {
-    background-color: #f8f9fa;
-    padding: 1.5rem;
-    border-radius: .375rem;
-    border: 1px solid var(--border-color);
+/*
+ * =========================================
+ * ESTÉTICA PARA VENTANA EMERGENTE (SweetAlert)
+ * =========================================
+ */
+.swal2-popup.swal-estetico {
+    background-color: #343a40; /* Fondo oscuro */
+    color: #f8f9fa; /* Texto blanco */
+    border-radius: 10px;
 }
-
-main {
-    flex-grow: 1;
+.swal-estetico .swal2-title {
+    color: #ffffff;
 }
-
-.form-container .input-group .form-control {
-    width: auto; /* Permite que Bootstrap maneje el ancho flexiblemente */
+.swal-estetico .swal2-confirm {
+    background-color: #198754 !important; /* Verde */
+    box-shadow: none !important;
+}
+.swal-estetico .swal2-cancel {
+    background-color: #dc3545 !important; /* Rojo */
+    box-shadow: none !important;
 }

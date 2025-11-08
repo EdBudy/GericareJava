@@ -1,6 +1,5 @@
 /*
  * Este archivo INICIA las partículas.
- * Debe estar en: static/js/login.js
  */
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -25,16 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    /* --- Configuración de Partículas de la TARJETA --- */
+    /* --- Configuración de Partículas de la TARJETA (Negro y Azul) --- */
     if(document.getElementById('particles-js-card')){
         particlesJS('particles-js-card', {
             "particles": {
                 "number": { "value": 40, "density": { "enable": true, "value_area": 400 }},
-                /*
-                 * =========================================
-                 * CAMBIO: Colores "Negro y Azul Estético"
-                 * =========================================
-                 */
                 "color": {
                     "value": ["#007bff", "#343a40", "#0056b3", "#000000"]
                 },
