@@ -1,0 +1,141 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/* --- ESTILOS DE BASE Y FONDO --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #212529;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden; /* Evita barras de scroll */
+}
+
+/* --- PARTÍCULAS DEL FONDO (Capa -1) --- */
+#particles-js-background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1; /* Detrás de la tarjeta, pero encima del fondo */
+
+    /*
+     * CORRECCIÓN ESTÉTICA:
+     * Reducimos la opacidad a 25% (antes era 40%).
+     */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('../images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+/* --- TARJETA DE LOGIN (Capa 10) --- */
+.card {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    border-radius: 15px;
+
+    /*
+     * CORRECCIÓN ESTÉTICA:
+     * Tarjeta blanca SÓLIDA (no transparente).
+     */
+    background-color: #ffffff;
+
+    max-width: 420px;
+    width: 100%;
+    z-index: 10; /* Encima de las partículas del fondo */
+}
+
+/* --- PARTÍCULAS DE LA TARJETA (Capa 11) --- */
+#particles-js-card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 11; /* Encima del fondo de la tarjeta */
+}
+
+/* Contenido de la tarjeta (Capa 12) */
+.card-body {
+    position: relative;
+    z-index: 12; /* Encima de las partículas de la tarjeta */
+}
+
+/* --- LOGO Y TÍTULOS --- */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.logo-spin {
+    animation: spin 8s linear infinite;
+}
+
+.card-body h2 {
+    color: #007bff; /* Azul que te gustó */
+    font-weight: 700;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* --- FORMULARIO Y BOTONES --- */
+.form-label {
+    font-weight: 600;
+    color: #333;
+}
+.input-group .form-control:focus {
+    border-color: #6200ea;
+    box-shadow: 0 0 0 0.25rem rgba(98, 0, 234, 0.25);
+}
+.btn-primary {
+    background-color: #6200ea; /* Morado */
+    border: none;
+    transition: background-color 0.3s, transform 0.2s;
+    font-weight: 600;
+    padding: 0.75rem;
+}
+.btn-primary:hover {
+    background-color: #3700b3;
+    transform: scale(1.03);
+}
+
+/* --- ENLACES Y ALERTAS --- */
+.card-body p {
+    margin-top: 1.5rem;
+    color: #555;
+}
+.card-body p a {
+    color: #007bff; /* Azul */
+    font-weight: 600;
+    text-decoration: none;
+}
+.card-body p a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Alertas de Thymeleaf */
+.alert {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+}
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+#togglePassword {
+    cursor: pointer;
+}
