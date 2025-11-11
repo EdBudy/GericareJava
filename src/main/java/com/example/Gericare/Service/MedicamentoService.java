@@ -2,6 +2,7 @@ package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.MedicamentoDTO;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 // Carga masiva datos
 import java.io.InputStream;
@@ -20,5 +21,6 @@ public interface MedicamentoService {
     // Obtiene un medicamento por su ID.
     Optional<MedicamentoDTO> obtenerMedicamentoPorId(Long id);
 
-    void cargarDesdeExcel(InputStream inputStream) throws Exception;
+    // Carga medicamentos desde un Excel
+    Map<String, Integer> cargarDesdeExcel(InputStream inputStream) throws Exception;
 }

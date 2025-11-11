@@ -5,6 +5,8 @@ import com.example.Gericare.Entity.Medicamento;
 import com.example.Gericare.Enums.EstadoUsuario;
 import com.example.Gericare.Repository.MedicamentoRepository;
 import com.example.Gericare.Service.MedicamentoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +20,15 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import com.example.Gericare.Enums.EstadoUsuario;
+import java.util.*;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class MedicamentoServiceImpl implements MedicamentoService {
+
+    private static final Logger log = LoggerFactory.getLogger(MedicamentoServiceImpl.class);
 
     @Autowired
     private MedicamentoRepository medicamentoRepository;
@@ -43,32 +46,49 @@ public class MedicamentoServiceImpl implements MedicamentoService {
     @Override
     @Transactional
     public MedicamentoDTO guardarMedicamento(MedicamentoDTO dto) {
-        // Validación básica de nombre
         if (dto.getNombreMedicamento() == null || dto.getNombreMedicamento().trim().isEmpty()) {
             throw new IllegalArgumentException("El nombre del medicamento no puede estar vacío.");
         }
 
+        String nombreTrimmed = dto.getNombreMedicamento().trim();
+
+        // Buscar si ya existe un medicamento con ese nombre (ignorando mayúsculas/minúsculas)
+        Optional<Medicamento> existenteOpt = medicamentoRepository.findByNombreMedicamentoIgnoreCase(nombreTrimmed);
+
         Medicamento med;
+
         if (dto.getIdMedicamento() != null) {
-            // Actualización
             med = medicamentoRepository.findById(dto.getIdMedicamento())
                     .orElseThrow(() -> new RuntimeException("Medicamento no encontrado con id: " + dto.getIdMedicamento()));
-            // Opcional: Validar si el nombre está siendo cambiado a uno que ya existe
+
+            // Si está intentando cambiar el nombre a uno que ya existe en otro registro
+            if (existenteOpt.isPresent() && !existenteOpt.get().getIdMedicamento().equals(dto.getIdMedicamento())) {
+                // Lanza error, porque es una acción manual de edición
+                log.warn("Intento de renombrar medicamento ID {} al nombre de ID {}", dto.getIdMedicamento(), existenteOpt.get().getIdMedicamento());
+                throw new RuntimeException("Ya existe otro medicamento con el nombre: " + nombreTrimmed);
+            }
         } else {
             // Creación
-            // Opcional: Validar si ya existe un medicamento con ese nombre
+            // Si ya existe devuelve el existente sin error
+            if (existenteOpt.isPresent()) {
+                log.info("Intento de crear medicamento duplicado (nombre: {}). Omitiendo y devolviendo existente ID {}", nombreTrimmed, existenteOpt.get().getIdMedicamento());
+                return mapToDTO(existenteOpt.get());
+            }
+            // Si no existe crea uno nuevo
             med = new Medicamento();
         }
-        med.setNombreMedicamento(dto.getNombreMedicamento().trim()); // Quitar espacios extra
+
+        // Aplicar cambios
+        med.setNombreMedicamento(nombreTrimmed); // Guardar con el formato enviado (solo con trim)
         med.setDescripcionMedicamento(dto.getDescripcionMedicamento() != null ? dto.getDescripcionMedicamento().trim() : null);
-        med.setEstado(EstadoUsuario.Activo); // Asegurar estado activo
+        med.setEstado(EstadoUsuario.Activo);
 
         try {
             Medicamento medGuardado = medicamentoRepository.save(med);
             return mapToDTO(medGuardado);
         } catch (DataIntegrityViolationException e) {
-            // Capturar violaciones de integridad, como nombres duplicados
-            throw new RuntimeException("Ya existe un medicamento con el nombre: " + dto.getNombreMedicamento(), e);
+            log.error("Error de integridad al guardar medicamento: {}", nombreTrimmed, e);
+            throw new RuntimeException("Ya existe un medicamento con el nombre: " + nombreTrimmed, e);
         }
     }
 
@@ -79,7 +99,6 @@ public class MedicamentoServiceImpl implements MedicamentoService {
             if (med.getEstado() == EstadoUsuario.Activo) { // Solo inactivar si está activo
                 med.setEstado(EstadoUsuario.Inactivo);
                 medicamentoRepository.save(med);
-                // Opcional: Manejar relaciones en otras tablas como historias clínicas
             }
         });
         // Si no se encuentra, simplemente no hacer nada (o lanzar excepción si se prefiere)
@@ -102,48 +121,76 @@ public class MedicamentoServiceImpl implements MedicamentoService {
 
     //Carga masiva de datos (medicamentos)
     @Override
-    @Transactional // Asegura que si algo falla no se guarde nada
-    public void cargarDesdeExcel(InputStream inputStream) throws Exception {
-        List<Medicamento> medicamentos = new ArrayList<>();
+    @Transactional
+    public Map<String, Integer> cargarDesdeExcel(InputStream inputStream) throws Exception {
+        Map<String, Integer> resultado = new HashMap<>();
+        int totalProcesados = 0;
+        int nuevosGuardados = 0;
+        int duplicadosOmitidos = 0;
 
-        // Usar Apache POI para leer el archivo Excel
+        List<Medicamento> medicamentosParaGuardar = new ArrayList<>();
+
+        // Obtener todos los nombres existentes de la BD y normalizarlos (trim + lowercase)
+        Set<String> nombresExistentes = medicamentoRepository.findAll().stream()
+                .map(med -> med.getNombreMedicamento().trim().toLowerCase())
+                .collect(Collectors.toSet());
+
+        log.info("Iniciando carga masiva. Nombres existentes en BD: {}", nombresExistentes.size());
+
         Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0); // Obtiene primera hoja del Excel
-
+        Sheet sheet = workbook.getSheetAt(0);
         Iterator<Row> rowIterator = sheet.iterator();
 
-        // Omitir fila de encabezado
         if (rowIterator.hasNext()) {
-            rowIterator.next();
+            rowIterator.next(); // Omitir fila de encabezado
         }
 
-        // Recorrer todas las filas restantes
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-
             Cell cellNombre = row.getCell(0); // Columna A (Nombre)
-            Cell cellDescripcion = row.getCell(1); // Columna B (Descripción)
 
-            // Solo procesar si la celda del nombre tiene texto
             if (cellNombre != null && !cellNombre.getStringCellValue().isBlank()) {
-                Medicamento med = new Medicamento();
-                med.setNombreMedicamento(cellNombre.getStringCellValue().trim());
+                totalProcesados++;
+                String nombreExcel = cellNombre.getStringCellValue().trim();
+                String nombreNormalizado = nombreExcel.toLowerCase();
 
-                // Descripción es opcional
-                if (cellDescripcion != null) {
-                    med.setDescripcionMedicamento(cellDescripcion.getStringCellValue().trim());
+                // Comprobar contra el Set de nombres existentes
+                if (!nombresExistentes.contains(nombreNormalizado)) {
+                    // Si no existe lo prepara para guardar
+                    Medicamento med = new Medicamento();
+                    med.setNombreMedicamento(nombreExcel); // Guarda el nombre original (solo con trim)
+
+                    Cell cellDescripcion = row.getCell(1); // Columna B (Descripción)
+                    if (cellDescripcion != null) {
+                        med.setDescripcionMedicamento(cellDescripcion.getStringCellValue().trim());
+                    }
+                    med.setEstado(EstadoUsuario.Activo);
+
+                    medicamentosParaGuardar.add(med);
+
+                    // Añadir el nuevo nombre al Set para evitar duplicados (dentro del mismo Excel)
+                    nombresExistentes.add(nombreNormalizado);
+                    nuevosGuardados++;
+                } else {
+                    // Si ya existe (en BD o en el Set) lo omite
+                    duplicadosOmitidos++;
                 }
-
-                med.setEstado(EstadoUsuario.Activo);
-                medicamentos.add(med);
             }
         }
 
         workbook.close();
 
-        // Guardar todos los medicamentos en la base de datos de una vez
-        if (!medicamentos.isEmpty()) {
-            medicamentoRepository.saveAll(medicamentos);
+        // Guarda todos los medicamentos nuevos en un solo lote
+        if (!medicamentosParaGuardar.isEmpty()) {
+            log.info("Guardando {} nuevos medicamentos de la carga masiva.", medicamentosParaGuardar.size());
+            medicamentoRepository.saveAll(medicamentosParaGuardar);
         }
+
+        log.info("Carga masiva finalizada. Procesados: {}, Guardados: {}, Omitidos: {}", totalProcesados, nuevosGuardados, duplicadosOmitidos);
+
+        resultado.put("total", totalProcesados);
+        resultado.put("guardados", nuevosGuardados);
+        resultado.put("omitidos", duplicadosOmitidos);
+        return resultado;
     }
 }

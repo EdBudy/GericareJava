@@ -1,20 +1,21 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.MedicamentoDTO;
-import com.example.Gericare.Service.MedicamentoService; // Correcto: Servicio dedicado
+import com.example.Gericare.Service.MedicamentoService;
 import jakarta.validation.Valid;
-import org.slf4j.Logger; // Importar Logger
-import org.slf4j.LoggerFactory; // Importar LoggerFactory
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult; // Para validación
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
+import java.util.Map;
 
 import java.util.List;
 
@@ -172,19 +173,29 @@ public class MedicamentoController {
     @PostMapping("/cargar-excel")
     public String cargarMedicamentosExcel(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
 
-        // Validar que el archivo no esté vacío
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Por favor, seleccione un archivo Excel para cargar.");
             return "redirect:/medicamentos";
         }
 
         try (InputStream inputStream = file.getInputStream()) {
-            // Llamar al servicio
-            medicamentoService.cargarDesdeExcel(inputStream);
-            redirectAttributes.addFlashAttribute("successMessage", "¡Medicamentos cargados exitosamente desde el Excel!");
+            // Llamar al servicio que devuelve estadísticas
+            Map<String, Integer> resultado = medicamentoService.cargarDesdeExcel(inputStream);
+
+            // Mensaje de éxito informativo
+            String successMsg = String.format(
+                    "Carga completada. Filas procesadas: %d. Nuevos guardados: %d. Duplicados omitidos: %d.",
+                    resultado.get("total"),
+                    resultado.get("guardados"),
+                    resultado.get("omitidos")
+            );
+
+            redirectAttributes.addFlashAttribute("successMessage", successMsg);
+
         } catch (Exception e) {
             log.error("Error al cargar archivo Excel de medicamentos", e);
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al cargar el archivo: " + e.getMessage());
+            // Mensaje de error para formato de archivo incorrecto/otros problemas
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al procesar el archivo: " + e.getMessage());
         }
         return "redirect:/medicamentos";
     }
