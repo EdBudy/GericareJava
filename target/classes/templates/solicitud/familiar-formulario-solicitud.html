@@ -8,7 +8,7 @@
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container mt-5 mb-5 flex-grow-1">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
@@ -45,7 +45,7 @@
                         </div>
 
                         <div id="detalleOtroDiv" class="mb-3" style="display:none;">
-                            <label for="detalleOtro" class="form-label">Especifique 'Otro' Tipo <span class="text-danger">*</span></label>
+                            <label for="detalleOtro" class="form-label">Especifique el Tipo de Solicitud (otro) <span class="text-danger">*</span></label>
                             <input type="text" id="detalleOtro" name="detalleOtro" th:value="${solicitud.detalleOtro}" class="form-control"/>
                             <div class="text-danger" th:if="${#fields.hasErrors('detalleOtro')}" th:errors="*{detalleOtro}"></div>
                         </div>
@@ -79,7 +79,7 @@
         const detalleInput = document.getElementById('detalleOtro');
 
         // Lógica que usa style.display
-        if (tipoSelect.value === 'OTRO') {
+        if (tipoSelect.value === 'Otro') {
             detalleDiv.style.display = 'block';
             detalleInput.required = true;
         } else {
