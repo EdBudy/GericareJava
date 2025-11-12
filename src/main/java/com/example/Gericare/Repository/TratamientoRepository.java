@@ -23,11 +23,6 @@ public interface TratamientoRepository extends JpaRepository<Tratamiento, Long>,
             "AND t.estadoTratamiento <> com.example.Gericare.Enums.EstadoActividad.Inactivo")
     List<Tratamiento> findTratamientosActivosByCuidadorAsignado(@Param("cuidadorId") Long cuidadorId);
 
-
-    // Vista Familiar (paciente asociado)
-    List<Tratamiento> findByPacienteIdPacienteAndEstadoTratamientoNot(Long pacienteId, EstadoActividad estado);
-
-    // Obtener tratamientos activos
-    List<Tratamiento> findByEstadoTratamientoNot(EstadoActividad estado);
+    List<Tratamiento> findByEstadoTratamiento(EstadoActividad estado);
 
 }

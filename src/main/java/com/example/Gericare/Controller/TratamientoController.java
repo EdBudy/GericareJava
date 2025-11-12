@@ -129,7 +129,6 @@ public class TratamientoController {
         if (isAdmin) {
             // Admin lista de pacientes y cuidadores
             model.addAttribute("pacientes", Collections.singletonList(pacienteService.obtenerPacientePorId(tratamiento.getPacienteId()).orElse(null))); // Solo paciente actual
-            model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
         }
 
         return "tratamiento/formulario-tratamiento-editar";
@@ -167,7 +166,6 @@ public class TratamientoController {
             model.addAttribute("tratamiento", tratamientoDTO);
             model.addAttribute("isAdmin", isAdmin);
             model.addAttribute("pacientes", Collections.singletonList(pacienteService.obtenerPacientePorId(tratamientoDTO.getPacienteId()).orElse(null)));
-            model.addAttribute("cuidadores", usuarioService.findByRol(RolNombre.Cuidador));
             return "tratamiento/formulario-tratamiento-editar";
         }
 

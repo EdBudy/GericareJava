@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Where(clause = "estado_tratamiento <> 'INACTIVO'")
+@Where(clause = "estado_tratamiento <> 'Inactivo'")
 public class Tratamiento {
 
     @Id

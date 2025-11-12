@@ -36,7 +36,6 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Paciente</th>
                         <th>Cuidador</th>
                         <th>Descripción</th>
@@ -48,7 +47,6 @@
                     </thead>
                     <tbody>
                     <tr th:each="trat : ${tratamientos}">
-                        <td th:text="${trat.idTratamiento}"></td>
                         <td th:text="${trat.pacienteNombreCompleto}"></td>
                         <td th:text="${trat.cuidadorNombreCompleto}"></td>
                         <td th:text="${#strings.abbreviate(trat.descripcion, 50)}"></td>
@@ -56,7 +54,7 @@
                         <td th:text="${trat.fechaFin != null ? #temporals.format(trat.fechaFin, 'dd/MM/yyyy') : 'N/A'}"></td>
                         <td class="text-center">
                              <span th:text="${trat.estadoTratamiento}" class="badge"
-                                   th:classappend="${trat.estadoTratamiento.toString() == 'PENDIENTE'} ? 'bg-warning text-dark' : 'bg-success'">
+                                   th:classappend="${trat.estadoTratamiento.toString() == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-success'">
                              </span>
                         </td>
                         <td class="text-center">

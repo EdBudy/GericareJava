@@ -1,9 +1,3 @@
-/*
- * =========================================
- * CSS PRINCIPAL (STYLES.CSS)
- * (Arreglos de Logo, Dropdown, Font y Botones Flotantes)
- * =========================================
- */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 :root {
@@ -21,11 +15,6 @@ body {
     padding: 0;
 }
 
-/*
- * =========================================
- * ARREGLO DE LINKS Y DROPDOWN (Z-INDEX)
- * =========================================
- */
 .navbar {
     position: relative;
     /* * ARREGLO DROPDOWN: Quitamos 'overflow: hidden;'
@@ -50,11 +39,7 @@ body {
     z-index: 2; /* Nivel 2 (Encima de las partículas) */
 }
 
-/*
- * =========================================
- * ARREGLO TAMAÑO DE LOGO Y FUENTE
- * =========================================
- */
+
 .header-logo {
     height: 30px; /* Tamaño adecuado (antes estaba sin definir) */
     width: auto;
@@ -91,11 +76,6 @@ body {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/*
- * =========================================
- * ESTILOS DEL CONTENIDO DE LA PÁGINA
- * =========================================
- */
 .page-content {
     padding: 2rem;
 }
@@ -108,11 +88,7 @@ body {
     padding: 2rem;
 }
 
-/*
- * =========================================
- * BOTONES FLOTANTES ESTÉTICOS (FAB)
- * =========================================
- */
+
 .fab-container {
     position: fixed;
     bottom: 30px;
@@ -125,3 +101,8 @@ body {
 
 .fab-button {
     width: 60px
+
+/*footer al final*/
+body.d-flex.flex-column.min-vh-100 > main {
+    flex-grow: 1;
+}

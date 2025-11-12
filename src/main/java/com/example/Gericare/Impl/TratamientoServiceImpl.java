@@ -104,35 +104,29 @@ public class TratamientoServiceImpl implements TratamientoService {
     @Override
     @Transactional
     public Optional<TratamientoDTO> actualizarTratamientoAdmin(Long id, TratamientoDTO tratamientoDTO) {
+        // Busca el tratamiento existente (@Where = no encontrará INACTIVOS)
         return tratamientoRepository.findById(id).map(tratamiento -> {
 
+            // Validar que el paciente no cambie
             if (!tratamiento.getPaciente().getIdPaciente().equals(tratamientoDTO.getPacienteId())) {
                 throw new IllegalArgumentException("No se puede cambiar el paciente de un tratamiento existente.");
             }
 
-            // Validar si el cuidador cambió y si el nuevo cuidador es el asignado actualmente
-            Cuidador cuidadorNuevo = (Cuidador) usuarioRepository.findById(tratamientoDTO.getCuidadorId())
-                    .filter(u -> u instanceof Cuidador)
-                    .orElseThrow(() -> new RuntimeException("Cuidador no encontrado con ID: " + tratamientoDTO.getCuidadorId()));
+            // Busca automáticamente al cuidador asignado
+            Cuidador cuidadorAsignado = pacienteAsignadoRepository
+                    .findByPacienteIdPacienteAndEstado(tratamiento.getPaciente().getIdPaciente(), EstadoAsignacion.Activo)
+                    .stream()
+                    .findFirst()
+                    .map(PacienteAsignado::getCuidador)
+                    .orElseThrow(() -> new IllegalStateException("El paciente (ID: " + tratamiento.getPaciente().getIdPaciente() + ") no tiene un cuidador activo asignado actualmente."));
 
-            // Verificar si el cuidador nuevo es el asignado actualmente al paciente del tratamiento
-            boolean esAsignadoActual = pacienteAsignadoRepository
-                    .findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(
-                            cuidadorNuevo.getIdUsuario(), tratamiento.getPaciente().getIdPaciente(), EstadoAsignacion.Activo)
-                    .isPresent();
-
-            if (!esAsignadoActual) {
-                throw new IllegalArgumentException("El cuidador seleccionado no es el asignado actualmente al paciente.");
-            }
-
-
-            // Actualizar campos permitidos para Admin
-            tratamiento.setCuidador(cuidadorNuevo); // Permite reasignar si el nuevo cuidador es el correcto
+            // Actualizar campos
+            tratamiento.setCuidador(cuidadorAsignado); // Asignación automática
             tratamiento.setDescripcion(tratamientoDTO.getDescripcion());
             tratamiento.setInstruccionesEspeciales(tratamientoDTO.getInstruccionesEspeciales());
             tratamiento.setFechaInicio(tratamientoDTO.getFechaInicio());
             tratamiento.setFechaFin(tratamientoDTO.getFechaFin());
-            // Admin no actualiza observaciones ni estado completado, etc.
+            // Admin no actualiza observaciones ni estado (lo hace cuidador)
 
             return toDTO(tratamientoRepository.save(tratamiento));
         });

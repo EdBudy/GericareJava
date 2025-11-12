@@ -39,24 +39,6 @@
                                 <input type="text" class="form-control" th:value="*{pacienteNombreCompleto}" disabled />
                             </div>
 
-                            <div class="col-md-12 mb-3" th:if="${isAdmin}">
-                                <label for="cuidadorId" class="form-label">Cuidador Asignado <span class="text-danger">*</span></label>
-                                <select id="cuidadorId" th:field="*{cuidadorId}" class="form-select" required>
-                                    <option value="" disabled>-- Seleccione cuidador (verifique asignación) --</option>
-                                    <option th:each="cuidadorOpt : ${cuidadores}"
-                                            th:value="${cuidadorOpt.idUsuario}"
-                                            th:text="${cuidadorOpt.nombre + ' ' + cuidadorOpt.apellido}"
-                                            th:selected="${cuidadorOpt.idUsuario == tratamiento.cuidadorId}">
-                                    </option>
-                                </select>
-                                <div class="form-text">Asegúrese de seleccionar el cuidador actualmente asignado al paciente.</div>
-                                <div class="text-danger" th:if="${#fields.hasErrors('cuidadorId')}" th:errors="*{cuidadorId}"></div>
-                            </div>
-                            <div class="col-md-12 mb-3" th:if="${!isAdmin}">
-                                <label class="form-label">Cuidador Asignado</label>
-                                <input type="text" class="form-control" th:value="*{cuidadorNombreCompleto}" disabled />
-                            </div>
-
                             <div class="col-md-12 mb-3">
                                 <label for="descripcion" class="form-label">Descripción <span th:if="${isAdmin}" class="text-danger">*</span></label>
                                 <textarea id="descripcion" th:field="*{descripcion}" class="form-control" rows="3" th:required="${isAdmin}" th:disabled="${!isAdmin}"></textarea>
