@@ -24,11 +24,9 @@ public class TratamientoDTO {
     private Long pacienteId;
     private String pacienteNombreCompleto;
 
-    @NotNull(message = "Se requiere el ID del administrador que crea.")
     private Long administradorId;
     private String administradorNombreCompleto;
 
-    @NotNull(message = "Debe seleccionar un cuidador.")
     private Long cuidadorId;
     private String cuidadorNombreCompleto;
 

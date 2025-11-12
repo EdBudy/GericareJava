@@ -17,23 +17,22 @@
 
                     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert" th:text="${successMessage}"></div>
                     <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert" th:text="${errorMessage}"></div>
-                    <div th:if="${#fields.hasErrors('${tratamiento.*}')}" class="alert alert-danger" role="alert">
-                        Por favor, corrija los siguientes errores:
-                        <ul>
-                            <li th:each="err : ${#fields.errors('${tratamiento.*}')}" th:text="${err}" />
-                        </ul>
-                    </div>
 
                     <form th:action="@{/tratamientos/crear}" th:object="${tratamiento}" method="post">
                         <div class="row">
-                            <div class="col-md-12 mb-3"> <label for="pacienteId" class="form-label">Paciente <span class="text-danger">*</span></label>
-                                <select id="pacienteId" th:field="*{pacienteId}" class="form-select" required>
-                                    <option value="" disabled selected>-- Seleccione un paciente --</option>
+                            <div class="col-md-12 mb-3">
+                                <label for="pacienteId" class="form-label">Paciente <span class="text-danger">*</span></label>
+
+                                <select id="pacienteId" name="pacienteId" class="form-select" required>
+                                    <option value="" disabled selected>Seleccione un paciente...</option>
+
                                     <option th:each="paciente : ${pacientes}"
                                             th:value="${paciente.idPaciente}"
-                                            th:text="${paciente.nombre + ' ' + paciente.apellido}">
+                                            th:text="${paciente.nombre + ' ' + paciente.apellido}"
+                                            th:selected="${tratamiento.pacienteId != null && tratamiento.pacienteId == paciente.idPaciente}">
                                     </option>
                                 </select>
+
                                 <div class="text-danger" th:if="${#fields.hasErrors('pacienteId')}" th:errors="*{pacienteId}"></div>
                             </div>
 
@@ -77,6 +76,6 @@
 </main>
 
 <footer th:insert="~{fragments/layout :: footer-content}"></footer>
-
+<script th:src="@{/js/admin-formulario-tratamiento.js}"></script>
 </body>
 </html>

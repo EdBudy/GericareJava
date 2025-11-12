@@ -8,7 +8,7 @@
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container mt-5 mb-5 flex-grow-1">
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -76,8 +76,7 @@
     </div>
 </main>
 
-<footer th:insert="~{fragments/layout :: footer-content}">
-</footer>
+<footer th:insert="~{fragments/layout :: footer-content}"></footer>
 
 </body>
 </html>
