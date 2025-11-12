@@ -3,11 +3,6 @@
 <head>
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
     <title>Nueva Solicitud</title>
-    <style>
-        .detalle-otro-hidden {
-            display: none;
-        }
-    </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
@@ -25,11 +20,12 @@
                     <form th:action="@{/solicitudes/crear}" th:object="${solicitud}" method="post">
                         <div class="mb-3">
                             <label for="pacienteId" class="form-label">Paciente Relacionado <span class="text-danger">*</span></label>
-                            <select id="pacienteId" th:field="*{pacienteId}" class="form-select" required>
-                                <option value="" disabled selected>-- Seleccione el paciente --</option>
+                            <select id="pacienteId" name="pacienteId" class="form-select" required>
+                                <option value="" disabled selected>Seleccione el paciente...</option>
                                 <option th:each="paciente : ${pacientesAsociados}"
                                         th:value="${paciente.idPaciente}"
-                                        th:text="${paciente.nombre + ' ' + paciente.apellido}">
+                                        th:text="${paciente.nombre + ' ' + paciente.apellido}"
+                                        th:selected="${solicitud.pacienteId != null && solicitud.pacienteId == paciente.idPaciente}">
                                 </option>
                             </select>
                             <div class="text-danger" th:if="${#fields.hasErrors('pacienteId')}" th:errors="*{pacienteId}"></div>
@@ -37,19 +33,20 @@
 
                         <div class="mb-3">
                             <label for="tipoSolicitud" class="form-label">Tipo de Solicitud <span class="text-danger">*</span></label>
-                            <select id="tipoSolicitud" th:field="*{tipoSolicitud}" class="form-select" required onchange="toggleDetalleOtro()">
-                                <option value="" disabled selected>-- Seleccione el tipo --</option>
+                            <select id="tipoSolicitud" name="tipoSolicitud" class="form-select" required onchange="toggleDetalleOtro()">
+                                <option value="" disabled selected>Seleccione el tipo de solicitud...</option>
                                 <option th:each="tipo : ${tiposSolicitud}"
                                         th:value="${tipo}"
-                                        th:text="${tipo}">
+                                        th:text="${tipo}"
+                                        th:selected="${solicitud.tipoSolicitud != null && solicitud.tipoSolicitud == tipo}">
                                 </option>
                             </select>
                             <div class="text-danger" th:if="${#fields.hasErrors('tipoSolicitud')}" th:errors="*{tipoSolicitud}"></div>
                         </div>
 
-                        <div id="detalleOtroDiv" class="mb-3 detalle-otro-hidden">
+                        <div id="detalleOtroDiv" class="mb-3" style="display:none;">
                             <label for="detalleOtro" class="form-label">Especifique 'Otro' Tipo <span class="text-danger">*</span></label>
-                            <input type="text" id="detalleOtro" th:field="*{detalleOtro}" class="form-control"/>
+                            <input type="text" id="detalleOtro" name="detalleOtro" th:value="${solicitud.detalleOtro}" class="form-control"/>
                             <div class="text-danger" th:if="${#fields.hasErrors('detalleOtro')}" th:errors="*{detalleOtro}"></div>
                         </div>
 
@@ -76,19 +73,26 @@
 <script>
     function toggleDetalleOtro() {
         const tipoSelect = document.getElementById('tipoSolicitud');
+        if (!tipoSelect) return;
+
         const detalleDiv = document.getElementById('detalleOtroDiv');
         const detalleInput = document.getElementById('detalleOtro');
+
+        // Lógica que usa style.display
         if (tipoSelect.value === 'OTRO') {
-            detalleDiv.classList.remove('detalle-otro-hidden');
+            detalleDiv.style.display = 'block';
             detalleInput.required = true;
         } else {
-            detalleDiv.classList.add('detalle-otro-hidden');
+            detalleDiv.style.display = 'none';
             detalleInput.required = false;
             detalleInput.value = ''; // Limpiar campo al ocultar
         }
     }
-    // Llamar al cargar por si hay valor previo (ej. error de validación)
-    document.addEventListener('DOMContentLoaded', toggleDetalleOtro);
+
+    // Envoltura de DOMContentLoaded igual al formulario de usuario
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleDetalleOtro();
+    });
 </script>
 
 </body>
