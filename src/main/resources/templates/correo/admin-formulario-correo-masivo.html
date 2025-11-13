@@ -26,7 +26,7 @@
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4">Redactar Correo Masivo</h2>
 
-                    <form th:action="@{/admin/correos/enviar}" method="post">
+                    <form th:action="@{/admin/correos/enviar}" method="post" id="form-correo-masivo">
 
                         <div class="mb-3">
                             <label for="targetRole" class="form-label">Enviar a:</label>
@@ -52,7 +52,7 @@
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <a th:href="@{/dashboard}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" onclick="confirmarEnvioMasivo()">
                                 <i class="bi bi-send-fill me-2"></i>Enviar Correos
                             </button>
                         </div>

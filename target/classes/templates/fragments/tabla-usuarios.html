@@ -16,36 +16,27 @@
     <div class="card shadow-sm">
         <div class="card-body p-4">
 
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse">
-                    <i class="bi bi-funnel me-2"></i>Mostrar Filtros
-                </button>
-            </div>
-
-            <div class="collapse" id="filtrosCollapse">
-                <form th:action="@{/dashboard}" method="get" class="row g-3 align-items-end mt-3 mb-4 p-3 bg-light border rounded">
-                    <div class="col-md-4">
-                        <label for="nombre" class="form-label">Nombre</label>
-                        <input type="text" id="nombre" name="nombre" class="form-control" th:value="${param.nombre}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="documento" class="form-label">Documento</label>
-                        <input type="text" id="documento" name="documento" class="form-control" th:value="${param.documento}">
-                    </div>
-                    <div class="col-md-3">
-                        <label for="rol" class="form-label">Rol</label>
-                        <select id="rol" name="rol" class="form-select">
-                            <option value="">Todos</option>
-                            <option th:each="rolOpt : ${T(com.example.Gericare.Enums.RolNombre).values()}"
-                                    th:value="${rolOpt}"
-                                    th:text="${#strings.capitalize(rolOpt.toString().toLowerCase())}"
-                                    th:selected="${param.rol != null and rolOpt.name() == param.rol[0]}"></option>
-                        </select>
-                    </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-dark w-100">Filtrar</button>
-                    </div>
-                </form>
+            <div id="filtrosFormContainer"> <form th:action="@{/dashboard}" method="get" id="filtro-form-usuarios" class="row g-3 align-items-end mt-3 mb-4 p-3 bg-light border rounded">
+                <div class="col-md-4">
+                    <label for="nombre" class="form-label">Nombre o Apellido</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" th:value="${param.nombre}">
+                </div>
+                <div class="col-md-3">
+                    <label for="documento" class="form-label">Documento</label>
+                    <input type="text" id="documento" name="documento" class="form-control" th:value="${param.documento}">
+                </div>
+                <div class="col-md-3">
+                    <label for="rol" class="form-label">Rol</label>
+                    <select id="rol" name="rol" class="form-select">
+                        <option value="">Todos</option>
+                        <option th:each="rolOpt : ${T(com.example.Gericare.Enums.RolNombre).values()}"
+                                th:if="${rolOpt.name() != 'Administrador'}"
+                                th:value="${rolOpt}"
+                                th:text="${#strings.capitalize(rolOpt.toString().toLowerCase())}"
+                                th:selected="${param.rol != null and rolOpt.name() == param.rol[0]}"></option>
+                    </select>
+                </div>
+            </form>
             </div>
 
             <hr class="my-4">
@@ -61,7 +52,7 @@
                         <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tabla-usuarios-body">
                     <tr th:each="usuario : ${usuarios}">
                         <td th:text="${usuario.nombre + ' ' + usuario.apellido}"></td>
                         <td th:text="${usuario.documentoIdentificacion}"></td>
