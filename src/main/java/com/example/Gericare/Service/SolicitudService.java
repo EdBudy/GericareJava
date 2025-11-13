@@ -1,8 +1,7 @@
 package com.example.Gericare.Service;
 
 import com.example.Gericare.DTO.SolicitudDTO;
-import com.example.Gericare.Enums.EstadoSolicitud;
-
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,7 +24,8 @@ public interface SolicitudService {
     // Borrado lógico (Admin o Familiar)
     void eliminarSolicitudLogico(Long id, Long usuarioId, String rolUsuario);
 
-    // Desactivación cascada
-    void desactivarSolicitudesPorPaciente(Long pacienteId);
+    SolicitudDTO actualizarSolicitud(Long id, SolicitudDTO solicitudDTO, Long familiarId)
+            throws AccessDeniedException, IllegalStateException;
 
+    void desactivarSolicitudesPorPaciente(Long pacienteId);
 }

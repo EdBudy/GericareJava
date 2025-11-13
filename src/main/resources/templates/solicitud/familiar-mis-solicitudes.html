@@ -53,14 +53,14 @@
                                 <span th:text="${solicitud.detalleOtro}"></span>
                                 <span class="badge bg-secondary ms-1">Otro</span>
                             </span>
-                            <span th:case="*" th:text="${solicitud.tipoSolicitud.displayName}"></span>
+                            <span th:case="*" th:text="${solicitud.tipoSolicitud}"></span>
                         </td>
                         <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
 
                         <td th:text="${solicitud.motivoSolicitud}"></td>
 
                         <td class="text-center">
-                             <span th:text="${solicitud.estadoSolicitud.displayName}" class="badge"
+                             <span th:text="${solicitud.estadoSolicitud}" class="badge"
                                    th:classappend="${solicitud.estadoSolicitud.toString() == 'Pendiente'} ? 'bg-warning text-dark' : (${solicitud.estadoSolicitud.toString() == 'Aprobada'} ? 'bg-success' : 'bg-danger')">
                              </span>
                         </td>

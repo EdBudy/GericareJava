@@ -51,17 +51,17 @@
                         <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
 
                         <td th:switch="${solicitud.tipoSolicitud.name()}">
-                            <span th:case="'OTRO'">
+                            <span th:case="'Otro'">
                                 <span th:text="${solicitud.detalleOtro}"></span>
                                 <span class="badge bg-secondary ms-1">Otro</span>
                             </span>
-                            <span th:case="*" th:text="${solicitud.tipoSolicitud.displayName}"></span>
+                            <span th:case="*" th:text="${solicitud.tipoSolicitud}"></span>
                         </td>
 
                         <td th:text="${solicitud.motivoSolicitud}"></td>
 
                         <td class="text-center">
-                             <span th:text="${solicitud.estadoSolicitud.displayName}" class="badge"
+                             <span th:text="${solicitud.estadoSolicitud}" class="badge"
                                    th:classappend="${solicitud.estadoSolicitud.name() == 'Pendiente'} ? 'bg-warning text-dark' :
                                                  (${solicitud.estadoSolicitud.name() == 'Aprobada'} ? 'bg-success' :
                                                  (${solicitud.estadoSolicitud.name() == 'Rechazada'} ? 'bg-danger' : 'bg-secondary'))">

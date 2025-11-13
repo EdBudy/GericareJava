@@ -13,28 +13,33 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-body p-4">
-                    <h2 class="card-title text-center mb-4">Crear Nueva Solicitud</h2>
+                    <h2 class="card-title text-center mb-4"
+                        th:text="${solicitud.idSolicitud == null} ? 'Crear Nueva Solicitud' : 'Editar Solicitud'">
+                    </h2>
 
                     <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert" th:text="${errorMessage}"></div>
 
-                    <form th:action="@{/solicitudes/crear}" th:object="${solicitud}" method="post">
+                    <form th:action="${solicitud.idSolicitud == null} ? @{/solicitudes/crear} : @{/solicitudes/actualizar/{id}(id=${solicitud.idSolicitud})}"
+                          th:object="${solicitud}" method="post">
+
                         <div class="mb-3">
                             <label for="pacienteId" class="form-label">Paciente Relacionado <span class="text-danger">*</span></label>
-                            <select id="pacienteId" name="pacienteId" class="form-select" required>
-                                <option value="" disabled selected>Seleccione el paciente...</option>
+                            <select id="pacienteId" th:field="*{pacienteId}" class="form-select" required
+                                    th:disabled="${solicitud.idSolicitud != null}">
+                                <option value="" disabled>Seleccione el paciente...</option>
                                 <option th:each="paciente : ${pacientesAsociados}"
                                         th:value="${paciente.idPaciente}"
-                                        th:text="${paciente.nombre + ' ' + paciente.apellido}"
-                                        th:selected="${solicitud.pacienteId != null && solicitud.pacienteId == paciente.idPaciente}">
+                                        th:text="${paciente.nombre + ' ' + paciente.apellido}">
                                 </option>
                             </select>
+                            <input type="hidden" th:if="${solicitud.idSolicitud != null}" th:field="*{pacienteId}" />
                             <div class="text-danger" th:if="${#fields.hasErrors('pacienteId')}" th:errors="*{pacienteId}"></div>
                         </div>
 
                         <div class="mb-3">
                             <label for="tipoSolicitud" class="form-label">Tipo de Solicitud <span class="text-danger">*</span></label>
-                            <select id="tipoSolicitud" name="tipoSolicitud" class="form-select" required onchange="toggleDetalleOtro()">
-                                <option value="" disabled selected>Seleccione el tipo de solicitud...</option>
+                            <select id="tipoSolicitud" th:field="*{tipoSolicitud}" class="form-select" required onchange="toggleDetalleOtro()">
+                                <option value="" disabled>Seleccione el tipo de solicitud...</option>
                                 <option th:each="tipo : ${tiposSolicitud}"
                                         th:value="${tipo}"
                                         th:text="${tipo}"
@@ -46,7 +51,7 @@
 
                         <div id="detalleOtroDiv" class="mb-3" style="display:none;">
                             <label for="detalleOtro" class="form-label">Especifique el Tipo de Solicitud (otro) <span class="text-danger">*</span></label>
-                            <input type="text" id="detalleOtro" name="detalleOtro" th:value="${solicitud.detalleOtro}" class="form-control"/>
+                            <input type="text" id="detalleOtro" th:field="*{detalleOtro}" class="form-control"/>
                             <div class="text-danger" th:if="${#fields.hasErrors('detalleOtro')}" th:errors="*{detalleOtro}"></div>
                         </div>
 
@@ -57,9 +62,12 @@
                             <div class="text-danger" th:if="${#fields.hasErrors('motivoSolicitud')}" th:errors="*{motivoSolicitud}"></div>
                         </div>
 
+
                         <div class="d-grid gap-2 mt-4 d-md-flex justify-content-md-end">
                             <a th:href="@{/solicitudes/mis-solicitudes}" class="btn btn-secondary">Cancelar</a>
-                            <button type="submit" class="btn btn-primary">Enviar Solicitud</button>
+                            <button type="submit" class="btn btn-primary"
+                                    th:text="${solicitud.idSolicitud == null} ? 'Enviar Solicitud' : 'Guardar Cambios'">
+                            </button>
                         </div>
                     </form>
                 </div>

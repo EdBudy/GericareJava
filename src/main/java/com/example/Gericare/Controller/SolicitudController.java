@@ -192,4 +192,128 @@ public class SolicitudController {
         }
         return "redirect:/solicitudes/admin";
     }
+
+    // Ver y Editar
+    @GetMapping("/detalle/{id}")
+    @PreAuthorize("hasAnyRole('Familiar', 'Administrador')")
+    public String verDetalleSolicitud(@PathVariable Long id, Authentication authentication, Model model, RedirectAttributes redirectAttributes) {
+        Long usuarioId = usuarioService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"))
+                .getIdUsuario();
+        String rolUsuario = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .findFirst().orElse("").replace("ROLE_", "");
+
+        Optional<SolicitudDTO> solicitudOpt = solicitudService.obtenerSolicitudPorId(id);
+
+        if (solicitudOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Solicitud no encontrada.");
+            return rolUsuario.equals("Administrador") ? "redirect:/solicitudes/admin" : "redirect:/solicitudes/mis-solicitudes";
+        }
+
+        SolicitudDTO solicitud = solicitudOpt.get();
+
+        // Validación back: Admin puede ver todo. Familiar solo lo suyo
+        if (rolUsuario.equals("Familiar") && !solicitud.getFamiliarId().equals(usuarioId)) {
+            throw new AccessDeniedException("No tiene permisos para ver esta solicitud.");
+        }
+
+        // Btn editar: Visible solo para Familiar, si es dueño y está Pendiente
+        boolean puedeEditar = false;
+        if (rolUsuario.equals("Familiar") &&
+                solicitud.getFamiliarId().equals(usuarioId) &&
+                solicitud.getEstadoSolicitud() == com.example.Gericare.Enums.EstadoSolicitud.Pendiente) {
+            puedeEditar = true;
+        }
+
+        model.addAttribute("solicitud", solicitud);
+        model.addAttribute("puedeEditar", puedeEditar);
+        return "solicitud/solicitud-detalle";
+    }
+
+
+    // Form edición
+    @GetMapping("/editar/{id}")
+    @PreAuthorize("hasRole('Familiar')")
+    public String mostrarFormularioEditarSolicitud(@PathVariable Long id, Authentication authentication, Model model, RedirectAttributes redirectAttributes) {
+        Long familiarId = usuarioService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Familiar no encontrado"))
+                .getIdUsuario();
+
+        Optional<SolicitudDTO> solicitudOpt = solicitudService.obtenerSolicitudPorId(id);
+
+        if (solicitudOpt.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Solicitud no encontrada.");
+            return "redirect:/solicitudes/mis-solicitudes";
+        }
+
+        SolicitudDTO solicitud = solicitudOpt.get();
+
+        // Validación back: Solo el Familiar dueño y si está Pendiente
+        if (!solicitud.getFamiliarId().equals(familiarId)) {
+            throw new AccessDeniedException("No tiene permisos para editar esta solicitud.");
+        }
+        if (solicitud.getEstadoSolicitud() != com.example.Gericare.Enums.EstadoSolicitud.Pendiente) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Esta solicitud ya no puede ser editada porque ha sido procesada.");
+            return "redirect:/solicitudes/mis-solicitudes";
+        }
+
+        // Cargar datos para el formulario
+        List<PacienteDTO> pacientesAsociados = usuarioService.findPacientesByFamiliarEmail(authentication.getName())
+                .stream()
+                .map(paDTO -> paDTO.getPaciente())
+                .collect(Collectors.toList());
+
+        model.addAttribute("solicitud", solicitud);
+        model.addAttribute("pacientesAsociados", pacientesAsociados);
+        model.addAttribute("tiposSolicitud", com.example.Gericare.Enums.TipoSolicitud.values());
+
+        // Reutilizar la plantilla del formulario de creación
+        return "solicitud/familiar-formulario-solicitud";
+    }
+
+    // Guardar actualización
+    @PostMapping("/actualizar/{id}")
+    @PreAuthorize("hasRole('Familiar')")
+    public String actualizarSolicitud(@PathVariable Long id,
+                                      @Valid @ModelAttribute("solicitud") SolicitudDTO solicitudDTO,
+                                      BindingResult bindingResult, Authentication authentication,
+                                      Model model, RedirectAttributes redirectAttributes) {
+
+        Long familiarId = usuarioService.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Familiar no encontrado"))
+                .getIdUsuario();
+
+        boolean pacienteValido = usuarioService.findPacientesByFamiliarEmail(authentication.getName())
+                .stream()
+                .anyMatch(pa -> pa.getPaciente().getIdPaciente().equals(solicitudDTO.getPacienteId()));
+
+        if (!pacienteValido) {
+            bindingResult.rejectValue("pacienteId", "error.solicitud", "Paciente inválido seleccionado.");
+        }
+
+        if (bindingResult.hasErrors()) {
+            List<PacienteDTO> pacientesAsociados = usuarioService.findPacientesByFamiliarEmail(authentication.getName())
+                    .stream()
+                    .map(paDTO -> paDTO.getPaciente())
+                    .collect(Collectors.toList());
+            model.addAttribute("pacientesAsociados", pacientesAsociados);
+            model.addAttribute("tiposSolicitud", com.example.Gericare.Enums.TipoSolicitud.values());
+            solicitudDTO.setIdSolicitud(id);
+            model.addAttribute("solicitud", solicitudDTO);
+            return "solicitud/familiar-formulario-solicitud";
+        }
+
+        try {
+            solicitudService.actualizarSolicitud(id, solicitudDTO, familiarId);
+            redirectAttributes.addFlashAttribute("successMessage", "¡Solicitud actualizada con éxito!");
+            return "redirect:/solicitudes/mis-solicitudes";
+        } catch (AccessDeniedException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/solicitudes/mis-solicitudes";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al actualizar la solicitud: " + e.getMessage());
+            return "redirect:/solicitudes/editar/" + id;
+        }
+    }
 }

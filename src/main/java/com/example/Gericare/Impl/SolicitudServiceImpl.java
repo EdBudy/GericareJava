@@ -116,6 +116,40 @@ public class SolicitudServiceImpl implements SolicitudService {
 
     @Override
     @Transactional
+    public SolicitudDTO actualizarSolicitud(Long id, SolicitudDTO solicitudDTO, Long familiarId)
+            throws AccessDeniedException, IllegalStateException {
+
+        // Buscar la solicitud existente
+        Solicitud solicitud = solicitudRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Solicitud no encontrada con ID: " + id));
+
+        // Verificar que el usuario es el dueño
+        if (!solicitud.getFamiliar().getIdUsuario().equals(familiarId)) {
+            throw new AccessDeniedException("No tiene permisos para modificar esta solicitud.");
+        }
+
+        // Verificar que la solicitud sigue Pendiente
+        if (solicitud.getEstadoSolicitud() != EstadoSolicitud.Pendiente) {
+            throw new IllegalStateException("La solicitud ya no puede ser modificada porque fue procesada.");
+        }
+
+        // Buscar el paciente (si cambió)
+        Paciente paciente = pacienteRepository.findById(solicitudDTO.getPacienteId())
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado con ID: " + solicitudDTO.getPacienteId()));
+
+        // Actualizar campos permitidos
+        solicitud.setPaciente(paciente);
+        solicitud.setTipoSolicitud(solicitudDTO.getTipoSolicitud());
+        solicitud.setDetalleOtro(solicitudDTO.getDetalleOtro());
+        solicitud.setMotivoSolicitud(solicitudDTO.getMotivoSolicitud());
+        // No se actualiza la fecha, ni el estado, ni el familiar
+
+        Solicitud solicitudActualizada = solicitudRepository.save(solicitud);
+        return toDTO(solicitudActualizada);
+    }
+
+    @Override
+    @Transactional
     public void eliminarSolicitudLogico(Long id, Long usuarioId, String rolUsuario) {
         // Buscar solicitud
         Solicitud solicitud = solicitudRepository.findById(id)
