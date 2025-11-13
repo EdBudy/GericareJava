@@ -30,10 +30,12 @@ public class MedicamentoController {
     private MedicamentoService medicamentoService; // Inyecta el servicio dedicado
 
     @GetMapping
-    public String listarMedicamentos(Model model) {
+    public String listarMedicamentos(Model model,
+                                     @RequestParam(required = false) String nombre,
+                                     @RequestParam(required = false) String descripcion) {
         log.info("Accediendo a la lista de medicamentos");
         try {
-            model.addAttribute("medicamentos", medicamentoService.listarMedicamentosActivos());
+            model.addAttribute("medicamentos", medicamentoService.listarMedicamentosActivosFiltrados(nombre, descripcion));
         } catch (Exception e) {
             log.error("Error al listar medicamentos", e);
             model.addAttribute("errorMessage", "Error al cargar la lista de medicamentos.");

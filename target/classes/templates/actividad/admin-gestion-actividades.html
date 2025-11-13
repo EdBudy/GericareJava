@@ -31,15 +31,9 @@
 
     <div class="card shadow-sm">
         <div class="card-body p-4">
-            <!-- Formulario de Filtros -->
-            <div class="d-flex justify-content-end">
-                <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosCollapse" aria-expanded="false" aria-controls="filtrosCollapse">
-                    <i class="bi bi-funnel me-2"></i>Mostrar Filtros
-                </button>
-            </div>
 
-            <div class="collapse" id="filtrosCollapse">
-                <form th:action="@{/actividades}" method="get" class="row g-3 align-items-end mt-3 mb-4 p-3 bg-light border rounded">
+            <div id="filtrosFormContainer">
+                <form th:action="@{/actividades}" method="get" id="filtro-form-actividades" class="row g-3 align-items-end mt-3 mb-4 p-3 bg-light border rounded">
                     <div class="col-md-4">
                         <label for="nombrePaciente" class="form-label">Nombre del Paciente</label>
                         <input type="text" id="nombrePaciente" name="nombrePaciente" class="form-control" th:value="${param.nombrePaciente}">
@@ -59,9 +53,6 @@
                                     th:selected="${param.estado != null and est.name() == param.estado[0]}"></option>
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <button type="submit" class="btn btn-dark w-100">Filtrar</button>
-                    </div>
                 </form>
             </div>
 
@@ -79,7 +70,7 @@
                         <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tabla-actividades-body">
                     <tr th:each="actividad : ${actividades}">
                         <td th:text="${actividad.nombrePaciente}"></td>
                         <td th:text="${actividad.tipoActividad}"></td>

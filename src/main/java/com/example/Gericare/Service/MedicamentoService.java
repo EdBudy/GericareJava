@@ -10,6 +10,9 @@ import java.io.InputStream;
 public interface MedicamentoService {
 
     // Lista todos los medicamentos activos.
+    List<MedicamentoDTO> listarMedicamentosActivosFiltrados(String nombre, String descripcion);
+
+    // Para los dropdowns AJAX (sin filtros)
     List<MedicamentoDTO> listarMedicamentosActivos();
 
     // Guarda un nuevo medicamento o actualiza uno existente.

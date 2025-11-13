@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.jpa.domain.Specification;
+import com.example.Gericare.specification.MedicamentoSpecification;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -36,9 +38,17 @@ public class MedicamentoServiceImpl implements MedicamentoService {
     @Override
     @Transactional(readOnly = true)
     public List<MedicamentoDTO> listarMedicamentosActivos() {
-        // Filtrar solo los activos
         return medicamentoRepository.findAll().stream()
                 .filter(med -> med.getEstado() == EstadoUsuario.Activo)
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicamentoDTO> listarMedicamentosActivosFiltrados(String nombre, String descripcion) {
+        Specification<Medicamento> spec = MedicamentoSpecification.findByCriteria(nombre, descripcion);
+        return medicamentoRepository.findAll(spec).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

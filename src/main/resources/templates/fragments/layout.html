@@ -218,6 +218,26 @@
                 }
             });
         }
+
+        function confirmarEliminacionMedicamento(button) {
+            const medicamentoId = button.getAttribute('data-med-id');
+            const nombreMedicamento = button.getAttribute('data-med-nombre');
+
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `¡El medicamento '${nombreMedicamento}' será inactivado!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, ¡Inactivar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('form-eliminar-medicamento-' + medicamentoId).submit();
+                }
+            });
+        }
     </script>
 </div>
 

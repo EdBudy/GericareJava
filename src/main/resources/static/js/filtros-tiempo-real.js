@@ -103,4 +103,94 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Lógica para Actividades
+
+    const formActividades = document.getElementById('filtro-form-actividades');
+    const tablaBodyActividades = document.getElementById('tabla-actividades-body');
+
+    // Solo ejecutar si estamos en la página que contiene estos elementos
+    if (formActividades && tablaBodyActividades) {
+
+        const inputsActividades = formActividades.querySelectorAll('input, select');
+        const urlBaseActividades = formActividades.action; // Obtiene la URL del th:action (@{/actividades})
+
+        const actualizarTablaActividades = async () => {
+            const params = new URLSearchParams(new FormData(formActividades));
+
+            try {
+                // Llama al ActividadController con los parámetros de filtro
+                const response = await fetch(`${urlBaseActividades}?${params.toString()}`);
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+
+                const htmlText = await response.text();
+
+                // Parsea el HTML de la página completa
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+
+                // Busca el <tbody> de actividades en la *nueva* página
+                const nuevoTablaBody = doc.getElementById('tabla-actividades-body');
+
+                if (nuevoTablaBody) {
+                    // Reemplaza el contenido de la tabla actual con el nuevo
+                    tablaBodyActividades.innerHTML = nuevoTablaBody.innerHTML;
+                }
+
+            } catch (error) {
+                console.error('Error al actualizar la tabla de actividades:', error);
+            }
+        };
+
+        // Asigna el evento 'input' (cada vez que se teclea o cambia)
+        inputsActividades.forEach(input => {
+            input.addEventListener('input', debounce(actualizarTablaActividades, 300));
+        });
+    }
+
+    // Medicamentos
+    const formMedicamentos = document.getElementById('filtro-form-medicamentos');
+    const tablaBodyMedicamentos = document.getElementById('tabla-medicamentos-body');
+
+    // Solo ejecutar si estamos en la página que contiene estos elementos
+    if (formMedicamentos && tablaBodyMedicamentos) {
+
+    const inputsMedicamentos = formMedicamentos.querySelectorAll('input, select');
+    const urlBaseMedicamentos = formMedicamentos.action; // Obtiene la URL del th:action (@{/medicamentos})
+
+    const actualizarTablaMedicamentos = async () => {
+    const params = new URLSearchParams(new FormData(formMedicamentos));
+
+    try {
+    // Llama al MedicamentoController con los parámetros de filtro
+    const response = await fetch(`${urlBaseMedicamentos}?${params.toString()}`);
+    if (!response.ok) {
+    throw new Error('Error en la respuesta del servidor');
+    }
+
+    const htmlText = await response.text();
+
+    // Parsea el HTML de la página completa
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+
+    // Busca el <tbody> de medicamentos en la *nueva* página
+    const nuevoTablaBody = doc.getElementById('tabla-medicamentos-body');
+
+    if (nuevoTablaBody) {
+    // Reemplaza el contenido de la tabla actual con el nuevo
+    tablaBodyMedicamentos.innerHTML = nuevoTablaBody.innerHTML;
+    }
+
+    } catch (error) {
+        console.error('Error al actualizar la tabla de medicamentos:', error);
+        }
+    };
+
+    // Asigna el evento 'input' (cada vez que se teclea o cambia)
+    inputsMedicamentos.forEach(input => {
+    input.addEventListener('input', debounce(actualizarTablaMedicamentos, 300));
+    });
+    }
 });

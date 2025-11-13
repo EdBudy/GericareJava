@@ -25,5 +25,5 @@ public class Medicamento {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoUsuario estado = EstadoUsuario.Activo; // o EstadoRegistro
+    private EstadoUsuario estado = EstadoUsuario.Activo;
 }
