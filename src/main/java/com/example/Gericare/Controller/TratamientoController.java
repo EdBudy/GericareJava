@@ -101,7 +101,7 @@ public class TratamientoController {
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_Administrador"))) {
                 return "redirect:/tratamientos/admin";
             } else {
-                return "redirect:/tratamientos/cuidador-tratamientos";
+                return "redirect:/tratamientos/mis-tratamientos";
             }
         }
 
@@ -180,7 +180,7 @@ public class TratamientoController {
             redirectAttributes.addFlashAttribute("successMessage", "¡Tratamiento actualizado con éxito!");
 
             // Redirigir según rol
-            return isAdmin ? "redirect:/tratamientos/admin" : "redirect:/tratamientos/cuidador-tratamientos";
+            return isAdmin ? "redirect:/tratamientos/admin" : "redirect:/tratamientos/mis-tratamientos";
 
         } catch (AccessDeniedException | IllegalStateException | IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -206,7 +206,7 @@ public class TratamientoController {
 
     // Vista/Acciones Cuidador
 
-    @GetMapping("/cuidador-tratamientos")
+    @GetMapping("/mis-tratamientos")
     @PreAuthorize("hasRole('Cuidador')")
     public String listarMisTratamientos(Authentication authentication, Model model) {
         Long cuidadorId = usuarioService.findByEmail(authentication.getName()).get().getIdUsuario();
@@ -226,7 +226,7 @@ public class TratamientoController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error al completar el tratamiento.");
         }
-        return "redirect:/tratamientos/cuidador-tratamientos";
+        return "redirect:/tratamientos/mis-tratamientos";
     }
 
 
