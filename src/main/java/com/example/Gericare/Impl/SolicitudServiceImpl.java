@@ -65,7 +65,8 @@ public class SolicitudServiceImpl implements SolicitudService {
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudDTO> listarTodasSolicitudesActivas() {
-        return solicitudRepository.findAll().stream()
+        return solicitudRepository.findByEstadoSolicitudNot(EstadoSolicitud.Inactivo)
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -73,7 +74,8 @@ public class SolicitudServiceImpl implements SolicitudService {
     @Override
     @Transactional(readOnly = true)
     public List<SolicitudDTO> listarSolicitudesActivasPorFamiliar(Long familiarId) {
-        return solicitudRepository.findByFamiliarIdUsuario(familiarId).stream()
+        return solicitudRepository.findByFamiliarIdUsuarioAndEstadoSolicitudNot(familiarId, EstadoSolicitud.Inactivo)
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
@@ -115,7 +117,10 @@ public class SolicitudServiceImpl implements SolicitudService {
     @Override
     @Transactional
     public void eliminarSolicitudLogico(Long id, Long usuarioId, String rolUsuario) {
-        solicitudRepository.findById(id).ifPresent(solicitud -> {
+        // Buscar solicitud
+        Solicitud solicitud = solicitudRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("La solicitud que intenta eliminar no fue encontrada o ya no existe."));
+
             boolean isAdmin = rolUsuario.equals(RolNombre.Administrador.name());
             boolean isFamiliarOwner = rolUsuario.equals(RolNombre.Familiar.name()) && solicitud.getFamiliar().getIdUsuario().equals(usuarioId);
 
@@ -136,7 +141,6 @@ public class SolicitudServiceImpl implements SolicitudService {
             } else {
                 throw new AccessDeniedException("No tienes permiso para eliminar esta solicitud.");
             }
-        });
     }
 
     @Override

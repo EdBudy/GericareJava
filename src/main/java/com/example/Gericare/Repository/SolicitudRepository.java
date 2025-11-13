@@ -17,8 +17,9 @@ public interface SolicitudRepository extends JpaRepository<Solicitud, Long>, Jpa
     // Desactivación en cascada al desactivar Paciente
     List<Solicitud> findByPacienteIdPaciente(Long pacienteId);
 
-    // Pbtener solicitudes activas
-    List<Solicitud> findByEstadoSolicitudNot(EstadoSolicitud estado);
+    // Familiar
     List<Solicitud> findByFamiliarIdUsuarioAndEstadoSolicitudNot(Long familiarId, EstadoSolicitud estado);
-    List<Solicitud> findByPacienteIdPacienteAndEstadoSolicitudNot(Long pacienteId, EstadoSolicitud estado);
+
+    // Admin
+    List<Solicitud> findByEstadoSolicitudNot(EstadoSolicitud estado);
 }

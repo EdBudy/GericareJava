@@ -36,48 +36,44 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Familiar</th>
                         <th>Paciente</th>
+                        <th>Fecha Solicitud</th>
                         <th>Tipo</th>
-                        <th>Fecha</th>
-                        <th>Motivo</th>
-                        <th class="text-center">Estado</th>
+                        <th>Motivo</th> <th class="text-center">Estado</th>
                         <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="solicitud : ${solicitudes}">
-                        <td th:text="${solicitud.idSolicitud}"></td>
                         <td th:text="${solicitud.familiarNombreCompleto}"></td>
                         <td th:text="${solicitud.pacienteNombreCompleto}"></td>
-                        <td th:text="${solicitud.tipoSolicitud}"></td>
                         <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td th:text="${#strings.abbreviate(solicitud.motivoSolicitud, 50)}"></td>
+
+                        <td th:switch="${solicitud.tipoSolicitud.name()}">
+                            <span th:case="'OTRO'">
+                                <span th:text="${solicitud.detalleOtro}"></span>
+                                <span class="badge bg-secondary ms-1">Otro</span>
+                            </span>
+                            <span th:case="*" th:text="${solicitud.tipoSolicitud.displayName}"></span>
+                        </td>
+
+                        <td th:text="${solicitud.motivoSolicitud}"></td>
+
                         <td class="text-center">
-                             <span th:text="${solicitud.estadoSolicitud}" class="badge"
-                                   th:classappend="${solicitud.estadoSolicitud.toString() == 'PENDIENTE'} ? 'bg-warning text-dark' : (${solicitud.estadoSolicitud.toString() == 'APROBADA'} ? 'bg-success' : 'bg-danger')">
+                             <span th:text="${solicitud.estadoSolicitud.displayName}" class="badge"
+                                   th:classappend="${solicitud.estadoSolicitud.name() == 'Pendiente'} ? 'bg-warning text-dark' :
+                                                 (${solicitud.estadoSolicitud.name() == 'Aprobada'} ? 'bg-success' :
+                                                 (${solicitud.estadoSolicitud.name() == 'Rechazada'} ? 'bg-danger' : 'bg-secondary'))">
                              </span>
                         </td>
+
                         <td class="text-center">
-                            <div th:if="${solicitud.estadoSolicitud.toString() == 'PENDIENTE'}">
-                                <form th:action="@{|/solicitudes/aprobar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-success btn-sm" title="Aprobar">
-                                        <i class="bi bi-check-lg"></i>
-                                    </button>
-                                </form>
-                                <form th:action="@{|/solicitudes/rechazar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-danger btn-sm" title="Rechazar">
-                                        <i class="bi bi-x-lg"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            <form th:if="${solicitud.estadoSolicitud.toString() == 'APROBADA' or solicitud.estadoSolicitud.toString() == 'RECHAZADA'}"
-                                  th:action="@{|/solicitudes/eliminar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
-                                <button type="button" class="btn btn-secondary btn-sm" title="Archivar (Eliminar Lógico)"
-                                        th:onclick="'confirmarArchivarSolicitudAdmin(\'' + ${solicitud.idSolicitud} + '\')'">
-                                    <i class="bi bi-archive-fill"></i> </button>
-                            </form>
+                            <a th:href="@{/solicitudes/detalle/{id}(id=${solicitud.idSolicitud})}"
+                               class="btn btn-primary btn-sm"
+                               title="Ver Detalle">
+                                <i class="bi bi-eye-fill"></i> Ver Detalle
+                            </a>
                         </td>
                     </tr>
                     </tbody>

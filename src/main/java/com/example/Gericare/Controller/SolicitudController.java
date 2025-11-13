@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -129,12 +131,6 @@ public class SolicitudController {
                 .map(grantedAuthority -> grantedAuthority.getAuthority().replace("ROLE_", "")) // Quitar prefijo ROLE_
                 .findFirst()
                 .orElse(null); // Rol como String "Administrador" o "Familiar"
-
-        if (rolUsuario == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error de rol desconocido.");
-            return "redirect:/login";
-        }
-
 
         try {
             solicitudService.eliminarSolicitudLogico(id, usuarioId, rolUsuario);

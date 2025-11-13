@@ -8,7 +8,7 @@
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container mt-5 mb-5 flex-grow-1">
 
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
@@ -55,12 +55,13 @@
                         <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
                         <td th:text="${#strings.abbreviate(solicitud.motivoSolicitud, 50)}"></td> <td class="text-center">
                              <span th:text="${solicitud.estadoSolicitud}" class="badge"
-                                   th:classappend="${solicitud.estadoSolicitud.toString() == 'PENDIENTE'} ? 'bg-warning text-dark' : (${solicitud.estadoSolicitud.toString() == 'APROBADA'} ? 'bg-success' : 'bg-danger')">
+                                   th:classappend="${solicitud.estadoSolicitud.toString() == 'Pendiente'} ? 'bg-warning text-dark' : (${solicitud.estadoSolicitud.toString() == 'APROBADA'} ? 'bg-success' : 'bg-danger')">
                              </span>
                     </td>
                         <td class="text-center">
-                            <form th:if="${solicitud.estadoSolicitud.toString() == 'PENDIENTE'}"
-                                  th:action="@{|/solicitudes/eliminar/${solicitud.idSolicitud}|}" method="post" class="d-inline">
+                            <form th:if="${solicitud.estadoSolicitud.toString() == 'Pendiente'}"
+                                  th:action="@{|/solicitudes/eliminar/${solicitud.idSolicitud}|}" method="post" class="d-inline"
+                                  th:id="|form-eliminar-solicitud-${solicitud.idSolicitud}|">
                                 <button type="button" class="btn btn-danger btn-sm" title="Eliminar Solicitud"
                                         th:onclick="'confirmarEliminacionSolicitudFamiliar(\'' + ${solicitud.idSolicitud} + '\')'">
                                     <i class="bi bi-trash"></i>
