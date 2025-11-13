@@ -412,7 +412,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         headerRow.createCell(7).setCellValue("Rol");
 
         // Listar todos
-        List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, null));
+        List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol));
 
         // Llenar filas
         int rowNum = 1;
@@ -467,7 +467,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         table.addCell("Rol");
 
         // Listar todos
-        List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, null));
+        List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol));
 
         for (Usuario usuario : usuarios) {
             table.addCell(String.valueOf(usuario.getIdUsuario()));
