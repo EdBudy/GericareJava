@@ -49,11 +49,11 @@
                     <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label fw-bold">Tipo de Solicitud:</label>
                         <div class="col-sm-8">
-                            <p class="form-control-plaintext" th:text="${solicitud.tipoSolicitud.displayName}">
+                            <p class="form-control-plaintext" th:text="${solicitud.tipoSolicitud}">
                             </p>
                         </div>
                     </div>
-                    <div class="mb-3 row" th:if="${solicitud.tipoSolicitud.name() == 'OTRO'}">
+                    <div class="mb-3 row" th:if="${solicitud.tipoSolicitud.name() == 'Otro'}">
                         <label class="col-sm-4 col-form-label fw-bold">Detalle (Otro):</label>
                         <div class="col-sm-8">
                             <p class="form-control-plaintext" th:text="${solicitud.detalleOtro}"></p>
@@ -76,7 +76,14 @@
 
                 </div>
                 <div class="card-footer text-end">
-                    <a th:href="@{${#authorization.expression('hasRole(''Administrador'')'} ? '/solicitudes/admin' : '/solicitudes/mis-solicitudes'}}"
+                    <a th:if="${#authorization.expression('hasRole(''Administrador'')')}"
+                       th:href="@{/solicitudes/admin}"
+                       class="btn btn-secondary">
+                        <i class="bi bi-arrow-left-circle"></i> Volver
+                    </a>
+
+                    <a th:unless="${#authorization.expression('hasRole(''Administrador'')')}"
+                       th:href="@{/solicitudes/mis-solicitudes}"
                        class="btn btn-secondary">
                         <i class="bi bi-arrow-left-circle"></i> Volver
                     </a>
@@ -89,6 +96,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </main>
 

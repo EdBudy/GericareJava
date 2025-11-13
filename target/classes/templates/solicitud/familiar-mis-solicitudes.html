@@ -49,7 +49,7 @@
                     <tr th:each="solicitud : ${solicitudes}">
                         <td th:text="${solicitud.pacienteNombreCompleto}"></td>
                         <td th:switch="${solicitud.tipoSolicitud.name()}">
-                            <span th:case="'OTRO'">
+                            <span th:case="'Otro'">
                                 <span th:text="${solicitud.detalleOtro}"></span>
                                 <span class="badge bg-secondary ms-1">Otro</span>
                             </span>

@@ -69,11 +69,36 @@
                         </td>
 
                         <td class="text-center">
+
                             <a th:href="@{/solicitudes/detalle/{id}(id=${solicitud.idSolicitud})}"
                                class="btn btn-primary btn-sm"
                                title="Ver Detalle">
-                                <i class="bi bi-eye-fill"></i> Ver Detalle
+                                <i class="bi bi-eye-fill"></i>
                             </a>
+
+                            <th:block th:if="${solicitud.estadoSolicitud.name() == 'Pendiente'}">
+
+                                <form th:action="@{/solicitudes/aprobar/{id}(id=${solicitud.idSolicitud})}"
+                                      th:id="'form-aprobar-' + ${solicitud.idSolicitud}"
+                                      method="post" style="display: inline-block;" class="ms-1">
+
+                                    <button type="button" class="btn btn-success btn-sm" title="Aprobar"
+                                            th:onclick="'confirmarAprobar(\'' + ${solicitud.idSolicitud} + '\')'">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+
+                                <form th:action="@{/solicitudes/rechazar/{id}(id=${solicitud.idSolicitud})}"
+                                      th:id="'form-rechazar-' + ${solicitud.idSolicitud}"
+                                      method="post" style="display: inline-block;" class="ms-1">
+
+                                    <button type="button" class="btn btn-danger btn-sm" title="Rechazar"
+                                            th:onclick="'confirmarRechazar(\'' + ${solicitud.idSolicitud} + '\')'">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+
+                            </th:block>
                         </td>
                     </tr>
                     </tbody>
@@ -84,36 +109,8 @@
 </main>
 
 <footer th:insert="~{fragments/layout :: footer-content}">
-    <script>
-        function confirmarArchivarSolicitudAdmin(solicitudId) {
-            Swal.fire({
-                title: '¿Archivar Solicitud?',
-                text: "La solicitud se marcará como inactiva y no será visible. ¿Deseas continuar?",
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6', // Azul confirmar acción
-                cancelButtonColor: '#6c757d', // Gris cancelar
-                confirmButtonText: 'Sí, ¡Archivar!',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                     const formId = `form-archivar-solicitud-${solicitudId}`;
-                     let form = document.getElementById(formId);
-                     if (!form) {
-                          form = document.querySelector(`form[action='/solicitudes/eliminar/${solicitudId}']`);
-                     }
-                     if(form){
-                        // Si el form no tiene ID asigna uno temporalmente si es necesario
-                        if (!form.id) form.id = `temp-form-eliminar-${solicitudId}`;
-                        document.getElementById(form.id).submit();
-                     } else {
-                         console.error("Formulario de archivar no encontrado para solicitud ID:", solicitudId);
-                     }
-                }
-            });
-        }
-    </script>
 </footer>
 
+<script th:src="@{/js/admin-gestion-solicitud.js}"></script>
 </body>
 </html>

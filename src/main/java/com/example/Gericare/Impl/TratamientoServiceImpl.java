@@ -14,6 +14,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -166,10 +167,10 @@ public class TratamientoServiceImpl implements TratamientoService {
             }
 
             tratamiento.setEstadoTratamiento(EstadoActividad.Completada);
-            // Opcional: Setear fecha fin si estaba null?
-            // if (tratamiento.getFechaFin() == null) {
-            //    tratamiento.setFechaFin(LocalDate.now());
-            // }
+            // Si se completa el tratamiento, se adjunta la fecha fin
+            if (tratamiento.getFechaFin() == null) {
+                tratamiento.setFechaFin(LocalDate.now());
+            }
             return toDTO(tratamientoRepository.save(tratamiento));
         });
     }
