@@ -171,3 +171,22 @@ function confirmarCompletarTratamiento(id) {
         }
     });
 }
+
+// Completar tratamiento cuidador
+function confirmarCompletar(tratamientoId) {
+    Swal.fire({
+        title: '¿Completar Tratamiento?',
+        text: "El tratamiento se marcará como 'Completado'. Esta acción no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, ¡Completar!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario confirma, envía el formulario correspondiente
+            document.getElementById('form-completar-' + tratamientoId).submit();
+        }
+    });
+}

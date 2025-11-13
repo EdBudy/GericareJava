@@ -31,9 +31,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.from:no-reply@example.com}")
     private String fromEmail;
 
-    // ---------------------------
     // Envío correo reseteo
-    // ---------------------------
     @Async
     @Override
     public void sendPasswordResetEmail(String to, String token) {
@@ -68,9 +66,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    // ---------------------------
-    // Envío correo bienvenida
-    // ---------------------------
+    // Envío correo bienvenido
     @Async
     @Override
     public void sendWelcomeEmail(String to, String nombre, String documentoIdentificacion) {
@@ -108,9 +104,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    // ---------------------------
-    // Envío masivo - usa plantilla bulk-email
-    // ---------------------------
+    // Envío masivo - plantilla bulk-email
 
     @Async
     @Override
@@ -122,31 +116,31 @@ public class EmailServiceImpl implements EmailService {
 
         try {
 
-            // 1. Convertimos el texto plano del admin (con saltos de línea) en HTML.
+            // Convertimos el texto plano del admin (con saltos de línea) en HTML.
             String formattedBody = formatTextToHtml(body);
 
-            // 2. Preparar contexto para Thymeleaf
+            // Preparar contexto para Thymeleaf
             Context context = new Context();
             context.setVariable("subject", subject);
             context.setVariable("body", formattedBody); // Usamos el texto ya formateado
 
             String htmlContent = templateEngine.process("emails/bulk-email", context); // Apunta a tu nueva plantilla
 
-            // 3. Crear MimeMessage y Helper
+            // Crear MimeMessage y Helper
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             // true = multipart (necesario para la imagen del logo)
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
-            // 4. Configurar destinatarios y asunto
+            // Configurar destinatarios y asunto
             helper.setSubject(subject);
             helper.setText(htmlContent, true); // true para indicar que es HTML
             helper.setFrom(fromEmail);
 
-            // 5. Configurar "Para" (Anti-Spam) y "BCC" (Privacidad)
+            // Configurar "Para" (Anti-Spam) y "BCC" (Privacidad)
             helper.setTo(fromEmail); // Envía "Para" nuestra propia cuenta
             helper.setBcc(recipients.toArray(new String[0])); // Todos los demás en copia oculta
 
-            // 6. Adjuntar logo inline
+            // Adjuntar logo inline
             try {
                 ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
                 if (logo.exists()) {
@@ -156,7 +150,7 @@ public class EmailServiceImpl implements EmailService {
                 System.err.println("Error adjuntando logo inline: " + e.getMessage());
             }
 
-            // 7. Enviar el correo
+            // Enviar el correo
             mailSender.send(mimeMessage);
 
             System.out.println("Correo masivo enviado a " + recipients.size() + " destinatarios.");
@@ -165,10 +159,52 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+    @Async
+    @Override
+    public void sendEmailChangeNotification(String newEmail, String userName) {
+        try {
+            // Crear mensaje y helper
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            // Configurar destinatario, asunto y remitente
+            helper.setTo(newEmail);
+            helper.setSubject("Tu correo en Gericare ha sido actualizado");
+            helper.setFrom(fromEmail);
+
+            // Preparar el contexto para la plantilla Thymeleaf
+            Context context = new Context();
+            context.setVariable("userName", userName);
+            context.setVariable("newEmail", newEmail);
+            context.setVariable("appBaseUrl", baseUrl);
+
+            // Procesar nueva plantilla
+            String htmlContent = templateEngine.process("emails/email-change-notification", context);
+            helper.setText(htmlContent, true); // true = HTML
+
+            try {
+                ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
+                if (logo.exists()) {
+                    helper.addInline("geriLogo", logo);
+                }
+            } catch (Exception e) {
+                // Usa System.err para ser consistente con el método sendBulkEmail
+                System.err.println("Error adjuntando logo inline en sendEmailChangeNotification: " + e.getMessage());
+            }
+
+            // Enviar correo
+            mailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            // Manejo excepción
+            System.err.println("Fallo al enviar el correo de notificación de cambio de email: " + e.getMessage());
+        }
+    }
+
     // Metodo auxiliar para convertir texto plano con saltos de línea en HTML
     private String formatTextToHtml(String text) {
 
-        // 2. Definimos el estilo base para cada párrafo
+        // Definimos el estilo base para cada párrafo
         String pStyle = "style=\"font-family: 'Poppins', Arial, sans-serif; font-size: 16px; color: #444444; line-height: 1.7; margin: 0 0 15px 0; text-align: center;\""; // <-- LÍNEA ACTUALIZADA
 
         if (text == null || text.isBlank()) {
@@ -176,7 +212,7 @@ public class EmailServiceImpl implements EmailService {
             return "<p " + pStyle + ">No se proporcionó contenido.</p>";
         }
 
-        // 1. Escapamos caracteres HTML básicos para seguridad
+        // Escapa caracteres HTML básicos para seguridad
         String safeText = text
                 .replace("&", "&amp;")
                 .replace("<", "&lt;")
@@ -184,14 +220,14 @@ public class EmailServiceImpl implements EmailService {
                 .replace("\"", "&quot;")
                 .replace("'", "&#39;");
 
-        // 3. Reemplazamos los saltos de línea
+        // Reemplazamos los saltos de línea
         String html = safeText
                 .trim()
                 .replaceAll("\r\n", "\n")
                 .replaceAll("\n{2,}", "</p><p " + pStyle + ">") // 2 o más "Enter" = nuevo párrafo
                 .replaceAll("\n", "<br>"); // 1 "Enter" = salto de línea <br>
 
-        // 4. Envolvemos todo en el primer parrafo
+        // Envolvemos todo en el primer parrafo
         return "<p " + pStyle + ">" + html + "</p>";
     }
 }

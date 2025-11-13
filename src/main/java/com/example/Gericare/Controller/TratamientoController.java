@@ -121,6 +121,11 @@ public class TratamientoController {
                 redirectAttributes.addFlashAttribute("errorMessage", "No tienes permiso para editar este tratamiento.");
                 return "redirect:/tratamientos/cuidador-tratamientos";
             }
+
+            if (!isAdmin && tratamiento.getEstadoTratamiento() != com.example.Gericare.Enums.EstadoActividad.Pendiente) {
+                redirectAttributes.addFlashAttribute("errorMessage", "No se puede editar un tratamiento que ya está completado.");
+                return "redirect:/tratamientos/mis-tratamientos";
+            }
         }
 
 
@@ -174,6 +179,12 @@ public class TratamientoController {
             if (isAdmin) {
                 tratamientoService.actualizarTratamientoAdmin(id, tratamientoDTO);
             } else {
+                // Se verifica el estado actual del tratamiento en la BD antes de guardar
+                Optional<TratamientoDTO> tratamientoActualOpt = tratamientoService.obtenerTratamientoPorId(id);
+                if (tratamientoActualOpt.isPresent() && tratamientoActualOpt.get().getEstadoTratamiento() != com.example.Gericare.Enums.EstadoActividad.Pendiente) {
+                    throw new IllegalStateException("No se pueden actualizar observaciones de un tratamiento que ya está completado.");
+                }
+
                 // Cuidador solo actualiza observaciones
                 tratamientoService.actualizarObservacionesCuidador(id, usuarioId, tratamientoDTO.getObservaciones());
             }

@@ -51,20 +51,30 @@
                         <td th:text="${#strings.abbreviate(trat.observaciones, 50) ?: '-'}"></td>
                         <td class="text-center">
                              <span th:text="${trat.estadoTratamiento}" class="badge"
-                                   th:classappend="${trat.estadoTratamiento.toString() == 'PENDIENTE'} ? 'bg-warning text-dark' : 'bg-success'">
+                                   th:classappend="${trat.estadoTratamiento.toString() == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-success'">
                              </span>
                         </td>
+
                         <td class="text-center">
-                            <a th:href="@{|/tratamientos/editar/${trat.idTratamiento}|}" class="btn btn-info btn-sm" title="Ver/Editar Observaciones">
-                                <i class="bi bi-eye-fill"></i>
-                            </a>
-                            <form th:if="${trat.estadoTratamiento.toString() == 'PENDIENTE'}"
-                                  th:action="@{|/tratamientos/completar/${trat.idTratamiento}|}" method="post" class="d-inline" th:id="|form-completar-tratamiento-${trat.idTratamiento}|">
-                                <button type="button" class="btn btn-success btn-sm" title="Marcar como Completado"
-                                        th:onclick="'confirmarCompletarTratamiento(\'' + ${trat.idTratamiento} + '\')'">
-                                    <i class="bi bi-check-lg"></i>
-                                </button>
-                            </form>
+                            <th:block th:if="${trat.estadoTratamiento.name() == 'Pendiente'}">
+
+                                <a th:href="@{/tratamientos/editar/{id}(id=${trat.idTratamiento})}"
+                                   class="btn btn-primary btn-sm"
+                                   title="Editar Observaciones">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+
+                                <form th:action="@{/tratamientos/completar/{id}(id=${trat.idTratamiento})}"
+                                      th:id="'form-completar-' + ${trat.idTratamiento}"
+                                      method="post" style="display: inline-block;" class="ms-1">
+
+                                    <button type="button" class="btn btn-success btn-sm" title="Completar Tratamiento"
+                                            th:onclick="'confirmarCompletar(\'' + ${trat.idTratamiento} + '\')'">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+
+                            </th:block>
                         </td>
                     </tr>
                     </tbody>

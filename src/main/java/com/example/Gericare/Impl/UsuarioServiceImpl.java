@@ -194,6 +194,22 @@ public class UsuarioServiceImpl implements UsuarioService {
     public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
         return usuarioRepository.findById(id).map(usuarioExistente -> {
 
+            // cambio de correo
+            String oldEmail = usuarioExistente.getCorreoElectronico();
+            String newEmail = usuarioDTO.getCorreoElectronico();
+            boolean emailChanged = false; // Bandera para saber si debe enviar el correo
+
+            if (newEmail != null && !newEmail.equalsIgnoreCase(oldEmail)) {
+                // El correo cambia. Validar que el nuevo email no esté en uso
+                if (usuarioRepository.findByCorreoElectronico(newEmail).isPresent()) {
+                    throw new IllegalStateException("El correo " + newEmail + " ya está en uso por otra cuenta.");
+                }
+
+                // Si es válido, lo actualiza
+                usuarioExistente.setCorreoElectronico(newEmail);
+                emailChanged = true;
+            }
+
             // Actualiza los campos comunes
             usuarioExistente.setNombre(usuarioDTO.getNombre());
             usuarioExistente.setApellido(usuarioDTO.getApellido());
@@ -224,7 +240,17 @@ public class UsuarioServiceImpl implements UsuarioService {
                 usuarioExistente.getTelefonos().addAll(nuevosTelefonos);
             }
 
+            // Guarda el usuario con todos los cambios
             Usuario usuarioActualizado = usuarioRepository.save(usuarioExistente);
+
+            // Envío de notificación/correo
+            if (emailChanged) {
+                emailService.sendEmailChangeNotification(
+                        usuarioActualizado.getCorreoElectronico(),
+                        usuarioActualizado.getNombre()
+                );
+            }
+
             return toDTO(usuarioActualizado);
         });
     }
