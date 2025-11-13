@@ -103,8 +103,8 @@ public class PacienteController {
     @GetMapping("/nuevo")
     public String mostrarFormularioNuevoPaciente(Model model) {
         model.addAttribute("paciente", new PacienteDTO());
-        model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
-        model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
+        model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador));
+        model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar));
         return "paciente/admin-formulario-paciente";
     }
 
@@ -116,8 +116,8 @@ public class PacienteController {
                                 Authentication authentication,
                                 Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
-            model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
+            model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador));
+            model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar));
             return "paciente/admin-formulario-paciente";
         }
         try {
@@ -141,8 +141,8 @@ public class PacienteController {
     public String mostrarFormularioEditarPaciente(@PathVariable Long id, Model model) {
         pacienteService.obtenerPacientePorId(id).ifPresent(paciente -> {
             model.addAttribute("paciente", paciente);
-            model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador, null));
-            model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar, null));
+            model.addAttribute("cuidadores", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Cuidador));
+            model.addAttribute("familiares", usuarioService.findUsuariosByCriteria(null, null, RolNombre.Familiar));
 
             pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(id, EstadoAsignacion.Activo)
                     .stream()

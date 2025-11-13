@@ -8,7 +8,7 @@
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container mt-5 mb-5 flex-grow-1">
     <!-- Mensajes de éxito o error -->
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
@@ -71,7 +71,6 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Paciente</th>
                         <th>Tipo de Actividad</th>
                         <th>Fecha</th>
@@ -82,7 +81,6 @@
                     </thead>
                     <tbody>
                     <tr th:each="actividad : ${actividades}">
-                        <td th:text="${actividad.idActividad}"></td>
                         <td th:text="${actividad.nombrePaciente}"></td>
                         <td th:text="${actividad.tipoActividad}"></td>
                         <td th:text="${#temporals.format(actividad.fechaActividad, 'dd/MM/yyyy')}"></td>
