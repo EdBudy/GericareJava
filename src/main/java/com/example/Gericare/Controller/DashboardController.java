@@ -68,7 +68,7 @@ public class DashboardController {
             // Comparar el rol y ejecutar una lógica diferente para cada uno
             if (userRole.equals("ROLE_Administrador")) {
                 // Si es admin busca todos los usuarios y los añade al modelo
-                List<UsuarioDTO> usuarios = usuarioService.findUsuariosByCriteria(nombre, documento, rol, userEmail);
+                List<UsuarioDTO> usuarios = usuarioService.findUsuariosByCriteria(nombre, documento, rol);
                 model.addAttribute("usuarios", usuarios);
 
                 // Se crea un mapa para almacenar los mensajes de advertencia

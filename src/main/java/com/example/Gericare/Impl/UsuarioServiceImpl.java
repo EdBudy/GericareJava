@@ -256,8 +256,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude) {
-        return usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol, emailToExclude))
+    public List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol) {
+        return usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol))
                 .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());

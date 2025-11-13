@@ -8,7 +8,7 @@
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container mt-5 mb-5 flex-grow-1">
     <!-- Mensajes de éxito o error -->
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i>
@@ -60,7 +60,6 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                     <tr>
-                        <th>ID</th>
                         <th>Nombre Completo</th>
                         <th>Documento</th>
                         <th>Fecha de Nacimiento</th>
@@ -71,7 +70,6 @@
                     </thead>
                     <tbody>
                     <tr th:each="paciente : ${pacientes}">
-                        <td th:text="${paciente.idPaciente}"></td>
                         <td th:text="${paciente.nombre + ' ' + paciente.apellido}"></td>
                         <td th:text="${paciente.documentoIdentificacion}"></td>
                         <td th:text="${#temporals.format(paciente.fechaNacimiento, 'dd/MM/yyyy')}"></td>

@@ -32,7 +32,7 @@ public interface UsuarioService {
     List<UsuarioDTO> findByRol(RolNombre rolNombre);
 
     // Métodos para el dashboard y filtros
-    List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude);
+    List<UsuarioDTO> findUsuariosByCriteria(String nombre, String documento, RolNombre rol);
 
     List<PacienteAsignadoDTO> findPacientesByCuidadorEmail(String email);
 

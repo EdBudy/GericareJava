@@ -1,42 +1,33 @@
 package com.example.Gericare.specification;
 
 import com.example.Gericare.Entity.Usuario;
+import com.example.Gericare.Enums.EstadoUsuario;
 import com.example.Gericare.Enums.RolNombre;
-import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class UsuarioSpecification {
 
-    public static Specification<Usuario> findByCriteria(String nombre, String documento, RolNombre rol, String emailToExclude) {
+    public static Specification<Usuario> findByCriteria(String nombre, String documento, RolNombre rol) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
+            predicates.add(criteriaBuilder.equal(root.get("estado"), EstadoUsuario.Activo));
 
-            // busqueda por nombre completo
-            if (StringUtils.hasText(nombre)) {
-                // Crea una expresión que concatena el nombre, un espacio y el apellido.
-                Expression<String> nombreCompleto = criteriaBuilder.concat(root.get("nombre"), " ");
-                nombreCompleto = criteriaBuilder.concat(nombreCompleto, root.get("apellido"));
-
-                // Añade un predicado 'like' que busca en el nombre completo (ignorando mayúsculas/minúsculas).
-                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(nombreCompleto), "%" + nombre.toLowerCase() + "%"));
+            if (nombre != null && !nombre.isEmpty()) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("nombre")), "%" + nombre.toLowerCase() + "%"));
             }
-
-            if (StringUtils.hasText(documento)) {
+            if (documento != null && !documento.isEmpty()) {
                 predicates.add(criteriaBuilder.like(root.get("documentoIdentificacion"), "%" + documento + "%"));
             }
-
             if (rol != null) {
                 predicates.add(criteriaBuilder.equal(root.get("rol").get("rolNombre"), rol));
             }
 
-            if (StringUtils.hasText(emailToExclude)) {
-                predicates.add(criteriaBuilder.notEqual(root.get("correoElectronico"), emailToExclude));
-            }
+            // Excluir siempre a los administradores de la lista
+            predicates.add(criteriaBuilder.notEqual(root.get("rol").get("rolNombre"), RolNombre.Administrador));
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };

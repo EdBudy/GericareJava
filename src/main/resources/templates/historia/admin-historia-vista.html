@@ -7,7 +7,7 @@
 <body class="d-flex flex-column min-vh-100">
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container mt-5 mb-5 flex-grow-1">
     <h2 th:text="|Historia Clínica de ${historia.nombrePacienteCompleto}|"></h2>
     <div sec:authorize="hasRole('Administrador')" class="mb-3">
         <a th:href="@{|/historias-clinicas/editar/paciente/${historia.idPaciente}|}" class="btn btn-warning">
