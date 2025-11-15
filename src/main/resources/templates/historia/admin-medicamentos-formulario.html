@@ -13,6 +13,21 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4" th:text="${medicamento.idMedicamento == null} ? 'Añadir Nuevo Medicamento' : 'Editar Medicamento'"></h2>
+                    <div class="container-fluid px-0">
+
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            <strong th:text="${successMessage}"></strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong th:text="${errorMessage}"></strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+
+                    </div>
                     <form th:action="@{/medicamentos/guardar}" th:object="${medicamento}" method="post">
                         <input type="hidden" th:field="*{idMedicamento}" />
 

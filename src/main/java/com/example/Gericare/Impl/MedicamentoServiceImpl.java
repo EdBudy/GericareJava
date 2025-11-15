@@ -79,10 +79,11 @@ public class MedicamentoServiceImpl implements MedicamentoService {
             }
         } else {
             // Creación
-            // Si ya existe devuelve el existente sin error
+            // Si ya existe, LANZA EL ERROR
             if (existenteOpt.isPresent()) {
-                log.info("Intento de crear medicamento duplicado (nombre: {}). Omitiendo y devolviendo existente ID {}", nombreTrimmed, existenteOpt.get().getIdMedicamento());
-                return mapToDTO(existenteOpt.get());
+                log.warn("Intento de crear medicamento duplicado (nombre: {}). Lanzando error.", nombreTrimmed);
+                // Este es el error que tu controlador capturará
+                throw new RuntimeException("¡El medicamento insertado ya existe!");
             }
             // Si no existe crea uno nuevo
             med = new Medicamento();

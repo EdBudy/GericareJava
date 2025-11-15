@@ -146,14 +146,14 @@ public class MedicamentoController {
 
     @PostMapping("/eliminar/{id}")
     public String eliminarMedicamento(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        log.info("Intentando eliminar (inactivar) medicamento ID: {}", id);
+        log.info("Intentando eliminar medicamento ID: {}", id);
         try {
             medicamentoService.eliminarMedicamento(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Medicamento inactivado correctamente.");
-            log.info("Medicamento ID: {} inactivado exitosamente.", id);
+            redirectAttributes.addFlashAttribute("successMessage", "Medicamento eliminado correctamente.");
+            log.info("Medicamento ID: {} eliminado exitosamente.", id);
         } catch (Exception e) {
-            log.error("Error al inactivar medicamento ID: {}", id, e);
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al inactivar el medicamento: " + e.getMessage());
+            log.error("Error al eliminar medicamento ID: {}", id, e);
+            redirectAttributes.addFlashAttribute("errorMessage", "Error al eliminar el medicamento: " + e.getMessage());
         }
         return "redirect:/medicamentos"; // Vuelve a la lista
     }
