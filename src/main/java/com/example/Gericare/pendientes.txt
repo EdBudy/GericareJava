@@ -1,0 +1,6 @@
+correo electronico validacion de duplicados (sirve bien pero no saca mensaje de error, manda a 500)
+
+recuperar contraseña en el login pa todos los usuarios
+
+graficos con pdf (2?)
+
