@@ -7,3 +7,5 @@ graficos con pdf (2?)
 se cambia correo, se vuelve a correr el proyecto y si esta logeado saca 500 y lo deja en el dash sin dejarlo ir a ls otras pestañas no se si es un problema
 
 email recuperar contrASEña no sirve el btn (agregar url por si pasa)
+
+registrar correo ya existe manejar ese error
