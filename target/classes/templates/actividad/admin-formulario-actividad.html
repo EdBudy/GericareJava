@@ -47,6 +47,9 @@
                             <div class="col-md-4 mb-3">
                                 <label for="fechaActividad" class="form-label">Fecha</label>
                                 <input type="date" id="fechaActividad" th:field="*{fechaActividad}" class="form-control" />
+
+                                <span id="alertaFestivoActividad" class="text-danger fw-bold mt-1 d-block"></span>
+
                                 <div class="text-danger" th:if="${#fields.hasErrors('fechaActividad')}" th:errors="*{fechaActividad}"></div>
                             </div>
 
@@ -76,6 +79,12 @@
 
 <footer th:insert="~{fragments/layout :: footer-content}"></footer>
 
+<script th:src="@{/js/validador-festivos.js}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        inicializarValidadorFestivos("fechaActividad", "alertaFestivoActividad");
+    });
+</script>
+
 </body>
 </html>
-
