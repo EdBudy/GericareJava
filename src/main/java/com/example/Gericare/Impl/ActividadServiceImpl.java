@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.Gericare.Service.FestivosService;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +33,8 @@ public class ActividadServiceImpl implements ActividadService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
+    @Autowired
+    private FestivosService festivosService;
 
 
     @Override
@@ -46,6 +49,9 @@ public class ActividadServiceImpl implements ActividadService {
     @Override
     @Transactional
     public ActividadDTO crearActividad(ActividadDTO actividadDTO) {
+        if (festivosService.esFestivo(actividadDTO.getFechaActividad())) {
+            throw new IllegalArgumentException("No es posible programar actividades en días festivos.");
+        }
         Paciente paciente = pacienteRepository.findById(actividadDTO.getIdPaciente())
                 .orElseThrow(() -> new RuntimeException("Error: Paciente no encontrado con id " + actividadDTO.getIdPaciente()));
 

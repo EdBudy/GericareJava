@@ -15,6 +15,12 @@
                 <div class="card-body p-4">
                     <h2 class="card-title text-center mb-4" th:text="${actividad.idActividad == null} ? 'Crear Nueva Actividad' : 'Editar Actividad'"></h2>
 
+                    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong th:text="${errorMessage}"></strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
                     <form th:action="${actividad.idActividad == null ? '/actividades/crear' : '/actividades/editar/' + actividad.idActividad}"
                           th:object="${actividad}" method="post">
 

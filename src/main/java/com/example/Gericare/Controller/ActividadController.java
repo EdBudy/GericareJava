@@ -56,14 +56,26 @@ public class ActividadController {
             return "actividad/admin-formulario-actividad";
         }
 
-        String adminEmail = authentication.getName();
-        Long adminId = usuarioService.findByEmail(adminEmail)
-                .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
-        actividadDTO.setIdAdmin(adminId);
+        try {
+            String adminEmail = authentication.getName();
+            Long adminId = usuarioService.findByEmail(adminEmail)
+                    .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
+            actividadDTO.setIdAdmin(adminId);
 
-        actividadService.crearActividad(actividadDTO);
-        redirectAttributes.addFlashAttribute("successMessage", "¡Actividad creada con éxito!");
-        return "redirect:/actividades";
+            // Intentamos crear. Si es festivo, el servicio lanzará la excepción y saltará al CATCH
+            actividadService.crearActividad(actividadDTO);
+
+            redirectAttributes.addFlashAttribute("successMessage", "¡Actividad creada con éxito!");
+            return "redirect:/actividades";
+
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("errorMessage", e.getMessage());
+
+            // Recarga la lista de pacientes para que el formulario no se rompa
+            model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
+
+            return "actividad/admin-formulario-actividad";
+        }
     }
 
     @GetMapping("/editar/{id}")
