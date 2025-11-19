@@ -1,6 +1,8 @@
 package com.example.Gericare.Impl;
 
+import com.example.Gericare.DTO.EstadisticaActividadDTO;
 import com.example.Gericare.DTO.EstadisticaCuidadorDTO;
+import com.example.Gericare.Repository.ActividadRepository;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Service.EstadisticaService;
 import com.lowagie.text.*;
@@ -24,10 +26,17 @@ public class EstadisticaServiceImpl implements EstadisticaService {
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
 
+    @Autowired
+    private ActividadRepository actividadRepository;
+
     @Override
     public List<EstadisticaCuidadorDTO> obtenerEstadisticasCuidadores() {
-        // Lógica de negocio: Obtener datos crudos desde el repositorio
         return pacienteAsignadoRepository.obtenerPacientesPorCuidador();
+    }
+
+    @Override
+    public List<EstadisticaActividadDTO> obtenerEstadisticasActividadesCompletadas() {
+        return actividadRepository.countActividadesCompletadasPorCuidador();
     }
 
     @Override
@@ -40,34 +49,27 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 
             document.open();
 
-            // Título
             Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
             Paragraph titulo = new Paragraph("Reporte de Distribución de Pacientes", fontTitulo);
             titulo.setAlignment(Element.ALIGN_CENTER);
             document.add(titulo);
             document.add(Chunk.NEWLINE);
 
-            // Descripción
             Font fontCuerpo = FontFactory.getFont(FontFactory.HELVETICA, 12);
             Paragraph descripcion = new Paragraph(
-                    "A continuación se presenta la distribución actual de pacientes asignados a los cuidadores activos en el sistema. " +
-                            "Este reporte permite evaluar la carga laboral asignada.", fontCuerpo);
+                    "A continuación se presenta la distribución actual de pacientes asignados a los cuidadores activos en el sistema.", fontCuerpo);
             descripcion.setAlignment(Element.ALIGN_JUSTIFIED);
             document.add(descripcion);
             document.add(Chunk.NEWLINE);
 
-            // Gráfica (JFreeChart)
             JFreeChart chart = crearGraficaBarras(datos);
-            // Renderizar la gráfica a una imagen en memoria (BufferedImage)
             BufferedImage chartImage = chart.createBufferedImage(500, 350);
 
-            // Convertir a imagen compatible con el PDF (iText)
             Image pdfImage = Image.getInstance(chartImage, null);
             pdfImage.setAlignment(Element.ALIGN_CENTER);
             document.add(pdfImage);
             document.add(Chunk.NEWLINE);
 
-            // Tabla resumen
             PdfPTable table = new PdfPTable(2);
             table.setWidthPercentage(80);
             table.addCell(new Phrase("Cuidador", FontFactory.getFont(FontFactory.HELVETICA_BOLD)));
@@ -84,7 +86,6 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         }
     }
 
-    // Método privado auxiliar
     private JFreeChart crearGraficaBarras(List<EstadisticaCuidadorDTO> datos) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (EstadisticaCuidadorDTO dato : datos) {
@@ -92,9 +93,9 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         }
 
         return ChartFactory.createBarChart(
-                "Pacientes por Cuidador", // Título
-                "Cuidador",               // Eje X
-                "Cantidad",               // Eje Y
+                "Pacientes por Cuidador",
+                "Cuidador",
+                "Cantidad",
                 dataset,
                 PlotOrientation.VERTICAL,
                 false,

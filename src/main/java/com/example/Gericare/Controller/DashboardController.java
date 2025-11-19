@@ -1,8 +1,10 @@
 package com.example.Gericare.Controller;
 
+import com.example.Gericare.DTO.EstadisticaActividadDTO;
 import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Service.ActividadService;
+import com.example.Gericare.Service.EstadisticaService;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.Entity.PacienteAsignado;
 import com.example.Gericare.Enums.RolNombre;
@@ -27,59 +29,59 @@ public class DashboardController {
 
     private final UsuarioService usuarioService;
     private final ActividadService actividadService;
+    private final EstadisticaService estadisticaService;
 
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
 
-    public DashboardController(UsuarioService usuarioService, ActividadService actividadService) {
+    public DashboardController(UsuarioService usuarioService, ActividadService actividadService, EstadisticaService estadisticaService) {
         this.usuarioService = usuarioService;
         this.actividadService = actividadService;
+        this.estadisticaService = estadisticaService;
     }
 
-    // DashboardController
     @GetMapping
     public String mostrarDashboard(Authentication authentication, Model model,
                                    @RequestParam(required = false) String nombre,
                                    @RequestParam(required = false) String documento,
                                    @RequestParam(required = false) RolNombre rol) {
 
-        // Obtener el rol del usuario que inició sesión
         String userRole = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElse(null);
 
-        // Si el usuario tiene rol, obtiene el correo del usuario
         if (userRole != null) {
             String userEmail = authentication.getName();
 
-            // Mostrar alerta de cambio de contraseña
+            // Lógica para el color del header según el rol
+            String headerClass = "bg-dark"; // Default Admin
+            if (userRole.equals("ROLE_Cuidador")) {
+                headerClass = "bg-role-cuidador";
+            } else if (userRole.equals("ROLE_Familiar")) {
+                headerClass = "bg-role-familiar";
+            }
+            model.addAttribute("headerClass", headerClass);
+
+            // Alerta cambio contraseña
             boolean mostrarAlerta = false;
             if (userRole.equals("ROLE_Cuidador") || userRole.equals("ROLE_Familiar")) {
-                // Obtener el DTO del usuario para verificar la alerta de cambio de contraseña
                 Optional<UsuarioDTO> usuarioOpt = usuarioService.findByEmail(userEmail);
                 if (usuarioOpt.isPresent() && usuarioOpt.get().isNecesitaCambioContrasena()) {
                     mostrarAlerta = true;
                 }
             }
-            // Añadir al modelo para que la vista lo use
             model.addAttribute("mostrarAlertaCambioContrasena", mostrarAlerta);
 
-            // Comparar el rol y ejecutar una lógica diferente para cada uno
             if (userRole.equals("ROLE_Administrador")) {
-                // Si es admin busca todos los usuarios y los añade al modelo
                 List<UsuarioDTO> usuarios = usuarioService.findUsuariosByCriteria(nombre, documento, rol);
                 model.addAttribute("usuarios", usuarios);
 
-                // Se crea un mapa para almacenar los mensajes de advertencia
                 Map<Long, String> familiarAssignmentsText = new HashMap<>();
                 for (UsuarioDTO usuario : usuarios) {
-                    // Se verifica si el usuario es un Familiar
                     if (usuario.getRol().getRolNombre() == RolNombre.Familiar) {
-                        // Se buscan las asignaciones de ese familiar
                         List<PacienteAsignado> asignaciones = pacienteAsignadoRepository.findByFamiliar_idUsuario(usuario.getIdUsuario());
                         if (!asignaciones.isEmpty()) {
-                            // Si tiene asignaciones, se crea el texto de advertencia
                             String pacientesAsignados = asignaciones.stream()
                                     .map(pa -> pa.getPaciente().getNombre() + " " + pa.getPaciente().getApellido())
                                     .collect(Collectors.joining(", "));
@@ -87,21 +89,26 @@ public class DashboardController {
                         }
                     }
                 }
-                // Se añade el mapa al modelo para que la vista lo pueda usar.
                 model.addAttribute("familiarAssignmentsText", familiarAssignmentsText);
-
                 model.addAttribute("roles", RolNombre.values());
 
+                // NUEVO: Datos para el gráfico de torta (Admin)
+                List<EstadisticaActividadDTO> statsActividades = estadisticaService.obtenerEstadisticasActividadesCompletadas();
+                model.addAttribute("statsActividades", statsActividades);
+
+                // Preparar datos para Chart.js (Strings separados por coma)
+                String labels = statsActividades.stream().map(s -> "'" + s.getNombreCompleto() + "'").collect(Collectors.joining(","));
+                String data = statsActividades.stream().map(s -> s.getActividadesCompletadas().toString()).collect(Collectors.joining(","));
+                model.addAttribute("chartLabels", "[" + labels + "]");
+                model.addAttribute("chartData", "[" + data + "]");
+
             } else if (userRole.equals("ROLE_Cuidador")) {
-                // Cuidador, busca solo los pacientes asignados a ese cuidador
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(userEmail));
 
             } else if (userRole.equals("ROLE_Familiar")) {
-                // Familiar busca solo los pacientes asociados a ese familiar
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByFamiliarEmail(userEmail));
             }
         }
-        // Envía los datos cargados a la misma vista "dashboard.html"
         return "dashboard";
     }
 }
