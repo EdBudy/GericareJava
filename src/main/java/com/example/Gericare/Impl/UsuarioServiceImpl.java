@@ -111,36 +111,50 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioDTO crearFamiliar(Familiar familiar) {
-        // Validación de cantidad de teléfonos
+        // Validación de teléfonos
         if (familiar.getTelefonos() != null && familiar.getTelefonos().size() > 3) {
             throw new IllegalStateException("Un familiar no puede tener más de 3 teléfonos.");
         }
 
-        // Codificar la contraseña
+        // Guarda el documento en una variable temporal
+        // al encriptar la contraseña 'se pierde' el valor original del documento en el campo contraseña.
+        // Aunque el campo documentoIdentificacion sigue intacto, esto es para claridad en el envío de correo.
+        String passwordOriginal = familiar.getDocumentoIdentificacion();
+
+        // Encriptar contraseña
         familiar.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
 
-        // Obtener y asignar Rol 'Familiar'
+        // Asignar Rol
         Rol rolFamiliar = rolRepository.findByRolNombre(RolNombre.Familiar)
                 .orElseThrow(() -> new RuntimeException("Error: Rol 'Familiar' no encontrado."));
         familiar.setRol(rolFamiliar);
 
-        // Asegurar la relación bidireccional con los Teléfonos
+        // Relación teléfonos
         if (familiar.getTelefonos() != null) {
             familiar.getTelefonos().forEach(telefono -> telefono.setUsuario(familiar));
         }
 
-        // Asegurar que la bandera esté en true (aunque ya es default)
         familiar.setNecesitaCambioContrasena(true);
-
-        // Asegurar que el estado inicial sea Activo
         if (familiar.getEstado() == null) {
             familiar.setEstado(EstadoUsuario.Activo);
         }
 
-        // Guardar el familiar en bd
+        // Guardar en Base de Datos
         Familiar familiarGuardado = usuarioRepository.save(familiar);
 
-        // Convertir la entidad guardada a DTO y retornarla
+        // Enviar Correo de Bienvenida
+        try {
+            // Pasa el 'passwordOriginal' (documento sin encriptar)
+            // para que el usuario sepa cuál es su contraseña.
+            emailService.sendWelcomeEmail(
+                    familiarGuardado.getCorreoElectronico(),
+                    familiarGuardado.getNombre(),
+                    passwordOriginal // Esto es lo que le llega al usuario
+            );
+        } catch (Exception e) {
+            System.err.println("Error enviando correo de bienvenida: " + e.getMessage());
+        }
+
         return toDTO(familiarGuardado);
     }
 

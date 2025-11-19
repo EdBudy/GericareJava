@@ -42,7 +42,13 @@ public class RegistroLoginController {
     @PostMapping("/registro")
     public String registrarCuentaDeFamiliar(@Valid @ModelAttribute("familiar") Familiar familiar, BindingResult bindingResult, Model model) {
 
-        // Limpiar teléfonos vacíos que podrían venir del formulario
+        // Contraseña = Documento de Identidad
+        // Se asigna antes de procesar el guardado para que viaje al servicio
+        if (familiar.getDocumentoIdentificacion() != null && !familiar.getDocumentoIdentificacion().isEmpty()) {
+            familiar.setContrasena(familiar.getDocumentoIdentificacion());
+        }
+
+        // Limpieza de teléfonos
         if (familiar.getTelefonos() != null) {
             List<Telefono> telefonosNoVacios = familiar.getTelefonos().stream()
                     .filter(t -> t.getNumero() != null && !t.getNumero().trim().isEmpty())
@@ -50,18 +56,21 @@ public class RegistroLoginController {
             familiar.setTelefonos(telefonosNoVacios);
         }
 
+        // Validación de errores del formulario
         if (bindingResult.hasErrors()) {
-            model.addAttribute("familiar", familiar); // Devolver el objeto con los errores
             return "auth/registro";
         }
 
         try {
+            // Llamada al servicio (Crear y enviar correo)
             usuarioService.crearFamiliar(familiar);
+
             return "redirect:/login?registroExitoso";
+
         } catch (Exception e) {
             model.addAttribute("familiar", familiar);
-            // Idealmente, un error más específico (ej. "El correo ya está en uso")
-            model.addAttribute("error", "Error durante el registro. Por favor, verifique sus datos.");
+            model.addAttribute("error", "No se pudo completar el registro. Verifique que el correo o documento no estén ya registrados.");
+            System.err.println("Error en registro: " + e.getMessage());
             return "auth/registro";
         }
     }

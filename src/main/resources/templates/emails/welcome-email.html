@@ -113,15 +113,22 @@
 <body>
 <canvas id="particles"></canvas>
 <div class="card">
-  <img src="cid:geriLogo" alt="Gericare Logo" class="logo"/>
-  <h1>¡Bienvenido, <span th:text="${nombreUsuario}">Usuario</span>!</h1>
-  <p>Tu cuenta en <strong>Gericare Connect</strong> ha sido creada exitosamente.</p>
-  <p>Tu correo registrado es <b th:text="${email}">correo@ejemplo.com</b>.</p>
-  <p>Tu contraseña provisional (válida por 1 hora) es:</p>
-  <div class="highlight" th:text="${documentoIdentificacion}">123456789</div>
-  <p>Por motivos de seguridad, cámbiala tan pronto inicies sesión.</p>
-  <a th:href="${loginUrl}" class="btn">Iniciar Sesión</a>
-  <p class="footer">Este es un mensaje automático. No respondas a este correo.<br>© 2025 Gericare Connect</p>
+    <img src="cid:geriLogo" alt="Gericare Logo" class="logo"/>
+
+    <h1>¡Bienvenido, <span th:text="${nombreUsuario}">Usuario</span>!</h1>
+
+    <p>Tu cuenta en <strong>Gericare Connect</strong> ha sido creada exitosamente.</p>
+    <p>Tu correo registrado es <b th:text="${email}">correo@ejemplo.com</b>.</p>
+
+    <p>Para ingresar, utiliza tu número de documento como contraseña inicial:</p>
+
+    <div class="highlight" th:text="${documentoIdentificacion}">123456789</div>
+
+    <p>Por motivos de seguridad, te recomendamos cambiarla una vez inicies sesión en tu perfil.</p>
+
+    <a th:href="${loginUrl}" class="btn">Iniciar Sesión</a>
+
+    <p class="footer">Este es un mensaje automático. No respondas a este correo.<br>© 2025 Gericare Connect</p>
 </div>
 
 <script>
