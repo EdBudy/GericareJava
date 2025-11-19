@@ -1,9 +1,11 @@
 package com.example.Gericare.Repository;
 
+import com.example.Gericare.DTO.EstadisticaCuidadorDTO;
 import com.example.Gericare.Entity.Paciente;
 import com.example.Gericare.Entity.PacienteAsignado;
 import com.example.Gericare.Enums.EstadoAsignacion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,4 +29,11 @@ public interface PacienteAsignadoRepository extends JpaRepository<PacienteAsigna
     List<PacienteAsignado> findByCuidador_idUsuarioAndEstado(Long cuidadorId, EstadoAsignacion estado);
 
     List<PacienteAsignado> findByFamiliar_idUsuario(Long familiarId);
+
+    @Query("SELECT new com.example.Gericare.DTO.EstadisticaCuidadorDTO(c.nombre, c.apellido, COUNT(pa)) " +
+            "FROM PacienteAsignado pa " +
+            "JOIN pa.cuidador c " +
+            "WHERE pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo " +
+            "GROUP BY c.idUsuario, c.nombre, c.apellido")
+    List<EstadisticaCuidadorDTO> obtenerPacientesPorCuidador();
 }

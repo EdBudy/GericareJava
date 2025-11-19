@@ -1,368 +1,189 @@
 <!DOCTYPE html>
-
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Registro - Gericare Connect</title>
 
-
-
     <!-- Librerías de Diseño -->
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
-
-
     <!-- CSS de Animaciones (Animate.css) -->
-
-    <link rel="stylesheet" th:href="@{/css/animate.min.css}" />
-
-
+    <link rel="stylesheet" th.href="@{/css/animate.min.css}" />
 
     <!-- CSS de REGISTRO (Diferente al de login) -->
-
     <link rel="stylesheet" th:href="@{/css/registro.css}" />
-
 </head>
-
 <body>
 
-
-
 <!-- Capa 1: Partículas del Fondo (Blancas) -->
-
 <div id="particles-js-background"></div>
 
-
-
 <!-- Contenedor principal que centra la tarjeta -->
-
 <div class="container d-flex justify-content-center align-items-center min-vh-100 py-5">
 
-
-
     <!-- Tarjeta más ancha (col-lg-8) -->
-
     <div class="col-11 col-md-10 col-lg-8">
 
-
-
         <!-- Tarjeta Blanca Sólida -->
-
         <div class="card shadow-lg animate__animated animate__fadeInUp">
 
-
-
             <!-- Capa 2: Partículas de Tarjeta (Azules y Morados) -->
-
             <div id="particles-js-card"></div>
 
-
-
             <!-- Capa 3: Contenido del Formulario -->
-
             <div class="card-body p-4 p-md-5">
 
-
-
                 <div class="card-title-container">
-
                     <!-- Logo Negro (no giratorio, más serio para registro) -->
-
                     <img th:src="@{/images/Geri_Logo.png}" alt="Gericare Logo" style="width: 100px; margin-bottom: 1rem;">
-
                     <h2>Crear una Cuenta</h2>
-
                     <p>Regístrate como familiar en solo 3 pasos.</p>
-
                 </div>
-
-
 
                 <!-- Barra de Progreso -->
-
                 <div class="progress-bar-container">
-
                     <div class="progress-line" id="progress-line-inactive"></div>
-
                     <div class="progress-line" id="progress-line-active"></div>
-
                     <div class="progress-step active" data-step="1">1</div>
-
                     <div class="progress-step" data-step="2">2</div>
-
                     <div class="progress-step" data-step="3">3</div>
-
                 </div>
-
-
 
                 <!-- Mensajes de Error (Globales) -->
-
                 <div th:if="${param.error != null or error != null}" class="alert alert-danger"
-
                      th:text="${error ?: 'Ocurrió un error. Revisa los campos e inténtalo de nuevo.'}">
-
                 </div>
-
-
 
                 <!-- Formulario -->
-
                 <form id="registro-form" th:action="@{/registro}" th:object="${familiar}" method="post">
 
-
-
-
+                    <!--
+                      =========================================
+                      PASO 1: Información Personal
+                      =========================================
+                    -->
                     <div class="form-step active animate__animated" data-step="1">
-
                         <div class="row g-3">
-
                             <div class="col-md-6 form-group">
-
                                 <label for="nombre" class="form-label">Nombre:</label>
-
                                 <input type="text" id="nombre" th:field="*{nombre}" class="form-control" required />
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
-
                             </div>
-
                             <div class="col-md-6 form-group">
-
                                 <label for="apellido" class="form-label">Apellido:</label>
-
                                 <input type="text" id="apellido" th:field="*{apellido}" class="form-control" required />
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
-
                             </div>
-
                             <div class="col-md-6 form-group">
-
                                 <label for="tipoDocumento" class="form-label">Tipo de Documento:</label>
-
                                 <select id="tipoDocumento" th:field="*{tipoDocumento}" class="form-select" required>
-
                                     <option th:each="tipo : ${T(com.example.Gericare.Enums.TipoDocumento).values()}"
-
                                             th:value="${tipo}" th:text="${tipo}"></option>
-
                                 </select>
-
                             </div>
-
                             <div class="col-md-6 form-group">
-
                                 <label for="documentoIdentificacion" class="form-label">Nº Documento:</label>
-
                                 <input type="text" id="documentoIdentificacion" th:field="*{documentoIdentificacion}" class="form-control"
-
                                        pattern="[0-9]+" title="Este campo solo admite números." required />
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('documentoIdentificacion')}" th:errors="*{documentoIdentificacion}"></div>
-
                             </div>
-
                         </div>
-
                         <div class="form-navigation">
-
                             <a class="btn btn-prev" style="visibility: hidden;">Anterior</a> <!-- Espaciador -->
-
                             <button type="button" class="btn btn-next">Siguiente <i class="bi bi-arrow-right"></i></button>
-
                         </div>
-
                     </div>
 
-
-
                     <!--
-
                       =========================================
-
                       PASO 2: Información de Contacto
-
                       =========================================
-
                     -->
-
                     <div class="form-step animate__animated" data-step="2">
-
                         <div class="row g-3">
-
                             <div class="col-md-6 form-group">
-
                                 <label for="direccion" class="form-label">Dirección:</label>
-
                                 <input type="text" id="direccion" th:field="*{direccion}" class="form-control" required />
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
-
                             </div>
-
                             <div class="col-md-6 form-group">
-
                                 <label for="parentesco" class="form-label">Parentesco:</label>
-
                                 <input type="text" id="parentesco" th:field="*{parentesco}" class="form-control" required />
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('parentesco')}" th:errors="*{parentesco}"></div>
-
                             </div>
-
                             <div class="col-12 form-group">
-
                                 <label class="form-label">Teléfonos (mínimo 1, máximo 3):</label>
-
                                 <div id="telefonos-wrapper" data-form-type="registro">
-
                                     <th:block th:if="*{telefonos.isEmpty()}">
-
                                         <div class="input-group mb-2">
-
                                             <input type="text" name="telefonos[0].numero" class="form-control" pattern="[0-9]+" title="Solo se admiten números." required placeholder="Número de teléfono"/>
-
                                         </div>
-
                                     </th:block>
-
                                     <th:block th:each="tel, stat : *{telefonos}">
-
                                         <div class="input-group mb-2">
-
                                             <input type="text" th:field="*{telefonos[__${stat.index}__].numero}" class="form-control" pattern="[0-9]+" title="Solo se admiten números." />
-
                                             <button th:if="${stat.index > 0}" type="button" class="btn btn-outline-danger btn-sm" onclick="this.parentElement.remove(); document.getElementById('add-telefono').style.display='block';">Eliminar</button>
-
                                         </div>
-
                                     </th:block>
-
                                 </div>
-
                                 <button type="button" id="add-telefono" class="btn btn-sm btn-outline-primary mt-1">Añadir otro teléfono</button>
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('telefonos')}" th:errors="*{telefonos}"></div>
-
                             </div>
-
                         </div>
-
                         <div class="form-navigation">
-
                             <button type="button" class="btn btn-prev"><i class="bi bi-arrow-left"></i> Anterior</button>
-
                             <button type="button" class="btn btn-next">Siguiente <i class="bi bi-arrow-right"></i></button>
-
                         </div>
-
                     </div>
-
-
 
                     <!--
-
                       =========================================
-
                       PASO 3: Cuenta y Contraseña
-
                       =========================================
-
                     -->
-
                     <div class="form-step animate__animated" data-step="3">
-
                         <div class="row g-3">
-
                             <div class="col-12 form-group">
-
                                 <label for="correoElectronico" class="form-label">Correo Electrónico:</label>
-
                                 <input type="email" id="correoElectronico" th:field="*{correoElectronico}" class="form-control" required />
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}"></div>
-
                             </div>
-
-                            <div class="col-12 form-group">
-
+                            <div class.="col-12 form-group">
                                 <label for="contrasena" class="form-label">Contraseña:</label>
-
                                 <div class="input-group">
-
                                     <input type="password" id="contrasena" th:field="*{contrasena}" class="form-control" required />
-
                                     <button type="button" class="btn btn-outline-secondary toggle-password-btn">
-
                                         <i class="bi bi-eye-slash-fill"></i>
-
                                     </button>
-
                                 </div>
-
                                 <div class="text-danger small" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
-
                             </div>
-
                         </div>
-
                         <div class="form-navigation">
-
                             <button type="button" class="btn btn-prev"><i class="bi bi-arrow-left"></i> Anterior</button>
-
                             <button type="submit" class="btn btn-submit">¡Registrarme!</button>
-
                         </div>
-
                     </div>
-
                 </form>
 
-
-
                 <div class="text-center mt-4">
-
                     <p>¿Ya tienes una cuenta? <a th:href="@{/login}">Inicia sesión</a></p>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
-
-
 <!-- Scripts de Librerías -->
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
 <script th:src="@{/js/particles.min.js}"></script>
 
-
-
 <!-- Scripts de la Aplicación -->
-
 <script th:src="@{/js/registro.js}"></script> <!-- NUEVO JS para el stepper Y partículas -->
-
 <script th:src="@{/js/form-telefonos.js}"></script>
-
 <script th:src="@{/js/contraseña-hidden.js}"></script>
 
-
-
 </body>
-
 </html>
