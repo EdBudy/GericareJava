@@ -1,10 +1,10 @@
 package com.example.Gericare.Controller;
 
 import com.example.Gericare.DTO.ActividadDTO;
+import com.example.Gericare.Enums.EstadoActividad;
 import com.example.Gericare.Service.ActividadService;
 import com.example.Gericare.Service.PacienteService;
 import com.example.Gericare.Service.UsuarioService;
-import com.example.Gericare.Enums.EstadoActividad;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -27,12 +27,13 @@ public class ActividadController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // Vistas admin
+    // --- VISTA ADMINISTRADOR ---
     @GetMapping
     public String listarActividades(Model model,
                                     @RequestParam(required = false) String nombrePaciente,
                                     @RequestParam(required = false) String tipoActividad,
                                     @RequestParam(required = false) EstadoActividad estado) {
+        // Esto busca el archivo en src/main/resources/templates/actividad/admin-gestion-actividades.html
         model.addAttribute("actividades", actividadService.listarActividades(nombrePaciente, tipoActividad, estado));
         return "actividad/admin-gestion-actividades";
     }
@@ -43,6 +44,7 @@ public class ActividadController {
             model.addAttribute("actividad", new ActividadDTO());
         }
         model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
+        // Esto busca el archivo en src/main/resources/templates/actividad/admin-formulario-actividad.html
         return "actividad/admin-formulario-actividad";
     }
 
@@ -62,7 +64,6 @@ public class ActividadController {
                     .orElseThrow(() -> new RuntimeException("Admin no encontrado")).getIdUsuario();
             actividadDTO.setIdAdmin(adminId);
 
-            // Intentamos crear. Si es festivo, el servicio lanzará la excepción y saltará al CATCH
             actividadService.crearActividad(actividadDTO);
 
             redirectAttributes.addFlashAttribute("successMessage", "¡Actividad creada con éxito!");
@@ -70,10 +71,7 @@ public class ActividadController {
 
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
-
-            // Recarga la lista de pacientes para que el formulario no se rompa
             model.addAttribute("pacientes", pacienteService.listarPacientesFiltrados(null, null));
-
             return "actividad/admin-formulario-actividad";
         }
     }
@@ -108,7 +106,7 @@ public class ActividadController {
         return "redirect:/actividades";
     }
 
-    // Acción cuidador
+    // --- VISTA CUIDADOR ---
     @PostMapping("/completar/{id}")
     public String completarActividad(@PathVariable("id") Long actividadId, Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
@@ -123,7 +121,6 @@ public class ActividadController {
         return "redirect:/actividades/actividades-pacientes";
     }
 
-    // Vista cuidador
     @GetMapping("/actividades-pacientes")
     public String mostrarActividadesCuidador(Authentication authentication, Model model) {
         String userEmail = authentication.getName();

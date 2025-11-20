@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+    <title>Mis Solicitudes</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5 flex-grow-1">
+
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Mis Solicitudes</h2>
+        <a th:href="@{/solicitudes/nueva}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-send-fill me-2"></i>Enviar Nueva Solicitud
+        </a>
+    </div>
+
+    <div th:if="${solicitudes.isEmpty()}">
+        <div class="alert alert-info mt-4">No tienes solicitudes registradas.</div>
+    </div>
+
+    <div th:if="${not solicitudes.isEmpty()}" class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Tipo</th>
+                        <th>Fecha Solicitud</th>
+                        <th>Motivo</th> <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="solicitud : ${solicitudes}">
+                        <td th:text="${solicitud.pacienteNombreCompleto}"></td>
+                        <td th:switch="${solicitud.tipoSolicitud.name()}">
+                            <span th:case="'Otro'">
+                                <span th:text="${solicitud.detalleOtro}"></span>
+                                <span class="badge bg-secondary ms-1">Otro</span>
+                            </span>
+                            <span th:case="*" th:text="${solicitud.tipoSolicitud}"></span>
+                        </td>
+                        <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
+
+                        <td th:text="${solicitud.motivoSolicitud}"></td>
+
+                        <td class="text-center">
+                             <span th:text="${solicitud.estadoSolicitud}" class="badge"
+                                   th:classappend="${solicitud.estadoSolicitud.toString() == 'Pendiente'} ? 'bg-warning text-dark' : (${solicitud.estadoSolicitud.toString() == 'Aprobada'} ? 'bg-success' : 'bg-danger')">
+                             </span>
+                        </td>
+
+                        <td class="text-center">
+                            <a th:href="@{/solicitudes/detalle/{id}(id=${solicitud.idSolicitud})}"
+                               class="btn btn-primary btn-sm me-1"
+                               title="Ver Detalle">
+                                <i class="bi bi-eye-fill"></i>
+                            </a>
+
+                            <form th:if="${solicitud.estadoSolicitud.toString() == 'Pendiente'}"
+                                  th:action="@{|/solicitudes/eliminar/${solicitud.idSolicitud}|}" method="post" class="d-inline"
+                                  th:id="|form-eliminar-solicitud-${solicitud.idSolicitud}|">
+                                <button type="button" class="btn btn-danger btn-sm" title="Eliminar Solicitud"
+                                        th:onclick="'confirmarEliminacionSolicitudFamiliar(\'' + ${solicitud.idSolicitud} + '\')'">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:insert="~{fragments/layout :: footer-content}">
+    <script>
+        function confirmarEliminacionSolicitudFamiliar(solicitudId) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡La solicitud será eliminada y no podrás revertir esto!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, ¡Eliminar!',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                     const formId = `form-eliminar-solicitud-${solicitudId}`;
+                     let form = document.getElementById(formId);
+                     if (!form) { // Si no tiene ese ID, buscarlo por acción (menos ideal)
+                          form = document.querySelector(`form[action='/solicitudes/eliminar/${solicitudId}']`);
+                     }
+                     if (form) {
+                        form.submit();
+                     } else {
+                         console.error("Formulario de eliminación no encontrado para solicitud ID:", solicitudId);
+                     }
+                }
+            });
+        }
+    </script>
+</footer>
+
+</body>
+</html>

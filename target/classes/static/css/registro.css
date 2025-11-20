@@ -1,0 +1,196 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+/* --- FONDO Y PARTÍCULAS --- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #212529;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    overflow: hidden; /* Evita scroll en el body */
+}
+
+/* Partículas del Fondo (Blancas) */
+#particles-js-background {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+
+    /* CAMBIO DE IMAGEN: Usamos la otra foto (loginimg.jpg) */
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../images/loginimg.jpg');
+    background-size: cover;
+    background-position: center center;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+/* --- TARJETA DE REGISTRO (STEPPER) --- */
+.card {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 800px; /* Más ancha para el stepper */
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    /* Scroll interno si el contenido es muy alto */
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Partículas de la Tarjeta (Azules y Morados) */
+#particles-js-card {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 11;
+    border-radius: 15px;
+}
+
+.card-body {
+    position: relative;
+    z-index: 12;
+    padding: 2.5rem 3rem;
+}
+
+/* --- TÍTULOS Y PROGRESO --- */
+.card-title-container {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+.card-title-container h2 {
+    color: #007bff;
+    font-weight: 700;
+}
+.card-title-container p {
+    font-size: 1.1rem;
+    color: #555;
+}
+
+/* Barra de Progreso del Stepper */
+.progress-bar-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    position: relative;
+}
+.progress-step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e0e0e0;
+    border: 3px solid #e0e0e0;
+    color: #999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    z-index: 2;
+    transition: all 0.4s ease;
+}
+.progress-step.active {
+    background-color: #fff;
+    border-color: #007bff;
+    color: #007bff;
+}
+.progress-line {
+    position: absolute;
+    height: 4px;
+    background-color: #e0e0e0;
+    width: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+}
+#progress-line-active {
+    position: absolute;
+    height: 4px;
+    background-color: #007bff;
+    width: 0%; /* Se actualiza con JS */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    transition: width 0.4s ease;
+}
+
+/* --- PASOS DEL FORMULARIO --- */
+.form-step {
+    display: none; /* Ocultos por defecto */
+}
+.form-step.active {
+    display: block; /* Mostramos solo el activo */
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    text-align: left;
+}
+.form-label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+.form-control:focus, .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+}
+
+/* Clases de validación de Bootstrap */
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: #dc3545;
+}
+.form-control.is-valid, .form-select.is-valid {
+    border-color: #198754;
+}
+.text-danger {
+    font-size: 0.875em;
+}
+
+
+/* --- BOTONES DE NAVEGACIÓN (STEPPER) --- */
+.form-navigation {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+.btn-next, .btn-submit {
+    background-color: #6200ea; /* Morado */
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.6rem 2rem;
+    transition: all 0.3s ease;
+}
+.btn-next:hover, .btn-submit:hover {
+    background-color: #3700b3;
+    transform: translateY(-2px);
+}
+.btn-prev {
+    background-color: #6c757d; /* Gris */
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 0.6rem 2rem;
+    transition: all 0.3s ease;
+}
+.btn-prev:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+/* Alertas */
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}

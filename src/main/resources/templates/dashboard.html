@@ -1,227 +1,107 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>Panel Principal | Gericare</title>
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
 <header th:insert="~{fragments/layout :: header}"></header>
 
-<main class="container mt-5 mb-5">
+<main class="container py-5 page-content">
 
-    <div th:if="${mostrarAlertaCambioContrasena}" class="alert alert-warning alert-dismissible fade show sticky-top" role="alert" style="z-index: 1050;">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <strong>¡Cambio de contraseña requerido!</strong> Cambie su contraseña por seguridad.
-        <hr>
-        <p class="mb-0"><a th:href="@{/perfil}" class="alert-link">Ir al perfil</a></p>
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-4">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
-
-    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        <span th:text="${successMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-        <span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
 
     <div sec:authorize="hasRole('Administrador')">
 
-        <h3 class="mb-3"><i class="bi bi-people-fill text-primary"></i> Gestión de Usuarios</h3>
-        <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios}, familiarAssignmentsText=${familiarAssignmentsText})}"></div>
-
-        <hr class="my-5">
-
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body">
-                        <h4 class="card-title text-center mb-4 fw-bold text-dark">
-                            <i class="bi bi-pie-chart-fill text-info"></i> Rendimiento Cuidadores
-                        </h4>
-                        <div style="position: relative; height:300px; width:100%">
-                            <canvas id="actividadesChart"></canvas>
-                        </div>
-                    </div>
-                </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Gestión de Usuarios</h2>
+                <p class="text-muted">Administra el acceso y roles del personal y familiares.</p>
             </div>
-
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0 h-100">
-                    <div class="card-body">
-                        <h4 class="card-title mb-4 fw-bold text-dark">
-                            <i class="bi bi-list-check text-success"></i> Detalle Actividades Completadas
-                        </h4>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                <tr>
-                                    <th>Cuidador</th>
-                                    <th class="text-center">Total Completadas</th>
-                                    <th class="text-center">Estado</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="stat : ${statsActividades}">
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar-circle bg-primary text-white me-2 rounded-circle d-flex justify-content-center align-items-center" style="width: 35px; height: 35px;">
-                                                <span th:text="${#strings.substring(stat.nombreCuidador,0,1)}"></span>
-                                            </div>
-                                            <span th:text="${stat.nombreCompleto}"></span>
-                                        </div>
-                                    </td>
-                                    <td class="text-center fw-bold" th:text="${stat.actividadesCompletadas}"></td>
-                                    <td class="text-center">
-                                        <span class="badge bg-success rounded-pill">Excelente</span>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="input-group w-25">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Buscar usuarios...">
             </div>
         </div>
 
-        <script th:inline="javascript">
-            document.addEventListener('DOMContentLoaded', function() {
-                const ctx = document.getElementById('actividadesChart').getContext('2d');
-                const labels = /*[[${chartLabels}]]*/ []; // thymeleaf inyecta esto
-                const data = /*[[${chartData}]]*/ [];     // thymeleaf inyecta esto
-
-                // Parsear si llegan como string (seguridad)
-                const labelsArray = eval(labels);
-                const dataArray = eval(data);
-
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labelsArray,
-                        datasets: [{
-                            data: dataArray,
-                            backgroundColor: [
-                                'rgba(255, 99, 132, 0.8)',
-                                'rgba(54, 162, 235, 0.8)',
-                                'rgba(255, 206, 86, 0.8)',
-                                'rgba(75, 192, 192, 0.8)',
-                                'rgba(153, 102, 255, 0.8)',
-                                'rgba(255, 159, 64, 0.8)'
-                            ],
-                            borderWidth: 1,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: { font: { size: 12 } }
-                            }
-                        },
-                        animation: {
-                            animateScale: true,
-                            animateRotate: true
-                        }
-                    }
-                });
-            });
-        </script>
+        <div class="card shadow-lg border-0 overflow-hidden">
+            <div class="card-body p-0">
+                <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios}, familiarAssignmentsText=${familiarAssignmentsText})}"></div>
+            </div>
+        </div>
     </div>
 
     <div sec:authorize="hasRole('Cuidador')">
-        <h2 class="mb-4">Mis Pacientes Asignados</h2>
-        <div th:if="${pacientesAsignados.isEmpty()}">
-            <div class="alert alert-info mt-4">Aún no tienes pacientes asignados.</div>
-        </div>
-        <div th:if="${not pacientesAsignados.isEmpty()}" class="card shadow-sm mb-5">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>ID Paciente</th>
-                            <th>Nombre Paciente</th>
-                            <th>Documento</th>
-                            <th>Familiar Asignado</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="asignacion : ${pacientesAsignados}">
-                            <td th:text="${asignacion.paciente.idPaciente}"></td>
-                            <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
-                            <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
-                            <td th:text="${asignacion.familiar != null ? asignacion.familiar.nombre + ' ' + asignacion.familiar.apellido : 'N/A'}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
+        <h2 class="fw-bold mb-4"><i class="bi bi-heart-pulse text-danger me-2"></i>Mis Pacientes</h2>
+        <div class="row g-4">
+            <div class="col-12" th:if="${pacientesAsignados.isEmpty()}">
+                <div class="alert alert-info">No tienes pacientes asignados actualmente.</div>
+            </div>
+            <div class="col-md-6 col-xl-4" th:each="asig : ${pacientesAsignados}">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3 text-primary">
+                                <i class="bi bi-person-wheelchair fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-0" th:text="${asig.paciente.nombre + ' ' + asig.paciente.apellido}"></h5>
+                                <small class="text-muted" th:text="${asig.paciente.documentoIdentificacion}"></small>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/actividades/actividades-pacientes}" class="btn btn-light text-start"><i class="bi bi-list-check me-2"></i>Ver Actividades</a>
+                            <a th:href="@{/tratamientos/mis-tratamientos}" class="btn btn-light text-start"><i class="bi bi-capsule me-2"></i>Ver Tratamientos</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <div sec:authorize="hasRole('Familiar')">
-        <h2>Mis Pacientes Asignados</h2>
-        <div th:if="${pacientesAsignados.isEmpty()}">
-            <div class="alert alert-warning mt-4">Usted aún no ha sido asignado a ningún paciente.</div>
-        </div>
-        <div th:if="${not pacientesAsignados.isEmpty()}" class="card shadow-sm mt-4">
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                        <tr>
-                            <th>Nombre Paciente</th>
-                            <th>Documento</th>
-                            <th>Cuidador Asignado</th>
-                            <th>Fecha de Asignación</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="asignacion : ${pacientesAsignados}">
-                            <td th:text="${asignacion.paciente.nombre + ' ' + asignacion.paciente.apellido}"></td>
-                            <td th:text="${asignacion.paciente.documentoIdentificacion}"></td>
-                            <td th:text="${asignacion.cuidador.nombre + ' ' + asignacion.cuidador.apellido}"></td>
-                            <td th:text="${#temporals.format(asignacion.fechaCreacion, 'dd/MM/yyyy HH:mm')}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <h2 class="fw-bold mb-4">Mis Familiares</h2>
+        <div th:if="${pacientesAsignados.isEmpty()}" class="alert alert-warning">Sin pacientes asignados.</div>
+        <div class="card shadow-sm" th:if="${not pacientesAsignados.isEmpty()}">
+            <div class="card-body p-0">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                    <tr><th>Paciente</th><th>Cuidador Asignado</th><th>Fecha Inicio</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${pacientesAsignados}">
+                        <td th:text="${item.paciente.nombre + ' ' + item.paciente.apellido}"></td>
+                        <td th:text="${item.cuidador.nombre + ' ' + item.cuidador.apellido}"></td>
+                        <td th:text="${#temporals.format(item.fechaCreacion, 'dd/MM/yyyy')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <div class="fab-container" sec:authorize="hasAnyRole('Administrador', 'Familiar')">
-        <button class="fab-main">
-            <i class="bi bi-plus-lg"></i>
-        </button>
+        <button class="fab-main"><i class="bi bi-plus-lg"></i></button>
 
-        <a sec:authorize="hasRole('Administrador')" th:href="@{/medicamentos}" class="fab-item fab-add" data-tooltip="Agregar Medicamento">
-            <i class="bi bi-capsule"></i>
+        <a sec:authorize="hasRole('Administrador')" th:href="@{/usuarios/nuevo}" class="fab-item fab-green" data-tooltip="Nuevo Usuario">
+            <i class="bi bi-person-plus-fill"></i>
         </a>
-        <a sec:authorize="hasRole('Familiar')" th:href="@{/solicitudes/mis-solicitudes}" class="fab-item fab-add" data-tooltip="Nueva Solicitud">
-            <i class="bi bi-file-earmark-plus"></i>
+        <a sec:authorize="hasRole('Administrador')" th:href="@{/estadisticas/cuidadores}" class="fab-item fab-red" data-tooltip="Ver Rendimiento">
+            <i class="bi bi-graph-up-arrow"></i>
         </a>
-        <a sec:authorize="hasRole('Administrador')" th:href="@{/estadisticas/cuidadores/pdf}" class="fab-item fab-pdf" data-tooltip="Exportar PDF">
-            <i class="bi bi-file-pdf"></i>
-        </a>
-        <a sec:authorize="hasRole('Administrador')" href="#actividadesChart" class="fab-item fab-graph" data-tooltip="Ver Gráficas">
-            <i class="bi bi-bar-chart-line"></i>
+        <a sec:authorize="hasRole('Familiar')" th:href="@{/solicitudes/mis-solicitudes}" class="fab-item fab-purple" data-tooltip="Nueva Solicitud">
+            <i class="bi bi-envelope-plus"></i>
         </a>
     </div>
 
 </main>
 
-<footer class="bg-light text-center mt-auto" th:insert="~{fragments/layout :: footer-content}"></footer>
-
+<footer th:insert="~{fragments/layout :: footer-content}"></footer>
 </body>
 </html>

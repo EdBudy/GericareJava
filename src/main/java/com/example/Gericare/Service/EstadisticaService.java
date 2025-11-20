@@ -6,13 +6,8 @@ import java.io.IOException;
 import java.util.List;
 
 public interface EstadisticaService {
-
     List<EstadisticaCuidadorDTO> obtenerEstadisticasCuidadores();
-
-    // Este daba error porque faltaba el DTO
     List<EstadisticaActividadDTO> obtenerEstadisticasActividadesCompletadas();
-
-    byte[] generarReportePdf() throws IOException;
-
-    byte[] generarReporteActividadesPdf() throws IOException;
+    byte[] generarReportePdf() throws IOException; // Reporte Pacientes
+    byte[] generarReporteActividadesPdf() throws IOException; // NUEVO: Reporte Rendimiento
 }

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:insert="~{fragments/layout :: head}"></th:block>
+    <title>Mis Tratamientos Asignados</title>
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:insert="~{fragments/layout :: header}"></header>
+
+<main class="container mt-5 mb-5 flex-grow-1">
+    <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i><span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <h2 class="mb-4">Mis Tratamientos Asignados</h2>
+    <p class="text-muted">Aquí puedes ver y gestionar los tratamientos de los pacientes que tienes asignados.</p>
+
+    <div th:if="${tratamientos.isEmpty()}">
+        <div class="alert alert-info mt-4">No tienes tratamientos activos asignados para tus pacientes.</div>
+    </div>
+
+    <div th:if="${not tratamientos.isEmpty()}" class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Descripción</th>
+                        <th>Instrucciones</th>
+                        <th>Inicio</th>
+                        <th>Fin</th>
+                        <th>Observaciones</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="trat : ${tratamientos}">
+                        <td th:text="${trat.pacienteNombreCompleto}"></td>
+                        <td th:text="${trat.descripcion}"></td>
+                        <td th:text="${trat.instruccionesEspeciales ?: '-'}"></td>
+                        <td th:text="${#temporals.format(trat.fechaInicio, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${trat.fechaFin != null ? #temporals.format(trat.fechaFin, 'dd/MM/yyyy') : 'Indef.'}"></td>
+                        <td th:text="${#strings.abbreviate(trat.observaciones, 50) ?: '-'}"></td>
+                        <td class="text-center">
+                             <span th:text="${trat.estadoTratamiento}" class="badge"
+                                   th:classappend="${trat.estadoTratamiento.toString() == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-success'">
+                             </span>
+                        </td>
+
+                        <td class="text-center">
+                            <th:block th:if="${trat.estadoTratamiento.name() == 'Pendiente'}">
+
+                                <a th:href="@{/tratamientos/editar/{id}(id=${trat.idTratamiento})}"
+                                   class="btn btn-primary btn-sm"
+                                   title="Editar Observaciones">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+
+                                <form th:action="@{/tratamientos/completar/{id}(id=${trat.idTratamiento})}"
+                                      th:id="'form-completar-' + ${trat.idTratamiento}"
+                                      method="post" style="display: inline-block;" class="ms-1">
+
+                                    <button type="button" class="btn btn-success btn-sm" title="Completar Tratamiento"
+                                            th:onclick="'confirmarCompletar(\'' + ${trat.idTratamiento} + '\')'">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+
+                            </th:block>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:insert="~{fragments/layout :: footer-content}">
+</footer>
+
+</body>
+</html>
