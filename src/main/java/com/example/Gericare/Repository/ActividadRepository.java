@@ -1,7 +1,7 @@
 package com.example.Gericare.Repository;
 
 import com.example.Gericare.DTO.ActividadDTO;
-import com.example.Gericare.DTO.EstadisticaActividadDTO;
+import com.example.Gericare.DTO.EstadisticaActividadDTO; // Este import ya funcionará
 import com.example.Gericare.Entity.Actividad;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -23,7 +23,7 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long>, Jpa
 
     List<Actividad> findByPacienteIdPaciente(Long pacienteId);
 
-    // NUEVA CONSULTA: Cuenta actividades completadas agrupadas por cuidador
+    // Esta consulta cuenta las actividades completadas y las mete en el DTO nuevo
     @Query("SELECT new com.example.Gericare.DTO.EstadisticaActividadDTO(u.nombre, u.apellido, COUNT(a)) " +
             "FROM Actividad a " +
             "JOIN a.paciente p " +

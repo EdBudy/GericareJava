@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 "size": { "value": 3, "random": true },
                 "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.2, "width": 1 },
                 "move": { "enable": true, "speed": 2, "direction": "none", "out_mode": "out" }
-            },
+            }
             "interactivity": {
                 "detect_on": "canvas",
                 "events": { "onhover": { "enable": true, "mode": "grab" }, "onclick": { "enable": false } },
@@ -60,4 +60,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+});
+document.addEventListener('DOMContentLoaded', function() {
+
+    // --- Lógica FAB (Floating Action Button) ---
+    const fabMain = document.querySelector('.fab-main');
+    const fabContainer = document.querySelector('.fab-container');
+
+    if (fabMain && fabContainer) {
+        fabMain.addEventListener('click', function(e) {
+            e.stopPropagation(); // Evita cerrar al hacer clic en el propio botón
+            fabContainer.classList.toggle('active');
+        });
+
+        // Cerrar el menú si se hace clic fuera de él
+        document.addEventListener('click', function(e) {
+            if (!fabContainer.contains(e.target)) {
+                fabContainer.classList.remove('active');
+            }
+        });
+    }
+
+    // --- Partículas (si existen) ---
+    if(document.getElementById('particles-js-header')){
+        // Asegúrate de que la ruta sea correcta para tu proyecto
+        particlesJS.load('particles-js-header', '/js/particles.min.js', function() {
+            console.log('particles.js config loaded');
+        });
+    }
 });

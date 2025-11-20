@@ -7,12 +7,12 @@ import java.util.List;
 
 public interface EstadisticaService {
 
-    // Obtener la lista de estadísticas de pacientes por cuidador
     List<EstadisticaCuidadorDTO> obtenerEstadisticasCuidadores();
 
-    // NUEVO: Obtener estadísticas de actividades completadas
+    // Este daba error porque faltaba el DTO
     List<EstadisticaActividadDTO> obtenerEstadisticasActividadesCompletadas();
 
-    // Generar archivo PDF
     byte[] generarReportePdf() throws IOException;
+
+    byte[] generarReporteActividadesPdf() throws IOException;
 }

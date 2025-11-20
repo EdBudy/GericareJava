@@ -1,10 +1,8 @@
 package com.example.Gericare.Controller;
 
-import com.example.Gericare.DTO.EstadisticaActividadDTO;
 import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Repository.PacienteAsignadoRepository;
 import com.example.Gericare.Service.ActividadService;
-import com.example.Gericare.Service.EstadisticaService;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.Entity.PacienteAsignado;
 import com.example.Gericare.Enums.RolNombre;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -28,16 +25,12 @@ import java.util.stream.Collectors;
 public class DashboardController {
 
     private final UsuarioService usuarioService;
-    private final ActividadService actividadService;
-    private final EstadisticaService estadisticaService;
 
     @Autowired
     private PacienteAsignadoRepository pacienteAsignadoRepository;
 
-    public DashboardController(UsuarioService usuarioService, ActividadService actividadService, EstadisticaService estadisticaService) {
+    public DashboardController(UsuarioService usuarioService, ActividadService actividadService) {
         this.usuarioService = usuarioService;
-        this.actividadService = actividadService;
-        this.estadisticaService = estadisticaService;
     }
 
     @GetMapping
@@ -53,25 +46,6 @@ public class DashboardController {
 
         if (userRole != null) {
             String userEmail = authentication.getName();
-
-            // Lógica para el color del header según el rol
-            String headerClass = "bg-dark"; // Default Admin
-            if (userRole.equals("ROLE_Cuidador")) {
-                headerClass = "bg-role-cuidador";
-            } else if (userRole.equals("ROLE_Familiar")) {
-                headerClass = "bg-role-familiar";
-            }
-            model.addAttribute("headerClass", headerClass);
-
-            // Alerta cambio contraseña
-            boolean mostrarAlerta = false;
-            if (userRole.equals("ROLE_Cuidador") || userRole.equals("ROLE_Familiar")) {
-                Optional<UsuarioDTO> usuarioOpt = usuarioService.findByEmail(userEmail);
-                if (usuarioOpt.isPresent() && usuarioOpt.get().isNecesitaCambioContrasena()) {
-                    mostrarAlerta = true;
-                }
-            }
-            model.addAttribute("mostrarAlertaCambioContrasena", mostrarAlerta);
 
             if (userRole.equals("ROLE_Administrador")) {
                 List<UsuarioDTO> usuarios = usuarioService.findUsuariosByCriteria(nombre, documento, rol);
@@ -91,16 +65,6 @@ public class DashboardController {
                 }
                 model.addAttribute("familiarAssignmentsText", familiarAssignmentsText);
                 model.addAttribute("roles", RolNombre.values());
-
-                // NUEVO: Datos para el gráfico de torta (Admin)
-                List<EstadisticaActividadDTO> statsActividades = estadisticaService.obtenerEstadisticasActividadesCompletadas();
-                model.addAttribute("statsActividades", statsActividades);
-
-                // Preparar datos para Chart.js (Strings separados por coma)
-                String labels = statsActividades.stream().map(s -> "'" + s.getNombreCompleto() + "'").collect(Collectors.joining(","));
-                String data = statsActividades.stream().map(s -> s.getActividadesCompletadas().toString()).collect(Collectors.joining(","));
-                model.addAttribute("chartLabels", "[" + labels + "]");
-                model.addAttribute("chartData", "[" + data + "]");
 
             } else if (userRole.equals("ROLE_Cuidador")) {
                 model.addAttribute("pacientesAsignados", usuarioService.findPacientesByCuidadorEmail(userEmail));

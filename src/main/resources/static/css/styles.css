@@ -1,14 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-    --primary-color: #007bff;
+    --primary-color: #0d6efd;
     --background-color: #f4f7f6;
     --text-color: #333;
-    --dark-bg: #212529;
-    /* Colores Roles */
-    --color-cuidador: #fd7e14; /* Naranja */
-    --color-familiar: #0dcaf0; /* Azul Cian */
-    --color-admin: #212529;    /* Oscuro */
+    --admin-color: #212529;
+    --cuidador-color: #fd7e14; /* Naranja vibrante */
+    --familiar-color: #0dcaf0; /* Cian brillante */
 }
 
 body {
@@ -17,78 +15,57 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
 }
 
+/* === HEADER GLOBAL DINÁMICO === */
 .navbar {
-    position: relative;
+    transition: background-color 0.5s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     z-index: 1050;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2); /* Sombra más moderna */
 }
 
-/* Clases dinámicas para el header */
-.bg-role-admin { background-color: var(--color-admin) !important; }
-.bg-role-cuidador { background-color: var(--color-cuidador) !important; }
-.bg-role-familiar { background-color: var(--color-familiar) !important; }
+/* Clases usadas por el GlobalControllerAdvice */
+.bg-dark { background-color: var(--admin-color) !important; }
+.bg-role-cuidador { background: linear-gradient(90deg, #fd7e14, #ff922b) !important; }
+.bg-role-familiar { background: linear-gradient(90deg, #0dcaf0, #3dd5f3) !important; }
 
-#particles-js-header {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1;
+.navbar-brand img {
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+    transition: transform 0.3s;
+}
+.navbar-brand:hover img { transform: scale(1.1); }
+
+/* === TARJETAS FUTURISTAS === */
+.card {
+    border: none;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
 }
 
-.header-content {
-    position: relative;
-    z-index: 2;
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
 }
 
-.header-logo {
-    height: 35px;
-    width: auto;
-    filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.5));
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-weight: 600;
+    padding: 1.5rem;
 }
 
-.navbar-dark .navbar-brand {
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 1.3rem;
-    text-shadow: 0px 0px 10px rgba(255,255,255,0.3);
-}
-
-.navbar-dark .nav-link {
-    color: rgba(255, 255, 255, 0.9);
-    transition: all 0.3s ease;
-    font-weight: 500;
-    font-size: 1.05rem;
-}
-
-.navbar-dark .nav-link:hover,
-.navbar-dark .nav-link.active {
-    color: #ffffff;
-    transform: translateY(-2px); /* Efecto levitación */
-    text-shadow: 0 0 8px rgba(255,255,255,0.6);
-}
-
-.dropdown-menu-dark {
-    background-color: rgba(33, 37, 41, 0.95);
-    border: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(10px);
-}
-
-.page-content {
-    padding: 2rem;
-}
-
-/* Botones Flotantes Futuristas */
+/* === BOTÓN FLOTANTE (FAB) === */
 .fab-container {
     position: fixed;
     bottom: 40px;
     right: 40px;
-    z-index: 9999;
+    z-index: 2000;
     display: flex;
-    flex-direction: column-reverse; /* Para que se desplieguen hacia arriba */
+    flex-direction: column-reverse;
     align-items: center;
     gap: 15px;
 }
@@ -96,22 +73,23 @@ body {
 .fab-main {
     width: 65px;
     height: 65px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6610f2, #0d6efd);
     border-radius: 50%;
     color: white;
     border: none;
-    box-shadow: 0 10px 25px rgba(118, 75, 162, 0.5);
+    box-shadow: 0 10px 25px rgba(13, 110, 253, 0.4);
     font-size: 28px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.fab-main:hover {
-    transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 15px 35px rgba(118, 75, 162, 0.6);
+/* Estado activo: Rota el botón + */
+.fab-container.active .fab-main {
+    transform: rotate(45deg);
+    box-shadow: 0 0 0 5px rgba(13, 110, 253, 0.2);
 }
 
 .fab-item {
@@ -124,48 +102,53 @@ body {
     align-items: center;
     text-decoration: none;
     font-size: 20px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     opacity: 0;
-    transform: translateY(20px) scale(0);
-    transition: all 0.3s ease;
+    transform: translateY(20px) scale(0.5);
+    pointer-events: none; /* No clickeable si oculto */
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     position: relative;
 }
 
-/* Colores botones acciones */
-.fab-pdf { background: linear-gradient(to right, #ff416c, #ff4b2b); }
-.fab-add { background: linear-gradient(to right, #00b09b, #96c93d); }
-.fab-graph { background: linear-gradient(to right, #f857a6, #ff5858); }
+/* Mostrar items cuando está activo */
+.fab-container.active .fab-item {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
 
-/* Tooltip futurista */
+/* Retrasos en cascada */
+.fab-container.active .fab-item:nth-child(2) { transition-delay: 0.05s; }
+.fab-container.active .fab-item:nth-child(3) { transition-delay: 0.1s; }
+
+/* Colores Acciones */
+.fab-pdf { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+.fab-excel { background: linear-gradient(135deg, #1d976c, #93f9b9); }
+.fab-add { background: linear-gradient(135deg, #11998e, #38ef7d); }
+
+/* Tooltips en hover */
 .fab-item::after {
     content: attr(data-tooltip);
     position: absolute;
     right: 60px;
     background: rgba(0,0,0,0.8);
-    color: white;
+    color: #fff;
     padding: 5px 10px;
     border-radius: 5px;
     font-size: 12px;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
+    transform: translateX(10px);
+    transition: opacity 0.2s, transform 0.2s;
 }
 
 .fab-item:hover::after {
     opacity: 1;
+    transform: translateX(0);
 }
 
-/* Animación al hacer hover en el container */
-.fab-container:hover .fab-item {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
-
-.fab-container:hover .fab-item:nth-child(2) { transition-delay: 0.1s; }
-.fab-container:hover .fab-item:nth-child(3) { transition-delay: 0.2s; }
-.fab-container:hover .fab-item:nth-child(4) { transition-delay: 0.3s; }
-
+/* Footer fix */
 body.d-flex.flex-column.min-vh-100 > main {
     flex-grow: 1;
 }
