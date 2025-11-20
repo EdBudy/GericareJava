@@ -15,6 +15,24 @@ public class PasswordResetController {
     @Autowired
     private UsuarioService usuarioService;
 
+    // Solicitar recuperación contraseña
+    @GetMapping("/forgot-password")
+    public String showForgotPasswordForm() {
+        return "correo/recuperacion-clave";
+    }
+
+    // Procesar correo y enviar link recuperación contraseña
+    @PostMapping("/forgot-password")
+    public String processForgotPassword(@RequestParam("email") String email, RedirectAttributes redirectAttributes) {
+        try {
+            usuarioService.createPasswordResetTokenForUser(email);
+            redirectAttributes.addFlashAttribute("successMessage", "Revise su correo electrónico, recibirá un enlace para restablecer la contraseña.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("successMessage", "Revise su correo electrónico, recibirá un enlace para restablecer la contraseña.");
+        }
+        return "correo/recuperacion-clave";
+    }
+
     @GetMapping("/reset-password")
     public String showResetPasswordForm(@RequestParam("token") String token, Model model, RedirectAttributes redirectAttributes) {
         // Validar el token recibido desde la URL
@@ -28,7 +46,7 @@ public class PasswordResetController {
 
         // Si es válido, muestra el formulario para cambiar la contraseña
         model.addAttribute("token", token);
-        return "auth/reset-password-form";
+        return "correo/reset-password-form";
     }
 
     // En "reset-password-form.html" el usuario ingresa y cambia su contraseña

@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <!-- CSS de Animaciones (Animate.css) -->
-    <link rel="stylesheet" th.href="@{/css/animate.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/animate.min.css}" />
 
     <!-- CSS de REGISTRO (Diferente al de login) -->
     <link rel="stylesheet" th:href="@{/css/registro.css}" />
@@ -60,9 +60,7 @@
                 <form id="registro-form" th:action="@{/registro}" th:object="${familiar}" method="post">
 
                     <!--
-                      =========================================
-                      PASO 1: Información Personal
-                      =========================================
+                      Información Personal
                     -->
                     <div class="form-step active animate__animated" data-step="1">
                         <div class="row g-3">
@@ -97,9 +95,7 @@
                     </div>
 
                     <!--
-                      =========================================
-                      PASO 2: Información de Contacto
-                      =========================================
+                      Información de Contacto
                     -->
                     <div class="form-step animate__animated" data-step="2">
                         <div class="row g-3">
@@ -139,9 +135,7 @@
                     </div>
 
                     <!--
-                      =========================================
-                      PASO 3: Cuenta y Contraseña
-                      =========================================
+                      Cuenta y Contraseña
                     -->
                     <div class="form-step animate__animated" data-step="3">
                         <div class="row g-3">
@@ -150,17 +144,15 @@
                                 <input type="email" id="correoElectronico" th:field="*{correoElectronico}" class="form-control" required />
                                 <div class="text-danger small" th:if="${#fields.hasErrors('correoElectronico')}" th:errors="*{correoElectronico}"></div>
                             </div>
-                            <div class.="col-12 form-group">
-                                <label for="contrasena" class="form-label">Contraseña:</label>
-                                <div class="input-group">
-                                    <input type="password" id="contrasena" th:field="*{contrasena}" class="form-control" required />
-                                    <button type="button" class="btn btn-outline-secondary toggle-password-btn">
-                                        <i class="bi bi-eye-slash-fill"></i>
-                                    </button>
+
+                            <div class="col-12 mt-3">
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <strong>Importante:</strong> Recibirá un correo de bienvenida junto con su contraseña (Su documento de identificación).
                                 </div>
-                                <div class="text-danger small" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
                             </div>
                         </div>
+
                         <div class="form-navigation">
                             <button type="button" class="btn btn-prev"><i class="bi bi-arrow-left"></i> Anterior</button>
                             <button type="submit" class="btn btn-submit">¡Registrarme!</button>
@@ -181,7 +173,7 @@
 <script th:src="@{/js/particles.min.js}"></script>
 
 <!-- Scripts de la Aplicación -->
-<script th:src="@{/js/registro.js}"></script> <!-- NUEVO JS para el stepper Y partículas -->
+<script th:src="@{/js/registro.js}"></script>
 <script th:src="@{/js/form-telefonos.js}"></script>
 <script th:src="@{/js/contraseña-hidden.js}"></script>
 
