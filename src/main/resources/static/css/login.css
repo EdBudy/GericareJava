@@ -34,7 +34,6 @@ body {
 
 /* --- TARJETA DE LOGIN (Capa 10) --- */
 .card {
-margin top 50%;
 display: flex;
 justify-content: center; /* Centra horizontalmente */
 align-items: center; /* Centra verticalmente */
@@ -139,4 +138,31 @@ align-items: center; /* Centra verticalmente */
 /* Estilo para el cursor del ojo */
 #togglePassword {
     cursor: pointer;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #212529;
+
+    /* Ajuste para centrado perfecto sin scroll innecesario */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    /* overflow: hidden; <--- Quita esto si quieres permitir scroll en pantallas pequeñas */
+}
+
+/* El resto de tu CSS de partículas y colores estaba super bien,
+   pero asegúrate de que .card tenga posición relativa */
+.card {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    border-radius: 20px; /* Un poco más redondeado para ser más "aesthetic" */
+    background-color: #ffffff;
+    z-index: 10;
+    /* Sombra suave y elegante */
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
