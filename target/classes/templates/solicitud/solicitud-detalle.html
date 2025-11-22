@@ -23,12 +23,6 @@
                 <div class="card-body p-4">
 
                     <div class="mb-3 row">
-                        <label class="col-sm-4 col-form-label fw-bold">ID Solicitud:</label>
-                        <div class="col-sm-8">
-                            <p class="form-control-plaintext" th:text="${solicitud.idSolicitud}"></p>
-                        </div>
-                    </div>
-                    <div class="mb-3 row">
                         <label class="col-sm-4 col-form-label fw-bold">Fecha de Solicitud:</label>
                         <div class="col-sm-8">
                             <p class="form-control-plaintext" th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></p>

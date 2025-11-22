@@ -69,7 +69,7 @@ public class RegistroLoginController {
 
         } catch (Exception e) {
             model.addAttribute("familiar", familiar);
-            model.addAttribute("error", "No se pudo completar el registro. Verifique que el correo o documento no estén ya registrados.");
+            model.addAttribute("error", "Ya existe un usuario con el mismo documento o correo electrónico.");
             System.err.println("Error en registro: " + e.getMessage());
             return "auth/registro";
         }

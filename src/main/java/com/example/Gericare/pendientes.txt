@@ -8,7 +8,7 @@ registrar correo ya existe manejar ese error
 
 
 
-no necesario pa mas adelante
+no necesario pa mas adelante:
 
 validacion fechas al completar tareas/tratamientos.
 
