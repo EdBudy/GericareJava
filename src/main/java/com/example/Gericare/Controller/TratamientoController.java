@@ -231,7 +231,7 @@ public class TratamientoController {
         Long cuidadorId = usuarioService.findByEmail(authentication.getName()).get().getIdUsuario();
         try {
             tratamientoService.completarTratamiento(id, cuidadorId);
-            redirectAttributes.addFlashAttribute("successMessage", "Tratamiento #" + id + " marcado como completado.");
+            redirectAttributes.addFlashAttribute("successMessage", "Tratamiento completado.");
         } catch (AccessDeniedException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         } catch (Exception e) {
