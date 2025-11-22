@@ -3,16 +3,9 @@
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #212529;
-
-    /* ESTO ES LO QUE CENTRA LA TARJETA EN MEDIO */
-    display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center; /* Centra verticalmente */
-    justify-content: center;
-    align-items: center;
+    margin: auto;
+    display: block;
     height: 125vh;
-
-    margin: 0;
     overflow: hidden; /* Evita barras de scroll */
 }
 
@@ -154,15 +147,12 @@ body {
     /* overflow: hidden; <--- Quita esto si quieres permitir scroll en pantallas pequeñas */
 }
 
-/* El resto de tu CSS de partículas y colores estaba super bien,
-   pero asegúrate de que .card tenga posición relativa */
 .card {
     position: relative;
     overflow: hidden;
     border: none;
-    border-radius: 20px; /* Un poco más redondeado para ser más "aesthetic" */
+    border-radius: 20px;
     background-color: #ffffff;
     z-index: 10;
-    /* Sombra suave y elegante */
     box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
