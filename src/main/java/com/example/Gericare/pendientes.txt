@@ -1,11 +1,15 @@
 correo electronico validacion de duplicados (sirve bien pero no saca mensaje de error, manda a 500)
 
-recuperar contraseña en el login pa todos los usuarios
-
-graficos con pdf (2?)
+graficos con pdf arreglar
 
 se cambia correo, se vuelve a correr el proyecto y si esta logeado saca 500 y lo deja en el dash sin dejarlo ir a ls otras pestañas no se si es un problema
 
-email recuperar contrASEña no sirve el btn (agregar url por si pasa)
-
 registrar correo ya existe manejar ese error
+
+
+
+no necesario pa mas adelante
+
+validacion fechas al completar tareas/tratamientos.
+
+agendar rutina (actividad guardada) para todos los dias.

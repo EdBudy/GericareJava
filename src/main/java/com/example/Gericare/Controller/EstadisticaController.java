@@ -24,9 +24,6 @@ public class EstadisticaController {
     @Autowired
     private EstadisticaService estadisticaService;
 
-    // -------------------------------------------------------
-    // SECCIÓN 1: ESTADÍSTICAS DE CUIDADORES (Carga y Desempeño)
-    // -------------------------------------------------------
     @GetMapping("/cuidadores")
     public String verEstadisticasCuidadores(Model model) {
         // 1. Obtener datos crudos
