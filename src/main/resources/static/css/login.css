@@ -3,9 +3,16 @@
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #212529;
-    margin: auto;
-    display: block;
+
+    /* ESTO ES LO QUE CENTRA LA TARJETA EN MEDIO */
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Centra verticalmente */
+    justify-content: center;
+    align-items: center;
     height: 125vh;
+
+    margin: 0;
     overflow: hidden; /* Evita barras de scroll */
 }
 
@@ -27,6 +34,7 @@ body {
 
 /* --- TARJETA DE LOGIN (Capa 10) --- */
 .card {
+
 display: flex;
 justify-content: center; /* Centra horizontalmente */
 align-items: center; /* Centra verticalmente */
@@ -131,28 +139,4 @@ align-items: center; /* Centra verticalmente */
 /* Estilo para el cursor del ojo */
 #togglePassword {
     cursor: pointer;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #212529;
-
-    /* Ajuste para centrado perfecto sin scroll innecesario */
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-    /* overflow: hidden; <--- Quita esto si quieres permitir scroll en pantallas pequeñas */
-}
-
-.card {
-    position: relative;
-    overflow: hidden;
-    border: none;
-    border-radius: 20px;
-    background-color: #ffffff;
-    z-index: 10;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
