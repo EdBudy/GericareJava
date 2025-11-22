@@ -1,20 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
+/* En tu archivo login.css existente */
+
 body {
+
     font-family: 'Poppins', sans-serif;
     background-color: #212529;
-
-    /* ESTO ES LO QUE CENTRA LA TARJETA EN MEDIO */
+    min-height: 100vh;
     display: flex;
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center; /* Centra verticalmente */
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 125vh;
-
-    margin: 0;
-    overflow: hidden; /* Evita barras de scroll */
 }
+
 
 /* --- PARTÍCULAS DEL FONDO (Capa 1) --- */
 #particles-js-background {
@@ -33,11 +31,11 @@ body {
 }
 
 /* --- TARJETA DE LOGIN (Capa 10) --- */
-.card {
-
+.card1 {
+    margin-top: 30%;
+    align-items: center; /* Centra verticalmente */
 display: flex;
 justify-content: center; /* Centra horizontalmente */
-align-items: center; /* Centra verticalmente */
     position: relative;
     overflow: hidden;
     border: none;
@@ -139,4 +137,15 @@ align-items: center; /* Centra verticalmente */
 /* Estilo para el cursor del ojo */
 #togglePassword {
     cursor: pointer;
+}
+
+
+.card {
+    position: relative;
+    overflow: hidden;
+    border: none;
+    border-radius: 20px; /* Un poco más redondeado para ser más "aesthetic" */
+    background-color: #ffffff;
+    z-index: 10;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
