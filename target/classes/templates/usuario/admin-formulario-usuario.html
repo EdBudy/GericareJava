@@ -151,7 +151,7 @@
 <footer class="bg-light text-center mt-auto" th:insert="~{fragments/layout :: footer-content}"></footer>
 
 <script>
-    // Función original para mostrar/ocultar campos según rol
+    // Mostrar/ocultar campos según rol
     function toggleFields() {
         const rolSelect = document.getElementById('rol');
         if (!rolSelect) return;
@@ -171,7 +171,7 @@
         // Mostrar campos según el rol
         if (rol === 'Familiar' || rol === 'Cuidador') {
             telefonosFields.style.display = 'block';
-            if(primerTelefonoInput) primerTelefonoInput.required = true; // Asegúrate que el primer teléfono sea requerido
+            if(primerTelefonoInput) primerTelefonoInput.required = true;
         }
 
         if (rol === 'Familiar') {
@@ -187,19 +187,16 @@
         const contrasenaInput = document.getElementById('contrasena');
 
         if (documentoInput && contrasenaInput) {
-            // Copia el valor al cargar (por si hay datos previos en caso de error)
             contrasenaInput.value = documentoInput.value;
-
-            // Copia el valor cada vez que cambia el input del documento
             documentoInput.addEventListener('input', function() {
                 contrasenaInput.value = this.value;
             });
         }
-
-        // Ejecutar la función cuando el DOM esté cargado para inicializar el estado del formulario
         toggleFields();
     });
 </script>
+
+<script th:src="@{/js/form-telefonos.js}"></script>
 
 </body>
 </html>
