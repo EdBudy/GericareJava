@@ -2,35 +2,29 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel Principal | Gericare</title>
+    <title>Gestión de Usuarios | Gericare</title>
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
 </head>
 <body class="d-flex flex-column min-vh-100">
 
+<!-- Header -->
 <header th:insert="~{fragments/layout :: header}"></header>
 
+<!-- Contenido Principal -->
 <main class="container py-5 page-content">
 
+    <!-- Alertas de éxito/error -->
     <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show mb-4">
         <i class="bi bi-check-circle-fill me-2"></i><span th:text="${successMessage}"></span>
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 
+    <!-- Admin -->
     <div sec:authorize="hasRole('Administrador')">
-
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="fw-bold mb-1">Gestión de Usuarios</h2>
-                <p class="text-muted">Administra el acceso y roles del personal y familiares.</p>
-            </div>
-        </div>
-        <div class="card shadow-lg border-0 overflow-hidden">
-            <div class="card-body p-0">
-                <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios}, familiarAssignmentsText=${familiarAssignmentsText})}"></div>
-            </div>
-        </div>
+        <div th:replace="~{fragments/tabla-usuarios :: tabla(usuarios=${usuarios}, familiarAssignmentsText=${familiarAssignmentsText})}"></div>
     </div>
 
+    <!-- Cuidador -->
     <div sec:authorize="hasRole('Cuidador')">
         <h2 class="fw-bold mb-4"><i class="bi bi-heart-pulse text-danger me-2"></i>Mis Pacientes</h2>
         <div class="row g-4">
@@ -60,6 +54,7 @@
         </div>
     </div>
 
+    <!-- Familiar -->
     <div sec:authorize="hasRole('Familiar')">
         <h2 class="fw-bold mb-4">Mis Familiares</h2>
         <div th:if="${pacientesAsignados.isEmpty()}" class="alert alert-warning">Sin pacientes asignados.</div>
@@ -81,22 +76,12 @@
         </div>
     </div>
 
-    <div class="fab-container" sec:authorize="hasAnyRole('Administrador', 'Familiar')">
-        <button class="fab-main"><i class="bi bi-plus-lg"></i></button>
-
-        <a sec:authorize="hasRole('Administrador')" th:href="@{/usuarios/nuevo}" class="fab-item fab-green" data-tooltip="Nuevo Usuario">
-            <i class="bi bi-person-plus-fill"></i>
-        </a>
-        <a sec:authorize="hasRole('Administrador')" th:href="@{/estadisticas/cuidadores}" class="fab-item fab-red" data-tooltip="Ver Rendimiento">
-            <i class="bi bi-graph-up-arrow"></i>
-        </a>
-        <a sec:authorize="hasRole('Familiar')" th:href="@{/solicitudes/mis-solicitudes}" class="fab-item fab-purple" data-tooltip="Nueva Solicitud">
-            <i class="bi bi-envelope-plus"></i>
-        </a>
-    </div>
-
 </main>
 
-<footer th:insert="~{fragments/layout :: footer-content}"></footer>
+<!-- Footer -->
+<footer class="bg-light text-center mt-auto"
+        th:insert="~{fragments/layout :: footer-content}">
+</footer>
+
 </body>
 </html>
