@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Rendimiento de Personal | Gericare</title>
+    <title>Rendimiento de Personal GericareConnect</title>
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -15,11 +15,14 @@
     <div class="d-flex justify-content-between align-items-center mb-5 animate__animated animate__fadeIn">
         <div>
             <h2 class="fw-bold mb-1">Métricas de Desempeño</h2>
-            <p class="text-muted">Análisis cruzado de carga laboral y cumplimiento de actividades.</p>
+            <p class="text-muted">Análisis de carga laboral y cumplimiento de actividades.</p>
         </div>
         <div class="btn-group">
-            <a th:href="@{/estadisticas/cuidadores/pdf}" class="btn btn-outline-danger shadow-sm">
-                <i class="bi bi-file-pdf-fill me-2"></i>Reporte Cuidadores
+            <a th:href="@{/estadisticas/cuidadores/pdf}" class="btn btn-outline-primary shadow-sm">
+                <i class="bi bi-file-pdf-fill me-2"></i>Descargar PDF Pacientes Asignados por Cuidador
+            </a>
+            <a th:href="@{/estadisticas/cuidadores/pdf-actividades}" class="btn btn-outline-danger shadow-sm ms-2">
+                <i class="bi bi-file-pdf-fill me-2"></i>Descargar PDF Actividades Cuidadores
             </a>
         </div>
     </div>
@@ -41,7 +44,7 @@
         <div class="col-lg-6 animate__animated animate__fadeInRight">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-header bg-white fw-bold py-3 border-bottom-0">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>Actividades Completadas
+                    <i class="bi bi-check-circle-fill text-success me-2"></i>Eficiencia de Cuidadores
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
@@ -54,7 +57,7 @@
 
     <div class="card shadow border-0 animate__animated animate__fadeInUp">
         <div class="card-header bg-primary text-white py-3 d-flex align-items-center">
-            <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Detalle de Eficiencia por Empleado</h5>
+            <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Detalle de Eficiencia por Cuidador</h5>
         </div>
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -62,28 +65,20 @@
                     <thead class="table-light">
                     <tr>
                         <th class="ps-4">Cuidador</th>
-                        <th class="text-center">Pacientes</th>
-                        <th class="text-center">Actividades</th>
-                        <th class="text-center">Ratio (Act/Pac)</th>
+                        <th class="text-center">Actividades Asignadas</th>
+                        <th class="text-center">Actividades Completadas</th>
                         <th class="text-center">Estado</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="row : ${tablaDesempeno}">
                         <td class="ps-4 fw-bold text-secondary" th:text="${row.nombre}"></td>
-                        <td class="text-center" th:text="${row.pacientes}"></td>
-                        <td class="text-center" th:text="${row.actividades}"></td>
+                        <td class="text-center" th:text="${row.asignadas}"></td>
+                        <td class="text-center" th:text="${row.completadas}"></td>
                         <td class="text-center fw-bold" th:text="${row.ratio}"></td>
-                        <td class="text-center">
-                            <span th:with="val=${new java.math.BigDecimal(row.ratio.toString().replace(',','.'))}"
-                                  th:class="${val.doubleValue() > 5 ? 'badge bg-success rounded-pill' :
-                                            (val.doubleValue() > 0 ? 'badge bg-warning text-dark rounded-pill' : 'badge bg-secondary rounded-pill')}"
-                                  th:text="${val.doubleValue() > 5 ? 'Excelente' : (val.doubleValue() > 0 ? 'Normal' : 'Sin Datos')}">
-                            </span>
-                        </td>
                     </tr>
                     <tr th:if="${tablaDesempeno.isEmpty()}">
-                        <td colspan="5" class="text-center py-4 text-muted">No hay datos de desempeño disponibles.</td>
+                        <td colspan="4" class="text-center py-4 text-muted">No hay datos de desempeño disponibles.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -97,73 +92,65 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function() {
-
-        // Configuración común de fuentes
         Chart.defaults.font.family = "'Segoe UI', 'Helvetica Neue', 'Arial', sans-serif";
 
-        // 1. Gráfica Carga (Barras)
+        // 1. Gráfica Carga (Pacientes)
         const ctxCarga = document.getElementById('chartCarga');
         if(ctxCarga) {
             new Chart(ctxCarga, {
                 type: 'bar',
                 data: {
-                    labels: /*[[${labelsCarga}]]*/ [], // Thymeleaf serializa la lista segura
+                    labels: [[${labelsCarga}]],
                     datasets: [{
-                        label: 'Pacientes Asignados',
-                        data: /*[[${dataCarga}]]*/ [],
-                        backgroundColor: 'rgba(13, 110, 253, 0.7)', // Bootstrap Primary
+                        label: 'Pacientes',
+                        data: [[${dataCarga}]],
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
                         borderColor: 'rgba(13, 110, 253, 1)',
-                        borderWidth: 1,
-                        borderRadius: 5,
-                        barPercentage: 0.6
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { borderDash: [2, 4] }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
-                    }
+                    maintainAspectRatio: false
                 }
             });
         }
 
-        // 2. Gráfica Productividad (Dona)
+        // 2. Gráfica Productividad (BARRAS AGRUPADAS)
         const ctxProd = document.getElementById('chartProd');
         if(ctxProd) {
             new Chart(ctxProd, {
-                type: 'doughnut',
+                type: 'bar', // Tipo barra para ambos
                 data: {
-                    labels: /*[[${labelsProd}]]*/ [],
-                    datasets: [{
-                        data: /*[[${dataProd}]]*/ [],
-                        backgroundColor: [
-                            '#198754', '#20c997', '#0dcaf0', '#ffc107', '#fd7e14', '#dc3545'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
+                    labels: [[${labelsProd}]],
+                    datasets: [
+                        {
+                            label: 'Total Asignadas',
+                            data: [[${dataTotal}]],
+                            backgroundColor: 'rgba(13, 110, 253, 0.7)', // Azul
+                            borderColor: 'rgba(13, 110, 253, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Completadas',
+                            data: [[${dataRealizadas}]],
+                            backgroundColor: 'rgba(25, 135, 84, 0.7)', // Verde
+                            borderColor: 'rgba(25, 135, 84, 1)',
+                            borderWidth: 1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: { usePointStyle: true, boxWidth: 8 }
-                        }
+                    scales: {
+                        y: { beginAtZero: true }
                     },
-                    layout: {
-                        padding: 10
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
                     }
                 }
             });

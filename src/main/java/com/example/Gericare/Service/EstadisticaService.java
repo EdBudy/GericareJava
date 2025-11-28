@@ -8,6 +8,6 @@ import java.util.List;
 public interface EstadisticaService {
     List<EstadisticaCuidadorDTO> obtenerEstadisticasCuidadores();
     List<EstadisticaActividadDTO> obtenerEstadisticasActividadesCompletadas();
-    byte[] generarReportePdf() throws IOException; // Reporte Pacientes
-    byte[] generarReporteActividadesPdf() throws IOException; // NUEVO: Reporte Rendimiento
+    byte[] generarReportePdf() throws IOException;
+    byte[] generarReporteActividadesPdf() throws IOException;
 }
