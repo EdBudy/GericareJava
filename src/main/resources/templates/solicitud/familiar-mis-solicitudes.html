@@ -28,11 +28,11 @@
         </a>
     </div>
 
-    <div th:if="${solicitudes.isEmpty()}">
+    <div th:if="${solicitudes == null or solicitudes.isEmpty()}">
         <div class="alert alert-info mt-4">No tienes solicitudes registradas.</div>
     </div>
 
-    <div th:if="${not solicitudes.isEmpty()}" class="card shadow-sm">
+    <div th:if="${solicitudes != null and not solicitudes.isEmpty()}" class="card shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
@@ -41,7 +41,8 @@
                         <th>Paciente</th>
                         <th>Tipo</th>
                         <th>Fecha Solicitud</th>
-                        <th>Motivo</th> <th class="text-center">Estado</th>
+                        <th>Motivo</th>
+                        <th class="text-center">Estado</th>
                         <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
@@ -55,7 +56,7 @@
                             </span>
                             <span th:case="*" th:text="${solicitud.tipoSolicitud}"></span>
                         </td>
-                        <td th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${solicitud.fechaSolicitud != null ? #temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm') : ''}"></td>
 
                         <td th:text="${solicitud.motivoSolicitud}"></td>
 
@@ -105,7 +106,7 @@
                 if (result.isConfirmed) {
                      const formId = `form-eliminar-solicitud-${solicitudId}`;
                      let form = document.getElementById(formId);
-                     if (!form) { // Si no tiene ese ID, buscarlo por acción (menos ideal)
+                     if (!form) {
                           form = document.querySelector(`form[action='/solicitudes/eliminar/${solicitudId}']`);
                      }
                      if (form) {

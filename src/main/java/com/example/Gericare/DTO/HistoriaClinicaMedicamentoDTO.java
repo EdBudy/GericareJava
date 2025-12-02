@@ -18,6 +18,7 @@ public class HistoriaClinicaMedicamentoDTO {
     @NotBlank(message = "La dosis es obligatoria")
     @Pattern(regexp = "^\\d+(\\.\\d+)?$", message = "La dosis debe ser un número válido (ej: 500 o 2.5)")
     private String dosis;
+    @NotBlank(message = "La frecuencia es obligatoria (ej: Cada 8 horas)")
     private String frecuencia;
     private String instrucciones;
 }

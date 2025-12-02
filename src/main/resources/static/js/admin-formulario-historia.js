@@ -82,7 +82,6 @@ function addCirugiaItem() {
 function addMedicamentoItem() {
     // Calcula índice contando cuantos elementos con clase .medicamento-item hay
     var index = document.querySelectorAll('.medicamento-item').length;
-
     var wrapper = document.getElementById('medicamentos-wrapper');
 
     // Crea div contenedor de la fila
@@ -101,19 +100,18 @@ function addMedicamentoItem() {
         </div>
 
         <div class="col-md-2">
-            <label class="form-label">Dosis (en mg):</label>
+            <label class="form-label">Dosis:</label>
             <div class="input-group input-group-sm">
-                <input type="number" step="any" min="0"
-                       class="form-control"
-                       name="medicamentos[${index}].dosis"
-                       placeholder="0" required />
+                <input type="number" step="any" min="0" class="form-control" name="medicamentos[${index}].dosis" placeholder="0" required />
                 <span class="input-group-text">mg</span>
             </div>
         </div>
 
         <div class="col-md-2">
             <label class="form-label">Frecuencia:</label>
-            <input type="text" class="form-control form-control-sm" name="medicamentos[${index}].frecuencia" placeholder="Ej: Cada 8h"/>
+            <input type="text" class="form-control form-control-sm"
+                   name="medicamentos[${index}].frecuencia"
+                   placeholder="Ej: c/8h" required />
         </div>
 
         <div class="col-md-3">
@@ -155,26 +153,44 @@ function abrirModalNuevoMedicamento(button) {
 
 function guardarNuevoMedicamento() {
     const nombreInput = document.getElementById('nuevoMedNombre');
-    const nombre = nombreInput.value.trim();
-    const descripcion = document.getElementById('nuevoMedDesc').value.trim();
+    const descInput = document.getElementById('nuevoMedDesc');
     const errorDiv = document.getElementById('errorNuevoMedicamento');
     const submitButton = document.querySelector('#modalNuevoMedicamento .modal-footer button.btn-primary');
+
+    const nombre = nombreInput.value.trim();
+    const descripcion = descInput.value.trim();
+
     errorDiv.textContent = '';
     nombreInput.classList.remove('is-invalid');
+    descInput.classList.remove('is-invalid');
+
+    let hayError = false;
 
     if (!nombre) {
-        errorDiv.textContent = 'El nombre es obligatorio.';
         nombreInput.classList.add('is-invalid');
+        hayError = true;
+    }
+
+    if (!descripcion) {
+        descInput.classList.add('is-invalid');
+        hayError = true;
+    }
+
+    if (hayError) {
+        errorDiv.textContent = 'Todos los campos son obligatorios.';
         return;
     }
 
     submitButton.disabled = true;
     submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Guardando...';
 
-    const data = { nombreMedicamento: nombre, descripcionMedicamento: descripcion };
+    const data = {
+        nombreMedicamento: nombre,
+        descripcionMedicamento: descripcion
+    };
+
     const headers = { 'Content-Type': 'application/json' };
 
-    // Usar las variables globales de CSRF
     const csrfTokenModal = document.getElementById('csrfTokenModalMed')?.value;
     if (csrfHeaderName && csrfTokenModal) {
         headers[csrfHeaderName] = csrfTokenModal;
@@ -196,19 +212,16 @@ function guardarNuevoMedicamento() {
         return response.json();
     })
     .then(nuevoMedicamento => {
-        // Actualizar el catálogo global
         medicamentosCatalogo.push(nuevoMedicamento);
 
         const nuevaOpcionHTML = `<option value="${nuevoMedicamento.idMedicamento}">${nuevoMedicamento.nombreMedicamento}</option>`;
 
-        // Añadir la nueva opción a TODOS los selects de medicamento
         document.querySelectorAll('#medicamentos-wrapper select[name*="idMedicamento"]').forEach(select => {
             if (!select.querySelector(`option[value="${nuevoMedicamento.idMedicamento}"]`)) {
                 select.insertAdjacentHTML('beforeend', nuevaOpcionHTML);
             }
         });
 
-        // Seleccionar la nueva opción
         if (medicamentoSelectTarget) {
             medicamentoSelectTarget.value = nuevoMedicamento.idMedicamento;
         }
@@ -219,6 +232,9 @@ function guardarNuevoMedicamento() {
             modal.hide();
         }
         medicamentoSelectTarget = null;
+
+        nombreInput.value = '';
+        descInput.value = '';
     })
     .catch(error => {
         console.error('Error al guardar medicamento vía AJAX:', error);

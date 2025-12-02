@@ -128,15 +128,19 @@ public class MedicamentoController {
             log.warn("Intento de guardar medicamento vía AJAX con nombre vacío.");
             return ResponseEntity.badRequest().body("El nombre del medicamento no puede estar vacío."); // Error 400
         }
+        // Validación descripción
+        if (medicamentoDTO.getDescripcionMedicamento() == null || medicamentoDTO.getDescripcionMedicamento().isBlank()) {
+            return ResponseEntity.badRequest().body("La descripción del medicamento es obligatoria.");
+        }
         try {
             // Llama al servicio para guardar
             MedicamentoDTO guardado = medicamentoService.guardarMedicamento(medicamentoDTO);
             log.info("Medicamento guardado vía AJAX con ID: {}", guardado.getIdMedicamento());
-            return ResponseEntity.ok(guardado); // Éxito: Devuelve el DTO guardado (con ID) como JSON
+            return ResponseEntity.ok(guardado); // Éxito: Devuelve DTO guardado (con ID) como JSON
         } catch (RuntimeException e){ // Captura errores conocidos (ej: duplicado)
             log.error("Error conocido AJAX al guardar medicamento '{}': {}", medicamentoDTO.getNombreMedicamento(), e.getMessage());
             // Devuelve el mensaje de error específico del servicio
-            return ResponseEntity.badRequest().body(e.getMessage()); // Error 400 u otro apropiado
+            return ResponseEntity.badRequest().body(e.getMessage()); // Error 400
         } catch (Exception e) {
             log.error("Error inesperado AJAX al guardar medicamento '{}'", medicamentoDTO.getNombreMedicamento(), e);
             // Error genérico para el cliente

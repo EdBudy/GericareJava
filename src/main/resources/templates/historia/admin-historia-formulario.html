@@ -187,8 +187,19 @@
                                     </div>
                                 </div>
                                 <div class="col-md-2">
-                                    <label th:for="|med-frec-${iterStat.index}|" class="form-label">Frecuencia:</label>
-                                    <input type="text" th:id="|med-frec-${iterStat.index}|" class="form-control form-control-sm" th:name="|medicamentos[${iterStat.index}].frecuencia|" th:value="${med.frecuencia}" />
+                                    <label th:for="|med-frec-${iterStat.index}|" class="form-label">
+                                        Frecuencia <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text"
+                                           th:id="|med-frec-${iterStat.index}|"
+                                           class="form-control form-control-sm"
+                                           th:name="|medicamentos[${iterStat.index}].frecuencia|"
+                                           th:value="${med.frecuencia}"
+                                           placeholder="Ej: c/8h"
+                                           required /> <div class="text-danger small"
+                                                            th:if="${#fields.hasErrors('medicamentos[' + iterStat.index + '].frecuencia')}"
+                                                            th:errors="*{medicamentos[__${iterStat.index}__].frecuencia}">
+                                </div>
                                 </div>
                                 <div class="col-md-3">
                                     <label th:for="|med-inst-${iterStat.index}|" class="form-label">Instrucciones:</label>
@@ -250,7 +261,7 @@
         </div> <!-- Fin col -->
     </div> <!-- Fin row -->
 
-    <!-- ========= MODALES ========= -->
+    <!-- MODALES -->
 
     <!-- Modal Nuevo Medicamento -->
     <div class="modal fade" id="modalNuevoMedicamento" tabindex="-1" aria-labelledby="modalNuevoMedicamentoLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -271,8 +282,9 @@
                             <div class="invalid-feedback">El nombre es obligatorio.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="nuevoMedDesc" class="form-label">Descripción (Opcional)</label>
-                            <textarea class="form-control" id="nuevoMedDesc" rows="2"></textarea>
+                            <label for="nuevoMedDesc" class="form-label"> Descripción <span class="text-danger">*</span> </label>
+                            <textarea class="form-control" id="nuevoMedDesc" rows="2" required></textarea>
+                            <div class="invalid-feedback">La descripción es obligatoria.</div>
                         </div>
                         <!-- Div para mostrar mensajes de error del servidor -->
                         <div id="errorNuevoMedicamento" class="text-danger small mt-2"></div>

@@ -73,7 +73,7 @@ public class HistoriaClinicaController {
         }
         model.addAttribute("historia", historiaDTO);
 
-        // Obtener CUIDADOR ASIGNADO (Buscamos la asignación activa)
+        // Obtener cuidador asignado (con asignación activa)
         Optional<PacienteAsignado> asignacion = pacienteAsignadoRepository
                 .findByPacienteIdPacienteAndEstado(pacienteId, EstadoAsignacion.Activo)
                 .stream().findFirst();
@@ -85,7 +85,7 @@ public class HistoriaClinicaController {
         }
         model.addAttribute("nombreCuidador", nombreCuidador);
 
-        // 4. Lógica del botón "VOLVER" según el ROL
+        // Lógica btn volver según rol
         String rolUsuario = authentication.getAuthorities().stream()
                 .findFirst().get().getAuthority();
 
@@ -95,7 +95,7 @@ public class HistoriaClinicaController {
         } else if (rolUsuario.contains("Cuidador")) {
             backUrl = "/dashboard";
         } else if (rolUsuario.contains("Familiar")) {
-            backUrl = "/solicitudes/mis-solicitudes"; // O su dashboard correspondiente
+            backUrl = "/dashboard";
         } else {
             backUrl = "/index";
         }
