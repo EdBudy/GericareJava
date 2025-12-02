@@ -41,7 +41,7 @@ function confirmarEliminacion(button) {
 function confirmarEliminacionPaciente(pacienteId) {
     Swal.fire({
         title: '¿Estás seguro?',
-        text: "¡El paciente y todos sus datos asociados (asignaciones, actividades, solicitudes, tratamientos) serán marcados como inactivos!",
+        text: "¡El paciente y todos sus datos asociados (asignaciones, actividades, solicitudes, tratamientos) serán eliminados!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -64,7 +64,7 @@ function confirmarEliminacionPaciente(pacienteId) {
 function confirmarEliminacionActividad(actividadId) {
     Swal.fire({
         title: '¿Estás seguro?',
-        text: "¡La actividad será marcada como inactiva!",
+        text: "¡La actividad se eliminara!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -109,8 +109,8 @@ function confirmarEliminacionSolicitudFamiliar(solicitudId) {
 // Solicitud (Admin solicitudes)
 function confirmarArchivarSolicitudAdmin(solicitudId) {
     Swal.fire({
-        title: '¿Archivar Solicitud?',
-        text: "La solicitud (Aprobada/Rechazada) se marcará como inactiva y no será visible. ¿Deseas continuar?",
+        title: '¿Eliminar Solicitud?',
+        text: "La solicitud se eliminara. ¿Deseas continuar?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -187,6 +187,35 @@ function confirmarCompletar(tratamientoId) {
         if (result.isConfirmed) {
             // Si el usuario confirma, envía el formulario correspondiente
             document.getElementById('form-completar-' + tratamientoId).submit();
+        }
+    });
+}
+
+// Medicamento Admin
+function confirmarEliminacionMedicamento(button) {
+    // Obtener datos del btn (parámetro 'button' es el 'this' del HTML)
+    const id = button.getAttribute('data-med-id');
+    const nombre = button.getAttribute('data-med-nombre');
+
+    // Mostrar alerta
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: `¡El medicamento "${nombre}" será eliminado y no se podra revertir!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, ¡Eliminar!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Buscar y enviar el formulario específico
+            const form = document.getElementById('form-eliminar-medicamento-' + id);
+            if (form) {
+                form.submit();
+            } else {
+                console.error(`Error: No se encontró el formulario 'form-eliminar-medicamento-${id}'`);
+            }
         }
     });
 }

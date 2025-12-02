@@ -55,6 +55,7 @@ public class PacienteServiceImpl implements PacienteService {
     private HistoriaClinicaService historiaClinicaService;
     @Autowired
     private UsuarioRepository usuarioRepository; // Para buscar el admin
+    @Autowired
     private SolicitudRepository solicitudRepository;
     @Autowired
     private TratamientoRepository tratamientoRepository;

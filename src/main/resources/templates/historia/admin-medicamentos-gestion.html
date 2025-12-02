@@ -64,7 +64,7 @@
                     <td>
                         <a th:href="@{|/medicamentos/editar/${med.idMedicamento}|}" class="btn btn-warning btn-sm" title="Editar"><i class="bi bi-pencil-square"></i></a>
                         <form th:action="@{|/medicamentos/eliminar/${med.idMedicamento}|}" method="post" class="d-inline" th:id="'form-eliminar-medicamento-' + ${med.idMedicamento}">
-                            <button type="button" class="btn btn-danger btn-sm" title="Eliminar/Inactivar"
+                            <button type="button" class="btn btn-danger btn-sm" title="Eliminar"
                                     th:data-med-id="${med.idMedicamento}"
                                     th:data-med-nombre="${med.nombreMedicamento}"
                                     onclick="confirmarEliminacionMedicamento(this)">
