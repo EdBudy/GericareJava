@@ -44,9 +44,9 @@ public class SecurityConfig {
                         // Vistas familiar
                         .requestMatchers("/familiar/**").hasRole("Familiar")
 
-                        // historias clinicas
-                        // Ver HC: Admin y Cuidador
-                        .requestMatchers(HttpMethod.GET, "/historias-clinicas/paciente/**").hasAnyRole("Administrador", "Cuidador")
+                        // historias clínicas
+                        // Ver HC: Admin, Fami y Cuidador
+                        .requestMatchers(HttpMethod.GET, "/historias-clinicas/paciente/**").hasAnyRole("Administrador", "Cuidador", "Familiar")
                         // Editar HC: Solo Admin
                         .requestMatchers(HttpMethod.GET, "/historias-clinicas/editar/paciente/**").hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/historias-clinicas/editar/**").hasRole("Administrador")

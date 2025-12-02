@@ -58,34 +58,59 @@ public class HistoriaClinicaController {
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
         model.addAttribute("paciente", paciente);
 
-        // Obtener hc (no importa si no existe)
+        // Obtener o Generar DTO de hc
         Optional<HistoriaClinicaDTO> hcOpt = historiaClinicaService.obtenerHistoriaClinicaPorPacienteId(pacienteId);
 
         HistoriaClinicaDTO historiaDTO;
         if (hcOpt.isPresent()) {
             historiaDTO = hcOpt.get();
         } else {
-            // Crea DTO vacío para que Thymeleaf no falle al intentar leer campos nulos
             historiaDTO = new HistoriaClinicaDTO();
-            historiaDTO.setIdHistoriaClinica(null); // Bandera para saber que está vacía
-            // Rellena datos mínimos de compatibilidad por si acaso
-            historiaDTO.setFamiliarNombreCompleto("No registrado");
+            historiaDTO.setIdHistoriaClinica(null);
+            historiaDTO.setEstadoSalud("Historia Clínica Pendiente");
         }
-        model.addAttribute("historia", historiaDTO);
 
-        // Obtener cuidador asignado (con asignación activa)
-        Optional<PacienteAsignado> asignacion = pacienteAsignadoRepository
+        // Buscar asignacion activa
+        Optional<PacienteAsignado> asignacionOpt = pacienteAsignadoRepository
                 .findByPacienteIdPacienteAndEstado(pacienteId, EstadoAsignacion.Activo)
                 .stream().findFirst();
 
         String nombreCuidador = "Sin cuidador asignado";
-        if (asignacion.isPresent() && asignacion.get().getCuidador() != null) {
-            nombreCuidador = asignacion.get().getCuidador().getNombre() + " " +
-                    asignacion.get().getCuidador().getApellido();
-        }
-        model.addAttribute("nombreCuidador", nombreCuidador);
 
-        // Lógica btn volver según rol
+        // Relleno de datos de Familiar y Cuidador desde la asignación
+        if (asignacionOpt.isPresent()) {
+            PacienteAsignado asignacion = asignacionOpt.get();
+
+            // Lógica Cuidador
+            if (asignacion.getCuidador() != null) {
+                nombreCuidador = asignacion.getCuidador().getNombre() + " " +
+                        asignacion.getCuidador().getApellido();
+            }
+
+            // Lógica Familiar
+            if (asignacion.getFamiliar() != null) {
+                historiaDTO.setFamiliarNombreCompleto(
+                        asignacion.getFamiliar().getNombre() + " " + asignacion.getFamiliar().getApellido()
+                );
+
+                // Obtener teléfonos familiar
+                List<String> telefonos = asignacion.getFamiliar().getTelefonos().stream()
+                        .map(Telefono::getNumero)
+                        .collect(Collectors.toList());
+                historiaDTO.setFamiliarTelefonos(telefonos);
+            }
+        }
+
+        // Si sigue null pone el default
+        if (historiaDTO.getFamiliarNombreCompleto() == null) {
+            historiaDTO.setFamiliarNombreCompleto("No registrado");
+            historiaDTO.setFamiliarTelefonos(Collections.emptyList());
+        }
+
+        model.addAttribute("nombreCuidador", nombreCuidador);
+        model.addAttribute("historia", historiaDTO);
+
+        // Lógica btn Volver
         String rolUsuario = authentication.getAuthorities().stream()
                 .findFirst().get().getAuthority();
 

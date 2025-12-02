@@ -50,6 +50,7 @@ public class PacienteController {
                                   @RequestParam(required = false) String documento) {
         List<PacienteDTO> pacientes = pacienteService.listarPacientesFiltrados(nombre, documento);
 
+        //mapa familiares
         Map<Long, String> nombresFamiliares = pacientes.stream()
                 .collect(Collectors.toMap(
                         PacienteDTO::getIdPaciente,
@@ -58,6 +59,18 @@ public class PacienteController {
                                 .findFirst()
                                 .map(asignacion -> asignacion.getFamiliar() != null ? asignacion.getFamiliar().getNombre() + " " + asignacion.getFamiliar().getApellido() : "N/A")
                                 .orElse("N/A")
+                ));
+
+        //mapa cuidadores
+        Map<Long, String> nombresCuidadores = pacientes.stream()
+                .collect(Collectors.toMap(
+                        PacienteDTO::getIdPaciente,
+                        paciente -> pacienteAsignadoRepository.findByPacienteIdPacienteAndEstado(paciente.getIdPaciente(), EstadoAsignacion.Activo)
+                                .stream()
+                                .findFirst()
+                                .map(asignacion -> asignacion.getCuidador() != null ?
+                                        asignacion.getCuidador().getNombre() + " " + asignacion.getCuidador().getApellido() : "Sin Asignar")
+                                .orElse("Sin Asignar")
                 ));
 
         // Obtener el estado de completitud de la historia clínica para cada paciente
@@ -73,6 +86,7 @@ public class PacienteController {
 
         model.addAttribute("pacientes", pacientes);
         model.addAttribute("nombresFamiliares", nombresFamiliares);
+        model.addAttribute("nombresCuidadores", nombresCuidadores);
         return "paciente/admin-gestion-pacientes";
     }
 
