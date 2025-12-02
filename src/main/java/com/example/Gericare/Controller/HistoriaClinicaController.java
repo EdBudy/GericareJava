@@ -50,23 +50,58 @@ public class HistoriaClinicaController {
 
     @GetMapping("/paciente/{pacienteId}")
     public String verHistoriaClinicaPorPaciente(@PathVariable Long pacienteId, Model model,
-                                                Authentication authentication, // Para verificar rol si es necesario aquí
-                                                RedirectAttributes redirectAttributes) {
+                                                Authentication authentication) {
         log.info("Accediendo a HC para paciente ID: {}", pacienteId);
 
-        return historiaClinicaService.obtenerHistoriaClinicaPorPacienteId(pacienteId)
-                .map(hc -> {
-                    log.debug("HC encontrada para paciente ID: {}", pacienteId);
-                    model.addAttribute("historia", hc);
-                    // No necesita catálogos aquí, es solo vista
-                    return "historia/admin-historia-vista";
-                })
-                .orElseGet(() -> {
-                    // Esto podría pasar si la creación inicial falló o fue eliminada incorrectamente
-                    log.warn("No se encontró HC para paciente ID: {}", pacienteId);
-                    redirectAttributes.addFlashAttribute("errorMessage", "No se encontró historia clínica para el paciente con ID: " + pacienteId);
-                    return "redirect:/pacientes"; // Volver a la lista
-                });
+        // Obtener datos paciente
+        Paciente paciente = pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        model.addAttribute("paciente", paciente);
+
+        // Obtener hc (no importa si no existe)
+        Optional<HistoriaClinicaDTO> hcOpt = historiaClinicaService.obtenerHistoriaClinicaPorPacienteId(pacienteId);
+
+        HistoriaClinicaDTO historiaDTO;
+        if (hcOpt.isPresent()) {
+            historiaDTO = hcOpt.get();
+        } else {
+            // Crea DTO vacío para que Thymeleaf no falle al intentar leer campos nulos
+            historiaDTO = new HistoriaClinicaDTO();
+            historiaDTO.setIdHistoriaClinica(null); // Bandera para saber que está vacía
+            // Rellena datos mínimos de compatibilidad por si acaso
+            historiaDTO.setFamiliarNombreCompleto("No registrado");
+        }
+        model.addAttribute("historia", historiaDTO);
+
+        // Obtener CUIDADOR ASIGNADO (Buscamos la asignación activa)
+        Optional<PacienteAsignado> asignacion = pacienteAsignadoRepository
+                .findByPacienteIdPacienteAndEstado(pacienteId, EstadoAsignacion.Activo)
+                .stream().findFirst();
+
+        String nombreCuidador = "Sin cuidador asignado";
+        if (asignacion.isPresent() && asignacion.get().getCuidador() != null) {
+            nombreCuidador = asignacion.get().getCuidador().getNombre() + " " +
+                    asignacion.get().getCuidador().getApellido();
+        }
+        model.addAttribute("nombreCuidador", nombreCuidador);
+
+        // 4. Lógica del botón "VOLVER" según el ROL
+        String rolUsuario = authentication.getAuthorities().stream()
+                .findFirst().get().getAuthority();
+
+        String backUrl;
+        if (rolUsuario.contains("Administrador")) {
+            backUrl = "/pacientes";
+        } else if (rolUsuario.contains("Cuidador")) {
+            backUrl = "/dashboard";
+        } else if (rolUsuario.contains("Familiar")) {
+            backUrl = "/solicitudes/mis-solicitudes"; // O su dashboard correspondiente
+        } else {
+            backUrl = "/index";
+        }
+        model.addAttribute("backUrl", backUrl);
+
+        return "historia/admin-historia-vista";
     }
 
     @GetMapping("/editar/paciente/{pacienteId}")

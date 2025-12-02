@@ -168,8 +168,23 @@
                                     <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="abrirModalNuevoMedicamento(this)">+ Nuevo Medicamento</button>
                                 </div>
                                 <div class="col-md-2">
-                                    <label th:for="|med-dosis-${iterStat.index}|" class="form-label">Dosis:</label>
-                                    <input type="text" th:id="|med-dosis-${iterStat.index}|" class="form-control form-control-sm" th:name="|medicamentos[${iterStat.index}].dosis|" th:value="${med.dosis}" />
+                                    <label th:for="|med-dosis-${iterStat.index}|" class="form-label">Dosis (en mg):</label>
+
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" step="any" min="0"
+                                               th:id="|med-dosis-${iterStat.index}|"
+                                               class="form-control"
+                                               th:name="|medicamentos[${iterStat.index}].dosis|"
+                                               th:value="${med.dosis}"
+                                               placeholder="0" required />
+
+                                        <span class="input-group-text">mg</span>
+                                    </div>
+
+                                    <div class="text-danger small"
+                                         th:if="${#fields.hasErrors('medicamentos[' + iterStat.index + '].dosis')}"
+                                         th:errors="*{medicamentos[__${iterStat.index}__].dosis}">
+                                    </div>
                                 </div>
                                 <div class="col-md-2">
                                     <label th:for="|med-frec-${iterStat.index}|" class="form-label">Frecuencia:</label>

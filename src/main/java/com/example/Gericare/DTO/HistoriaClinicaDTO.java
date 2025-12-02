@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDate;
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import jakarta.validation.constraints.NotBlank;
@@ -42,7 +43,10 @@ public class HistoriaClinicaDTO {
     private boolean completada;
 
     // Listas para los detalles
+    @Valid
     private List<HistoriaClinicaCirugiaDTO> cirugias = new ArrayList<>();
+    @Valid
     private List<HistoriaClinicaMedicamentoDTO> medicamentos = new ArrayList<>();
+    @Valid
     private List<HistoriaClinicaEnfermedadDTO> enfermedades = new ArrayList<>();
 }

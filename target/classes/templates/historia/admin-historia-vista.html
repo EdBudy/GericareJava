@@ -1,74 +1,174 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="es">
 <head>
-    <title th:text="|Historia Clínica - ${historia.nombrePacienteCompleto}|"></title>
+    <title th:text="|Historia Clínica - ${paciente.nombre} ${paciente.apellido}|"></title>
     <th:block th:insert="~{fragments/layout :: head}"></th:block>
 </head>
 <body class="d-flex flex-column min-vh-100">
 <header th:insert="~{fragments/layout :: header}"></header>
 
 <main class="container mt-5 mb-5 flex-grow-1">
-    <h2 th:text="|Historia Clínica de ${historia.nombrePacienteCompleto}|"></h2>
-    <div sec:authorize="hasRole('Administrador')" class="mb-3">
-        <a th:href="@{|/historias-clinicas/editar/paciente/${historia.idPaciente}|}" class="btn btn-warning">
-            <i class="bi bi-pencil-square me-2"></i> Editar Historia Clínica
-        </a>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Historia Clínica de <span th:text="${paciente.nombre} + ' ' + ${paciente.apellido}"></span></h2>
+
+        <div sec:authorize="hasRole('Administrador')">
+            <a th:href="@{|/historias-clinicas/editar/paciente/${paciente.idPaciente}|}" class="btn btn-warning">
+                <i class="bi bi-pencil-square me-2"></i> Editar Historia Clínica
+            </a>
+        </div>
     </div>
 
-    <div class="card shadow-sm">
+    <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
-            <h5 class="mb-0">Información del Paciente y Contacto</h5>
+            <h5 class="mb-0 fw-bold">Información del Paciente y Contacto</h5>
         </div>
         <div class="card-body">
-            <div class="row">
+            <div class="row g-3">
                 <div class="col-md-6">
-                    <p class="mb-1"><strong>Documento:</strong> <span th:text="${historia.pacienteDocumento}"></span></p>
-                    <p class="mb-1"><strong>Contacto Emergencia (Paciente):</strong> <span th:text="${historia.pacienteContactoEmergencia}"></span></p>
-                </div>
-                <div class="col-md-6">
-                    <p class="mb-1"><strong>Familiar Asociado:</strong> <span th:text="${historia.familiarNombreCompleto}"></span></p>
-                    <p class="mb-1"><strong>Teléfono(s) Familiar:</strong>
-                        <span th:if="${#lists.isEmpty(historia.familiarTelefonos)}">N/A</span>
-                        <th:block th:each="tel, iter : ${historia.familiarTelefonos}">
-                            <span th:text="${tel}"></span><span th:if="${!iter.last}">, </span>
-                        </th:block>
+                    <p class="mb-2"><strong>Documento:</strong> <span th:text="${paciente.documentoIdentificacion}"></span></p>
+                    <p class="mb-2"><strong>Fecha Nacimiento:</strong> <span th:text="${paciente.fechaNacimiento}"></span></p>
+                    <p class="mb-2"><strong>Género:</strong>
+                        <span th:text="${#strings.capitalize(#strings.toLowerCase(paciente.genero))}"></span>
                     </p>
+                    <p class="mb-2"><strong>Tipo de Sangre:</strong> <span th:text="${paciente.tipoSangre.valor}"></span></p>
+                    <p class="mb-2"><strong>Seguro Médico:</strong> <span th:text="${paciente.seguroMedico} ?: 'No registrado'"></span></p>
+                    <p class="mb-2"><strong>Contacto Emergencia:</strong> <span th:text="${paciente.contactoEmergencia}"></span></p>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded border">
+                        <p class="mb-2"><strong>Cuidador Asignado:</strong> <span th:text="${nombreCuidador}"></span></p>
+                        <hr class="my-2">
+                        <p class="mb-2"><strong>Familiar Responsable:</strong> <span th:text="${historia.familiarNombreCompleto} ?: 'No registrado'"></span></p>
+                        <p class="mb-0"><strong>Teléfonos Familiar:</strong></p>
+                        <ul class="mb-0 ps-3" th:if="${not #lists.isEmpty(historia.familiarTelefonos)}">
+                            <li th:each="tel : ${historia.familiarTelefonos}" th:text="${tel}"></li>
+                        </ul>
+                        <span th:if="${#lists.isEmpty(historia.familiarTelefonos)}">N/A</span>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
+
+    <div th:if="${historia.idHistoriaClinica == null}" class="alert alert-info shadow-sm">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        Este paciente no tiene una historia clínica registrada.
+    </div>
+
+    <div th:if="${historia.idHistoriaClinica != null}" class="card shadow-sm">
+        <div class="card-header bg-white">
+            <ul class="nav nav-tabs card-header-tabs" id="hcTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active text-dark fw-bold" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button">Datos Generales</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link text-dark fw-bold" id="meds-tab" data-bs-toggle="tab" data-bs-target="#meds" type="button">Medicamentos</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link text-dark fw-bold" id="history-tab" data-bs-toggle="tab" data-bs-target="#history" type="button">Enfermedades & Cirugías</button>
+                </li>
+            </ul>
+        </div>
+
         <div class="card-body">
-            <h5 class="card-title">Datos Generales</h5>
-            <p><strong>Estado De Salud:</strong> <span th:text="${historia.estadoSalud}"></span></p>
-            <p><strong>Condiciones:</strong> <span th:text="${historia.condiciones}"></span></p>
-            <p><strong>Antecedentes Médicos:</strong> <span th:text="${historia.antecedentesMedicos}"></span></p>
-            <p><strong>Alergias:</strong> <span th:text="${historia.alergias}"></span></p>
-            <p><strong>Dietas Especiales:</strong> <span th:text="${historia.dietasEspeciales}"></span></p>
-            <p><strong>Última Consulta:</strong> <span th:text="${historia.fechaUltimaConsulta != null ? #temporals.format(historia.fechaUltimaConsulta, 'dd/MM/yyyy') : 'N/A'}"></span></p>
-            <p><strong>Observaciones Generales:</strong> <span th:text="${historia.observaciones}"></span></p>
-            <hr>
-            <h5>Cirugías</h5>
-            <ul th:if="${not #lists.isEmpty(historia.cirugias)}">
-                <li th:each="c : ${historia.cirugias}" th:text="|${c.descripcionCirugia} (${#temporals.format(c.fechaCirugia, 'dd/MM/yyyy')}) - Obs: ${c.observaciones}|"></li>
-            </ul>
-            <p th:if="${#lists.isEmpty(historia.cirugias)}">No hay cirugías registradas.</p>
-            <hr>
-            <h5>Medicamentos</h5>
-            <ul th:if="${not #lists.isEmpty(historia.medicamentos)}">
-                <li th:each="m : ${historia.medicamentos}" th:text="|${m.nombreMedicamento} - Dosis: ${m.dosis}, Frecuencia: ${m.frecuencia}, Instrucciones: ${m.instrucciones}|"></li>
-            </ul>
-            <p th:if="${#lists.isEmpty(historia.medicamentos)}">No hay medicamentos registrados.</p>
-            <hr>
-            <h5>Enfermedades</h5>
-            <ul th:if="${not #lists.isEmpty(historia.enfermedades)}">
-                <li th:each="e : ${historia.enfermedades}" th:text="|${e.descripcionEnfermedad} (Diagnosticado: ${#temporals.format(e.fechaDiagnostico, 'dd/MM/yyyy')}) - Obs: ${e.observaciones}|"></li>
-            </ul>
-            <p th:if="${#lists.isEmpty(historia.enfermedades)}">No hay enfermedades registradas.</p>
+            <div class="tab-content">
+
+                <div class="tab-pane fade show active" id="general">
+
+                    <div class="alert alert-secondary mb-4 d-flex align-items-center">
+                        <i class="bi bi-calendar-check me-2 fs-5"></i>
+                        <div>
+                            <strong>Última Consulta Médica:</strong>
+                            <span th:text="${historia.fechaUltimaConsulta != null ? #temporals.format(historia.fechaUltimaConsulta, 'dd/MM/yyyy') : 'No registrada'}"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Estado Actual de Salud</h6>
+                            <p th:text="${historia.estadoSalud} ?: 'Sin información'"></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Condiciones</h6>
+                            <p th:text="${historia.condiciones} ?: 'Ninguna'"></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Alergias</h6>
+                            <p th:text="${historia.alergias} ?: 'Ninguna conocida'"></p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h6 class="fw-bold">Dietas Especiales</h6>
+                            <p th:text="${historia.dietasEspeciales} ?: 'Ninguna'"></p>
+                        </div>
+                        <div class="col-12">
+                            <h6 class="fw-bold">Observaciones Generales</h6>
+                            <p class="fst-italic" th:text="${historia.observaciones} ?: 'Sin observaciones'"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="meds">
+                    <div th:if="${not #lists.isEmpty(historia.medicamentos)}">
+                        <ul class="list-group">
+                            <li class="list-group-item" th:each="m : ${historia.medicamentos}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <strong th:text="${m.nombreMedicamento}"></strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <span class="text-muted">Dosis:</span>
+                                        <span th:text="|${m.dosis} mg|"></span> -
+                                        <span th:text="${m.frecuencia}"></span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted" th:text="${m.instrucciones}"></small>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <p th:if="${#lists.isEmpty(historia.medicamentos)}" class="text-muted">No hay medicamentos registrados.</p>
+                </div>
+
+                <div class="tab-pane fade" id="history">
+                    <h5 class="mb-3">Enfermedades</h5>
+                    <ul th:if="${not #lists.isEmpty(historia.enfermedades)}" class="mb-4">
+                        <li th:each="e : ${historia.enfermedades}" class="mb-2">
+                            <span class="fw-bold" th:text="${e.descripcionEnfermedad}"></span>
+                            <span class="text-muted small" th:text="|(${#temporals.format(e.fechaDiagnostico, 'dd/MM/yyyy')})|"></span>
+                            <div class="small" th:text="${e.observaciones}"></div>
+                        </li>
+                    </ul>
+                    <p th:if="${#lists.isEmpty(historia.enfermedades)}" class="text-muted mb-4">No hay enfermedades registradas.</p>
+
+                    <hr>
+
+                    <h5 class="mb-3">Cirugías</h5>
+                    <ul th:if="${not #lists.isEmpty(historia.cirugias)}">
+                        <li th:each="c : ${historia.cirugias}" class="mb-2">
+                            <span class="fw-bold" th:text="${c.descripcionCirugia}"></span>
+                            <span class="text-muted small" th:text="|(${#temporals.format(c.fechaCirugia, 'dd/MM/yyyy')})|"></span>
+                            <div class="small" th:text="${c.observaciones}"></div>
+                        </li>
+                    </ul>
+                    <p th:if="${#lists.isEmpty(historia.cirugias)}" class="text-muted">No hay cirugías registradas.</p>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="mt-3">
-        <a th:href="@{/pacientes}" class="btn btn-secondary">Volver a la Lista de Pacientes</a>
+
+    <div class="mt-4">
+        <a th:href="@{${backUrl}}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Volver
+        </a>
     </div>
+
 </main>
 <footer th:insert="~{fragments/layout :: footer-content}"></footer>
+
 </body>
 </html>
