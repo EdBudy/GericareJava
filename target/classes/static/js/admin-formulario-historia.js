@@ -80,40 +80,67 @@ function addCirugiaItem() {
 
 // Funciones para Medicamentos
 function addMedicamentoItem() {
-    const wrapper = document.getElementById('medicamentos-wrapper');
-    const index = wrapper.children.length;
-    const newItem = document.createElement('div');
-    newItem.className = 'row dynamic-item-row medicamento-item align-items-end';
-    newItem.innerHTML = `
-        <input type="hidden" name="medicamentos[${index}].idHcMedicamento" value="" />
+    // Calcula índice contando cuantos elementos con clase .medicamento-item hay
+    var index = document.querySelectorAll('.medicamento-item').length;
+
+    var wrapper = document.getElementById('medicamentos-wrapper');
+
+    // Crea div contenedor de la fila
+    var newRow = document.createElement('div');
+    newRow.className = 'row dynamic-item-row medicamento-item align-items-end mb-3';
+
+    // Construir HTML (igual al que esta en el Thymeleaf)
+    newRow.innerHTML = `
         <div class="col-md-3">
-            <label for="med-select-${index}" class="form-label small">Medicamento:</label>
-            <select id="med-select-${index}" class="form-select form-select-sm" name="medicamentos[${index}].idMedicamento" required>
-                <option value="">Seleccione...</option>
-                ${generateOptions(medicamentosCatalogo, 'idMedicamento', 'nombreMedicamento')}
+            <label class="form-label">Medicamento:</label>
+            <select class="form-select form-select-sm" name="medicamentos[${index}].idMedicamento" required>
+                 <option value="" disabled selected>Seleccione...</option>
+                 ${generarOpcionesMedicamentos()}
             </select>
-             <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="abrirModalNuevoMedicamento(this)">+ Nuevo Medicamento</button>
+            <button type="button" class="btn btn-link btn-sm p-0 mt-1" onclick="abrirModalNuevoMedicamento(this)">+ Nuevo Medicamento</button>
         </div>
+
         <div class="col-md-2">
-            <label for="med-dosis-${index}" class="form-label small">Dosis:</label>
-            <input type="text" id="med-dosis-${index}" class="form-control form-control-sm" name="medicamentos[${index}].dosis" />
+            <label class="form-label">Dosis (en mg):</label>
+            <div class="input-group input-group-sm">
+                <input type="number" step="any" min="0"
+                       class="form-control"
+                       name="medicamentos[${index}].dosis"
+                       placeholder="0" required />
+                <span class="input-group-text">mg</span>
+            </div>
         </div>
+
         <div class="col-md-2">
-            <label for="med-frec-${index}" class="form-label small">Frecuencia:</label>
-            <input type="text" id="med-frec-${index}" class="form-control form-control-sm" name="medicamentos[${index}].frecuencia" />
+            <label class="form-label">Frecuencia:</label>
+            <input type="text" class="form-control form-control-sm" name="medicamentos[${index}].frecuencia" placeholder="Ej: Cada 8h"/>
         </div>
+
         <div class="col-md-3">
-            <label for="med-inst-${index}" class="form-label small">Instrucciones:</label>
-            <input type="text" id="med-inst-${index}" class="form-control form-control-sm" name="medicamentos[${index}].instrucciones" />
+            <label class="form-label">Instrucciones:</label>
+            <input type="text" class="form-control form-control-sm" name="medicamentos[${index}].instrucciones" />
         </div>
+
         <div class="col-md-1">
-            <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Medicamento">
+             <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Medicamento">
                 <i class="bi bi-trash"></i>
             </button>
         </div>
         <div class="col-md-1"></div>
     `;
-    wrapper.appendChild(newItem);
+
+    wrapper.appendChild(newRow);
+}
+
+// Función auxiliar para repoblar el select
+function generarOpcionesMedicamentos() {
+    // 'medicamentosCatalogo' es la variable global que define en el HTML
+    if (typeof medicamentosCatalogo === 'undefined' || !medicamentosCatalogo) {
+        return '';
+    }
+    return medicamentosCatalogo.map(m =>
+        `<option value="${m.idMedicamento}">${m.nombreMedicamento}</option>`
+    ).join('');
 }
 
 function abrirModalNuevoMedicamento(button) {
