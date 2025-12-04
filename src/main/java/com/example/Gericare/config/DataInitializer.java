@@ -58,6 +58,8 @@ public class DataInitializer {
                 admin.setCorreoElectronico("admin@gericare.com");
                 admin.setContrasena(passwordEncoder.encode("admin123"));
                 admin.setRol(rolAdmin);
+                admin.setEstado(EstadoUsuario.Activo);
+                admin.setNecesitaCambioContrasena(false);
                 Telefono adminTelefono = new Telefono();
                 adminTelefono.setNumero("3131234567");
                 adminTelefono.setUsuario(admin);
@@ -84,6 +86,8 @@ public class DataInitializer {
                     cuidador.setCorreoElectronico("cuidador_" + userIndex + "@gericare.com");
                     cuidador.setContrasena(passwordEncoder.encode("cuidador" + userIndex));
                     cuidador.setRol(rolCuidador);
+                    cuidador.setEstado(EstadoUsuario.Activo);
+                    cuidador.setNecesitaCambioContrasena(false);
                     Telefono cuidadorTelefono = new Telefono();
                     cuidadorTelefono.setNumero("320987654" + userIndex);
                     cuidadorTelefono.setUsuario(cuidador);
@@ -111,6 +115,8 @@ public class DataInitializer {
                     familiar.setCorreoElectronico("familiar_" + userIndex + "@gmail.com");
                     familiar.setContrasena(passwordEncoder.encode("familiar" + userIndex));
                     familiar.setRol(rolFamiliar);
+                    familiar.setEstado(EstadoUsuario.Activo);
+                    familiar.setNecesitaCambioContrasena(false);
                     Telefono familiarTelefono = new Telefono();
                     familiarTelefono.setNumero("313654321" + userIndex);
                     familiarTelefono.setUsuario(familiar);
