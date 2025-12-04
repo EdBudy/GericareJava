@@ -138,16 +138,10 @@ public class EmailServiceImpl implements EmailService {
 
     private void agregarLogosInline(MimeMessageHelper helper) {
         try {
-            ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-.png");
+            ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-..png");
             if (logo.exists()) helper.addInline("geriLogo", logo);
-
-            // Agrega background solo si la plantilla lo pide, pero no hace daño tenerlo disponible
-            ClassPathResource bg = new ClassPathResource("static/images/indeximg.jpg");
-            if (bg.exists()) {
-                try { helper.addInline("backgroundImage", bg); } catch (Exception ignored) {}
-            }
         } catch (Exception e) {
-            // Ignorar errores de imagen para no detener el envío
+
         }
     }
 

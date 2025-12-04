@@ -2,66 +2,68 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${subject}">Notificación de Gericare Connect</title>
+    <title th:text="${subject}">Notificación Gericare</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
-        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
-        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; font-family: 'Poppins', Arial, sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        body { margin: 0; padding: 0; background-color: #f0f2f5; font-family: 'Poppins', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+        .wrapper { width: 100%; table-layout: fixed; background-color: #f0f2f5; padding-bottom: 60px; }
+        .main-table { margin: 0 auto; width: 100%; max-width: 600px; border-spacing: 0; font-family: 'Poppins', sans-serif; color: #333333; }
+        .content-card { background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .header-bg { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); padding: 40px 0; text-align: center; }
     </style>
 </head>
-<body style="margin: 0 !important; padding: 0 !important; background-color: #f4f7f6; font-family: 'Poppins', Arial, sans-serif;">
+<body style="margin: 0; padding: 0; background-color: #f0f2f5;">
 
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f7f6;">
-    <tr>
-        <td align="center" valign="top" style="padding: 40px 10px;">
+<center class="wrapper">
+    <div style="height: 40px;">&nbsp;</div>
 
-            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); overflow: hidden; border-collapse: separate; /* Truco para que el borde redondeado funcione en Outlook */">
+    <table class="main-table" cellpadding="0" cellspacing="0">
+        <tr>
+            <td class="content-card">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="header-bg" style="background: linear-gradient(135deg, #007bff 0%, #00d2ff 100%); padding: 40px 20px;">
+                            <div style="background: white; width: 100px; height: 100px; border-radius: 50%; margin: 0 auto; display: block; padding: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                                <img th:src="|cid:geriLogo|" alt="Gericare Logo" width="80" style="display: block; margin: 10px auto;">
+                            </div>
+                        </td>
+                    </tr>
+                </table>
 
-                <tr>
-                    <td align="center" style="padding: 20px; background-color: #007bff; /* Azul primario */">
-                        <table border="0" cellpadding="0" cellspacing="0" width="120" style="background-color: #ffffff; border-radius: 8px; padding: 10px;">
-                            <tr>
-                                <td align="center">
-                                    <img th:src="|cid:geriLogo|" alt="Gericare Logo" width="100" style="display: block; width: 100px;"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td style="padding: 40px 40px 20px 40px;">
+                            <h2 style="color: #2c3e50; font-size: 24px; margin: 0 0 20px 0; font-weight: 700; text-align: center; letter-spacing: -0.5px;" th:text="${subject}">
+                                Asunto del Mensaje
+                            </h2>
 
-                <tr>
-                    <td align="center" style="padding: 35px 40px 15px 40px;">
-                        <h1 th:text="${subject}" style="font-family: 'Poppins', Arial, sans-serif; font-size: 26px; font-weight: 700; color: #333333; margin: 0; line-height: 1.3;">
-                            Asunto del Correo
-                        </h1>
-                    </td>
-                </tr>
+                            <div style="color: #5a6b7c; font-size: 16px; line-height: 1.8; text-align: left;" th:utext="${body}">
+                            </div>
+                        </td>
+                    </tr>
 
-                <tr>
-                    <td align="center" style="padding: 0 40px 30px 40px;">
-                        <div th:utext="${body}" style="margin: 0;">
-                        </div>
-                    </td>
-                </tr>
+                    <tr>
+                        <td style="padding: 0 40px;">
+                            <div style="height: 1px; background-color: #eef2f7; width: 100%;"></div>
+                        </td>
+                    </tr>
 
-                <tr>
-                    <td align="center" style="padding: 30px 40px; background-color: #fafafa; border-top: 1px solid #eeeeee;">
-                        <p style="font-family: 'Poppins', Arial, sans-serif; font-size: 13px; color: #888888; line-height: 1.6; margin: 0;">
-                            © 2025 Gericare Connect<br>
-                            Este es un mensaje automático. Por favor, no respondas este correo.
-                        </p>
-                    </td>
-                </tr>
-            </table>
+                    <tr>
+                        <td style="padding: 30px 40px; background-color: #fafbfc; text-align: center;">
+                            <p style="margin: 0; color: #98a6ad; font-size: 12px;">
+                                © <span th:text="${#dates.year(#dates.createNow())}">2025</span> <strong>Gericare Connect</strong>.<br>
+                                Este es un mensaje automático, por favor no responder.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 
-        </td>
-    </tr>
-</table>
+    <div style="height: 40px;">&nbsp;</div>
+</center>
 
 </body>
 </html>
