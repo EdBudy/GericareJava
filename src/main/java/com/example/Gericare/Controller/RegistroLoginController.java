@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/")
 public class RegistroLoginController {
 
+    private final RegistroFacade registroFacade;
     private final UsuarioService usuarioService;
 
     public RegistroLoginController(UsuarioService usuarioService) {
