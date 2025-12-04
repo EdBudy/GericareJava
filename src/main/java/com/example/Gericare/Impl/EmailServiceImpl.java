@@ -145,6 +145,8 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+
+
     private String formatTextToHtml(String text) {
         String pStyle = "style=\"font-family: 'Poppins', Arial, sans-serif; font-size: 16px; color: #444444; line-height: 1.7; margin: 0 0 15px 0; text-align: center;\"";
         if (text == null || text.isBlank()) return "<p " + pStyle + ">Sin contenido.</p>";
