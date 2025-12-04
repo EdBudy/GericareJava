@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Restablecer Contraseña</title>
+    <title>Notificación de Actualización de Correo</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     </style>
@@ -20,36 +20,32 @@
 
         <tr>
             <td style="padding: 40px 30px; text-align: center;">
-                <h1 style="color: #32325d; font-size: 22px; font-weight: 700; margin-bottom: 20px;">Restablece tu contraseña</h1>
+                <h2 style="color: #32325d; font-size: 22px; font-weight: 700; margin-bottom: 10px;">Hola, <span th:text="${userName}">Usuario</span>.</h2>
 
-                <p style="color: #6b7c93; font-size: 15px; line-height: 1.6; margin-bottom: 30px;">
-                    Hola, hemos recibido una solicitud para cambiar las credenciales de tu cuenta en <strong>Gericare Connect</strong>.
+                <p style="color: #6b7c93; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                    Te informamos que tu dirección de correo electrónico en Gericare ha sido actualizada exitosamente.
                 </p>
 
-                <table width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                        <td align="center">
-                            <a th:href="${resetUrl}" style="background-color: #007bff; color: #ffffff; padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);">
-                                Cambiar mi Contraseña
-                            </a>
-                        </td>
-                    </tr>
-                </table>
-
-                <p style="color: #999; font-size: 13px; margin-top: 30px;">
-                    Este enlace expirará en 1 hora. Si no solicitaste esto, ignora este correo.
+                <p style="color: #32325d; font-size: 15px; line-height: 1.6; margin-bottom: 30px; font-weight: 600;">
+                    Tu nueva dirección de correo registrada es:
+                    <br>
+                    <strong style="color: #007bff;" th:text="${newEmail}">nuevo.correo@ejemplo.com</strong>
                 </p>
 
                 <div style="margin-top: 25px; border-top: 1px solid #eee; padding-top: 20px;">
-                    <p style="font-size: 12px; color: #aaa; margin-bottom: 5px;">¿Problemas con el botón?</p>
-                    <a th:href="${resetUrl}" style="font-size: 12px; color: #007bff; word-break: break-all;" th:text="${resetUrl}">link</a>
+                    <p style="color: #6b7c93; font-size: 14px; margin-bottom: 5px;">Si no solicitaste este cambio, por favor contacta a nuestro equipo de soporte inmediatamente.</p>
+                </div>
+
+                <div style="margin-top: 30px; text-align: center;">
+                    <p style="font-size: 15px; color: #32325d;">Saludos,<br>
+                        El equipo de Gericare</p>
                 </div>
             </td>
         </tr>
 
         <tr>
             <td style="background-color: #f7fafc; padding: 15px; text-align: center; color: #8898aa; font-size: 12px;">
-                Equipo Gericare Connect © 2025
+                <p>&copy; <span th:text="${#dates.year(#dates.createNow())}">2025</span> Gericare. Todos los derechos reservados.</p>
             </td>
         </tr>
     </table>
