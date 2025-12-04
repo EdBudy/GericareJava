@@ -1,5 +1,6 @@
 package com.example.Gericare.Controller;
 
+import com.example.Gericare.Facade.RegistroFacade;
 import com.example.Gericare.Service.UsuarioService;
 import com.example.Gericare.Entity.Familiar;
 import com.example.Gericare.Entity.Telefono;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,17 +22,16 @@ public class RegistroLoginController {
     private final RegistroFacade registroFacade;
     private final UsuarioService usuarioService;
 
-    public RegistroLoginController(UsuarioService usuarioService) {
+    // Constructor
+    public RegistroLoginController(RegistroFacade registroFacade, UsuarioService usuarioService) {
+        this.registroFacade = registroFacade;
         this.usuarioService = usuarioService;
     }
 
-    // RegistroLoginController
     @GetMapping("/login")
     public String mostrarFormularioDeLogin() {
         return "auth/login";
     }
-    // Cuando se accede a la URL /login el controlador muestra la página "login.html"
-    // "login.html" envía los datos por método POST que son procesados por Spring Security
 
     @GetMapping("/registro")
     public String mostrarFormularioDeRegistro(Model model) {
@@ -43,13 +42,12 @@ public class RegistroLoginController {
     @PostMapping("/registro")
     public String registrarCuentaDeFamiliar(@Valid @ModelAttribute("familiar") Familiar familiar, BindingResult bindingResult, Model model) {
 
-        // Contraseña = Documento de Identidad
-        // Se asigna antes de procesar el guardado para que viaje al servicio
+        // Validaciones previas (Contraseña = documento)
         if (familiar.getDocumentoIdentificacion() != null && !familiar.getDocumentoIdentificacion().isEmpty()) {
             familiar.setContrasena(familiar.getDocumentoIdentificacion());
         }
 
-        // Limpieza de teléfonos
+        // Limpieza teléfonos vacíos
         if (familiar.getTelefonos() != null) {
             List<Telefono> telefonosNoVacios = familiar.getTelefonos().stream()
                     .filter(t -> t.getNumero() != null && !t.getNumero().trim().isEmpty())
@@ -57,14 +55,13 @@ public class RegistroLoginController {
             familiar.setTelefonos(telefonosNoVacios);
         }
 
-        // Validación de errores del formulario
         if (bindingResult.hasErrors()) {
             return "auth/registro";
         }
 
         try {
-            // Llamada al servicio (Crear y enviar correo)
-            usuarioService.crearFamiliar(familiar);
+            // Delega to el proceso complejo a una sola línea
+            registroFacade.registrarFamiliar(familiar);
 
             return "redirect:/login?registroExitoso";
 

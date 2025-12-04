@@ -47,6 +47,16 @@ public class DashboardController {
         if (userRole != null) {
             String userEmail = authentication.getName();
 
+            // Obtener usuario completo pa mostrar su info y validar contra
+            usuarioService.findByEmail(userEmail).ifPresent(usuarioDTO -> {
+                model.addAttribute("usuario", usuarioDTO); // pa el link de editar perfil
+
+                // Validación Alerta Contraseña
+                if (usuarioDTO.isNecesitaCambioContrasena()) {
+                    model.addAttribute("alertaPassword", true);
+                }
+            });
+
             if (userRole.equals("ROLE_Administrador")) {
                 List<UsuarioDTO> usuarios = usuarioService.findUsuariosByCriteria(nombre, documento, rol);
                 model.addAttribute("usuarios", usuarios);
