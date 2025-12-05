@@ -32,3 +32,55 @@ spring.mail.from=gericareconnect@gmail.com
 
 # Para construir enlaces correctamente en los correos
 app.base-url=http://localhost:8090
+
+
+
+
+
+
+
+spring.application.name=Gericare
+
+# Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/gericare
+spring.datasource.username=postgres
+spring.datasource.password=.
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA Configuration
+spring.jpa.hibernate.ddl-auto=create
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# Desactiva caché para ver cambios sin reiniciar
+spring.thymeleaf.cache=false
+
+# Ubicación y extensión por defecto
+spring.thymeleaf.prefix=classpath:/templates/
+spring.thymeleaf.suffix=.html
+
+# (Opcional) Modo de plantillas
+spring.thymeleaf.mode=HTML
+
+logging.level.org.thymeleaf=TRACE
+
+# Email Config con protocolos SMTP y TLS en application.properties
+
+# Direccion del servidor de correo saliente SMTP (Simple Mail Transfer Protocol) de Gmail
+spring.mail.host=smtp.gmail.com
+# Puerto 587 es el est?ndar para conexiones seguras con TLS (Transport Layer Security)
+spring.mail.port=587
+# Correo electr?nico desde donde se enviar?n los mensajes
+spring.mail.username=gericareconnect@gmail.com
+# Contrase?a de app
+spring.mail.password=iimcovwxxempflgj
+# Le dice a Spring que debe autenticarse con el usuario y contrase?a proporcionados
+spring.mail.properties.mail.smtp.auth=true
+# Habilita el cifrado TLS para una comunicaci?n segura con el servidor de Gmail
+spring.mail.properties.mail.smtp.starttls.enable=true
+# Define el correo electr?nico del remitente que aparecer? en los correos enviados
+spring.mail.from=gericareconnect@gmail.com
+
+# Para construir enlaces correctamente en los correos
+app.base-url=http://localhost:8080
