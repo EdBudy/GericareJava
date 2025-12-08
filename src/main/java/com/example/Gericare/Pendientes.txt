@@ -1,9 +1,4 @@
-1. Correo electronico validacion de duplicados (sirve bien pero no saca mensaje de error, manda a 500).
-2. Registrar correo ya existe, manejar ese error.
-3. Correo de bienvenida no sirve.
 
 ----------------------------------------
 No necesario (pa más adelante):
-
-1. Validación fechas al completar tareas/tratamientos (no poder completar si no es la fecha indicada, si se pasa la fecha deberia marcar como incompleto o algo, en este caso habria que agregar más estados a las tareas/tratamientos).
 2. Agendar rutina (actividad guardada) para todos los días.
