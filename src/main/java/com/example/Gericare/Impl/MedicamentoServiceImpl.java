@@ -49,6 +49,8 @@ public class MedicamentoServiceImpl implements MedicamentoService {
     public List<MedicamentoDTO> listarMedicamentosActivosFiltrados(String nombre, String descripcion) {
         Specification<Medicamento> spec = MedicamentoSpecification.findByCriteria(nombre, descripcion);
         return medicamentoRepository.findAll(spec).stream()
+                // filtro pa que solo devuelva los activos
+                .filter(med -> med.getEstado() == EstadoUsuario.Activo)
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -61,45 +63,50 @@ public class MedicamentoServiceImpl implements MedicamentoService {
         }
 
         String nombreTrimmed = dto.getNombreMedicamento().trim();
-
-        // Buscar si ya existe un medicamento con ese nombre (ignorando mayúsculas/minúsculas)
         Optional<Medicamento> existenteOpt = medicamentoRepository.findByNombreMedicamentoIgnoreCase(nombreTrimmed);
 
         Medicamento med;
 
         if (dto.getIdMedicamento() != null) {
+            // Edicion
             med = medicamentoRepository.findById(dto.getIdMedicamento())
                     .orElseThrow(() -> new RuntimeException("Medicamento no encontrado con id: " + dto.getIdMedicamento()));
 
-            // Si está intentando cambiar el nombre a uno que ya existe en otro registro
+            // Validación de nombre duplicado en otro registro
             if (existenteOpt.isPresent() && !existenteOpt.get().getIdMedicamento().equals(dto.getIdMedicamento())) {
-                // Lanza error, porque es una acción manual de edición
-                log.warn("Intento de renombrar medicamento ID {} al nombre de ID {}", dto.getIdMedicamento(), existenteOpt.get().getIdMedicamento());
+                // Si el otro existe pero inactivo, como esta editando uno especifico, mejor lanzar error pa evitar conflictos de IDs
                 throw new RuntimeException("Ya existe otro medicamento con el nombre: " + nombreTrimmed);
             }
         } else {
-            // Creación
-            // Si ya existe, LANZA EL ERROR
+            // creacion
             if (existenteOpt.isPresent()) {
-                log.warn("Intento de crear medicamento duplicado (nombre: {}). Lanzando error.", nombreTrimmed);
-                // Este es el error que tu controlador capturará
-                throw new RuntimeException("¡El medicamento insertado ya existe!");
+                Medicamento existente = existenteOpt.get();
+                // existe pero inactivo, lo reactiva
+                if (existente.getEstado() == EstadoUsuario.Inactivo) {
+                    med = existente; // Usa registro existente
+                    // Se reactivará más abajo
+                } else {
+                    // Si está activo y existe, es duplicado
+                    log.warn("Intento de crear medicamento duplicado (nombre: {}). Lanzando error.", nombreTrimmed);
+                    throw new RuntimeException("¡El medicamento insertado ya existe!");
+                }
+            } else {
+                // Si no existe, crea uno nuevo
+                med = new Medicamento();
             }
-            // Si no existe crea uno nuevo
-            med = new Medicamento();
         }
 
-        // Aplicar cambios
-        med.setNombreMedicamento(nombreTrimmed); // Guardar con el formato enviado (solo con trim)
+        // reactiva medicamento si esta inactivo
+        med.setNombreMedicamento(nombreTrimmed);
         med.setDescripcionMedicamento(dto.getDescripcionMedicamento() != null ? dto.getDescripcionMedicamento().trim() : null);
-        med.setEstado(EstadoUsuario.Activo);
+        med.setEstado(EstadoUsuario.Activo); // Asegura que quede activo
 
         try {
             Medicamento medGuardado = medicamentoRepository.save(med);
             return mapToDTO(medGuardado);
         } catch (DataIntegrityViolationException e) {
             log.error("Error de integridad al guardar medicamento: {}", nombreTrimmed, e);
-            throw new RuntimeException("Ya existe un medicamento con el nombre: " + nombreTrimmed, e);
+            throw new RuntimeException("Error al guardar el medicamento.", e);
         }
     }
 
