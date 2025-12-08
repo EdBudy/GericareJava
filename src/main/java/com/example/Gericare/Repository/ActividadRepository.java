@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate; // Importante para el filtro diario
 import java.util.List;
 
 @Repository
@@ -25,20 +26,33 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long>, Jpa
     List<ActividadDTO> findActividadesByCuidador(@Param("cuidadorId") Long cuidadorId);
 
     // Métodos estadísticas
-
-    // Contar total actividades de pacientes asignados
-    @Query("SELECT COUNT(a) FROM Actividad a " +
-            "JOIN a.paciente p " +
-            "JOIN PacienteAsignado pa ON pa.paciente = p " +
+    @Query("SELECT COUNT(a) FROM Actividad a JOIN a.paciente p JOIN PacienteAsignado pa ON pa.paciente = p " +
             "WHERE pa.cuidador = :cuidador AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo")
     Long countTotalActividadesAsignadas(@Param("cuidador") Cuidador cuidador);
 
-    // Contar actividades completadas
+    @Query("SELECT COUNT(a) FROM Actividad a JOIN a.paciente p JOIN PacienteAsignado pa ON pa.paciente = p " +
+            "WHERE pa.cuidador = :cuidador AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo AND a.estadoActividad = :estado")
+    Long countActividadesByCuidadorAndEstado(@Param("cuidador") Cuidador cuidador, @Param("estado") EstadoActividad estado);
+
+    // Total actividades asignadas hoy
     @Query("SELECT COUNT(a) FROM Actividad a " +
             "JOIN a.paciente p " +
             "JOIN PacienteAsignado pa ON pa.paciente = p " +
             "WHERE pa.cuidador = :cuidador " +
-            "AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo " +
-            "AND a.estadoActividad = :estado")
-    Long countActividadesByCuidadorAndEstado(@Param("cuidador") Cuidador cuidador, @Param("estado") EstadoActividad estado);
+            "AND a.fechaActividad = :fecha " + // Filtro fecha
+            "AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo")
+    Long countActividadesAsignadasPorFecha(@Param("cuidador") Cuidador cuidador, @Param("fecha") LocalDate fecha);
+
+    // Actividades completadas hoy
+    @Query("SELECT COUNT(a) FROM Actividad a " +
+            "JOIN a.paciente p " +
+            "JOIN PacienteAsignado pa ON pa.paciente = p " +
+            "WHERE pa.cuidador = :cuidador " +
+            "AND a.estadoActividad = :estado " +
+            "AND a.fechaActividad = :fecha " + // Filtro fecha
+            "AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo")
+    Long countActividadesCompletadasPorFecha(@Param("cuidador") Cuidador cuidador, @Param("estado") EstadoActividad estado, @Param("fecha") LocalDate fecha);
+
+    // Busca actividades por estado y fecha anterior a fecha dada
+    List<Actividad> findByEstadoActividadAndFechaActividadBefore(EstadoActividad estado, LocalDate fecha);
 }

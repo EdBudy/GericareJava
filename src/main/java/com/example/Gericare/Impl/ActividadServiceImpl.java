@@ -17,13 +17,20 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.example.Gericare.Service.FestivosService;
-
+import org.springframework.scheduling.annotation.Scheduled;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Scheduled; // scheduler
+import java.time.LocalDate;
 
 @Service
 public class ActividadServiceImpl implements ActividadService {
+
+    private static final Logger log = LoggerFactory.getLogger(ActividadServiceImpl.class);
 
     @Autowired
     private ActividadRepository actividadRepository;
@@ -116,7 +123,7 @@ public class ActividadServiceImpl implements ActividadService {
         Actividad actividad = actividadRepository.findById(actividadId)
                 .orElseThrow(() -> new RuntimeException("Actividad no encontrada con id: " + actividadId));
 
-        // Validación de seguridad
+        // Validación seguridad (Cuidador asignado)
         boolean esAsignado = pacienteAsignadoRepository.findByCuidador_idUsuarioAndPaciente_idPacienteAndEstado(
                         cuidadorId, actividad.getPaciente().getIdPaciente(), EstadoAsignacion.Activo)
                 .isPresent();
@@ -125,8 +132,32 @@ public class ActividadServiceImpl implements ActividadService {
             throw new AccessDeniedException("El cuidador no tiene permiso para modificar esta actividad.");
         }
 
+        // Validación fecha (hoy only)
+        if (!actividad.getFechaActividad().isEqual(LocalDate.now())) {
+            throw new RuntimeException("La actividad solo puede completarse el día (" + actividad.getFechaActividad() + ").");
+        }
+
         actividad.setEstadoActividad(EstadoActividad.Completada);
         actividadRepository.save(actividad);
+    }
+
+    // Se ejecuta todos los días a las 00:01 AM
+    @Scheduled(cron = "0 1 0 * * ?")
+    @Transactional
+    public void marcarActividadesVencidas() {
+        LocalDate ayer = LocalDate.now().minusDays(1);
+
+        // Busca actividades que eran pa ayer o antes, siguen 'Pendiente' y marca como 'Vencida'
+        List<Actividad> vencidas = actividadRepository.findByEstadoActividadAndFechaActividadBefore(EstadoActividad.Pendiente, LocalDate.now());
+
+        for (Actividad a : vencidas) {
+            a.setEstadoActividad(EstadoActividad.Vencida);
+        }
+
+        if (!vencidas.isEmpty()) {
+            actividadRepository.saveAll(vencidas);
+            log.info("Se marcaron {} actividades como Incumplidas.", vencidas.size());
+        }
     }
 
     private ActividadDTO toDTO(Actividad actividad) {

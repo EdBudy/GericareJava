@@ -35,9 +35,8 @@
                         <th>Tipo de Actividad</th>
                         <th>Descripción</th>
                         <th>Fecha y Hora</th>
-                        <th class="text-center">Agendar</th>
                         <th class="text-center">Estado</th>
-                        <th class="text-center">Acción</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -48,46 +47,39 @@
                         <td th:text="|${#temporals.format(actividad.fechaActividad, 'dd/MM/yyyy')} de ${#temporals.format(actividad.horaInicio, 'HH:mm')} a ${#temporals.format(actividad.horaFin, 'HH:mm')}|"></td>
 
                         <td class="text-center">
-
-                            <a  th:if="${actividad.estadoActividad.toString() == 'Pendiente'}"
-
-                                th:href="@{https://www.google.com/calendar/render(
-                                    action='TEMPLATE',
-                                    text='Actividad: ' + ${actividad.tipoActividad} + ' - (' + ${actividad.nombrePaciente} + ')',
-                                    details=${actividad.descripcionActividad},
-                                    dates=${#temporals.format(actividad.fechaActividad, 'yyyyMMdd') + 'T' + #temporals.format(actividad.horaInicio, 'HHmmss')} + '/' + ${#temporals.format(actividad.fechaActividad, 'yyyyMMdd') + 'T' + #temporals.format(actividad.horaFin, 'HHmmss')}
-                                )}"
-
-                                target="_blank"
-                                class="btn btn-sm btn-outline-primary"
-                                title="Añadir a Google Calendar">
-                                <i class="bi bi-calendar-plus"></i>
-                            </a>
-
-                            <a  th:unless="${actividad.estadoActividad.toString() == 'Pendiente'}"
-                                class="btn btn-sm btn-danger disabled"
-                                title="Actividad ya completada"
-                                aria-disabled="true">
-                                <i class="bi bi-calendar-x"></i>
-                            </a>
-                        </td>
-
-                        <td class="text-center">
                             <span th:text="${actividad.estadoActividad}" class="badge"
                                   th:classappend="${actividad.estadoActividad.toString() == 'Pendiente'} ? 'bg-warning text-dark' : 'bg-success'">
                             </span>
                         </td>
 
                         <td class="text-center">
-                            <form th:if="${actividad.estadoActividad.toString() == 'Pendiente'}"
-                                  th:action="@{|/actividades/completar/${actividad.idActividad}|}"
-                                  method="post"
-                                  class="m-0"
-                                  style="display: inline-block;">
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="bi bi-check-lg me-1"></i> Completar
+
+                            <div th:if="${actividad.estadoActividad.toString() == 'Pendiente'}">
+
+                                <form th:if="${actividad.fechaActividad.isEqual(#temporals.createNow().toLocalDate())}"
+                                      th:action="@{|/actividades/completar/${actividad.idActividad}|}"
+                                      method="post"
+                                      class="m-0"
+                                      style="display: inline-block;">
+
+                                    <button type="button" class="btn btn-success btn-sm" onclick="confirmarCompletarActividad(this)">
+                                        <i class="bi bi-check-lg me-1"></i> Completar
+                                    </button>
+                                </form>
+
+                                <button th:unless="${actividad.fechaActividad.isEqual(#temporals.createNow().toLocalDate())}"
+                                        type="button"
+                                        class="btn btn-secondary btn-sm"
+                                        disabled
+                                        title="Solo se puede completar el día de la actividad asignado">
+                                    <i class="bi bi-lock-fill me-1"></i> Programada: <span th:text="${#temporals.format(actividad.fechaActividad, 'dd/MM')}"></span>
                                 </button>
-                            </form>
+
+                            </div>
+
+                            <span th:unless="${actividad.estadoActividad.toString() == 'Pendiente'}">
+                                -
+                            </span>
                         </td>
                     </tr>
                     </tbody>

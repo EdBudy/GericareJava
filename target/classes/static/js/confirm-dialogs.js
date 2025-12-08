@@ -219,3 +219,28 @@ function confirmarEliminacionMedicamento(button) {
         }
     });
 }
+
+function confirmarCompletarActividad(btn) {
+    const form = btn.closest('form');
+
+    Swal.fire({
+        title: '¿Completar actividad?',
+        text: "¿Estás seguro de que deseas marcar esta actividad como realizada?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, completar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Si el usuario confirma, envia el formulario manualmente
+            if (form) {
+                form.submit();
+            } else {
+                console.error("No se encontró el formulario de la actividad.");
+            }
+        }
+    });
+}

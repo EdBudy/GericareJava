@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 public class EstadisticaServiceImpl implements EstadisticaService {
@@ -41,7 +42,6 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 
     @Override
     public List<EstadisticaCuidadorDTO> obtenerEstadisticasCuidadores() {
-        // Usa el método del Repositorio
         return pacienteAsignadoRepository.obtenerPacientesPorCuidador();
     }
 
@@ -52,19 +52,24 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         // Busca usuario con rol Cuidador
         List<Usuario> cuidadores = usuarioRepository.findByRol_RolNombre(RolNombre.Cuidador);
 
+        // fecha hoy
+        LocalDate hoy = LocalDate.now();
+
         for (Usuario u : cuidadores) {
             if (u instanceof Cuidador) {
                 Cuidador cuidador = (Cuidador) u;
 
-                // Usa queries personalizadas que se agregan al ActividadRepository
-                Long total = actividadRepository.countTotalActividadesAsignadas(cuidador);
-                Long completadas = actividadRepository.countActividadesByCuidadorAndEstado(cuidador, EstadoActividad.Completada);
+                // Total asignado para hoy
+                Long totalDiario = actividadRepository.countActividadesAsignadasPorFecha(cuidador, hoy);
+
+                // Completadas hoy
+                Long completadasDiario = actividadRepository.countActividadesCompletadasPorFecha(cuidador, EstadoActividad.Completada, hoy);
 
                 dtos.add(new EstadisticaActividadDTO(
                         cuidador.getNombre(),
                         cuidador.getApellido(),
-                        total,
-                        completadas
+                        totalDiario,
+                        completadasDiario
                 ));
             }
         }
@@ -75,13 +80,11 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 
     @Override
     public byte[] generarReportePdf() throws IOException {
-        // Gráfico Pacientes
         return generarPdfGenerico(obtenerEstadisticasCuidadores(), true);
     }
 
     @Override
     public byte[] generarReporteActividadesPdf() throws IOException {
-        // Gráfico Actividades
         return generarPdfGenerico(obtenerEstadisticasActividadesCompletadas(), false);
     }
 
@@ -93,15 +96,14 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 
             // titulos
             Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Color.DARK_GRAY);
-            String titulo = esReportePacientes ? "Reporte de Carga Laboral (Pacientes)" : "Reporte de Eficiencia (Actividades)";
+            String titulo = esReportePacientes ? "Reporte de Carga Laboral (Pacientes)" : "Reporte Diario de Eficiencia (Actividades Diarias)";
             Paragraph pTitulo = new Paragraph(titulo, fontTitulo);
             pTitulo.setAlignment(Element.ALIGN_CENTER);
             document.add(pTitulo);
 
-            // txt explicativo reporte actividades
             if (!esReportePacientes) {
                 Font fontDesc = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.GRAY);
-                Paragraph pDesc = new Paragraph("A continuación se muestra el desempeño de los cuidadores en base al ratio actividades completadas / actividades asignadas.", fontDesc);
+                Paragraph pDesc = new Paragraph("Desempeño de los cuidadores para el día de hoy.", fontDesc);
                 pDesc.setAlignment(Element.ALIGN_CENTER);
                 pDesc.setSpacingBefore(10);
                 pDesc.setSpacingAfter(10);
@@ -109,7 +111,6 @@ public class EstadisticaServiceImpl implements EstadisticaService {
             }
             document.add(Chunk.NEWLINE);
 
-            // grafico
             JFreeChart chart = esReportePacientes
                     ? crearGraficoPacientes((List<EstadisticaCuidadorDTO>) datos)
                     : crearGraficoActividades((List<EstadisticaActividadDTO>) datos);
@@ -120,22 +121,20 @@ public class EstadisticaServiceImpl implements EstadisticaService {
             document.add(pdfImage);
             document.add(Chunk.NEWLINE);
 
-            // tbl
             PdfPTable table = new PdfPTable(esReportePacientes ? 2 : 4);
             table.setWidthPercentage(100);
 
             if (esReportePacientes) {
                 agregarCeldaHeader(table, "Cuidador");
                 agregarCeldaHeader(table, "Pacientes Asignados");
-
                 for (EstadisticaCuidadorDTO d : (List<EstadisticaCuidadorDTO>) datos) {
                     table.addCell(new Phrase(d.getNombreCuidador() + " " + d.getApellidoCuidador()));
                     agregarCeldaCentro(table, d.getCantidadPacientes().toString());
                 }
             } else {
                 agregarCeldaHeader(table, "Cuidador");
-                agregarCeldaHeader(table, "Actividades (Total)");
-                agregarCeldaHeader(table, "Completadas");
+                agregarCeldaHeader(table, "Asignadas (Hoy)");
+                agregarCeldaHeader(table, "Completadas (Hoy)");
                 agregarCeldaHeader(table, "Efectividad");
 
                 for (EstadisticaActividadDTO d : (List<EstadisticaActividadDTO>) datos) {
@@ -153,7 +152,7 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         }
     }
 
-    // Helpers JFreeChart
+    // Helpers JFreeChart y Celdas
     private JFreeChart crearGraficoPacientes(List<EstadisticaCuidadorDTO> datos) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         datos.forEach(d -> dataset.addValue(d.getCantidadPacientes(), "Pacientes", d.getNombreCuidador() + " " + d.getApellidoCuidador()));
@@ -164,16 +163,16 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (EstadisticaActividadDTO d : datos) {
             String nombre = d.getNombreCuidador() + " " + d.getApellidoCuidador();
-            dataset.addValue(d.getActividadesAsignadas(), "Total", nombre);
-            dataset.addValue(d.getActividadesCompletadas(), "Realizadas", nombre);
+            dataset.addValue(d.getActividadesAsignadas(), "Total Hoy", nombre);
+            dataset.addValue(d.getActividadesCompletadas(), "Realizadas Hoy", nombre);
         }
-        JFreeChart chart = ChartFactory.createBarChart("Eficiencia", "Cuidador", "Actividades", dataset, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createBarChart("Eficiencia Diaria", "Cuidador", "Actividades", dataset, PlotOrientation.VERTICAL, true, true, false);
 
         CategoryPlot plot = chart.getCategoryPlot();
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        renderer.setItemMargin(0.0); // barras pegadas
-        renderer.setSeriesPaint(0, new Color(13, 110, 253)); // Azul
-        renderer.setSeriesPaint(1, new Color(25, 135, 84));  // Verde
+        renderer.setItemMargin(0.0);
+        renderer.setSeriesPaint(0, new Color(13, 110, 253));
+        renderer.setSeriesPaint(1, new Color(25, 135, 84));
 
         plot.setBackgroundPaint(Color.white);
         plot.setRangeGridlinePaint(Color.gray);
