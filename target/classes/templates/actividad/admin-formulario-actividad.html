@@ -52,7 +52,12 @@
 
                             <div class="col-md-4 mb-3">
                                 <label for="fechaActividad" class="form-label">Fecha</label>
-                                <input type="date" id="fechaActividad" th:field="*{fechaActividad}" class="form-control" />
+
+                                <input type="date"
+                                       id="fechaActividad"
+                                       th:field="*{fechaActividad}"
+                                       class="form-control"
+                                       th:min="${#temporals.createNow().toLocalDate()}" />
 
                                 <span id="alertaFestivoActividad" class="text-danger fw-bold mt-1 d-block"></span>
 

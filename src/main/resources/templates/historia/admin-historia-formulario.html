@@ -135,8 +135,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label th:for="|cirugia-fecha-${iterStat.index}|" class="form-label">Fecha:</label>
-                                    <input type="date" th:id="|cirugia-fecha-${iterStat.index}|" class="form-control form-control-sm" th:name="|cirugias[${iterStat.index}].fechaCirugia|" th:value="${cirugia.fechaCirugia}" />
-                                </div>
+                                    <input type="date"
+                                           th:id="|cirugia-fecha-${iterStat.index}|"
+                                           class="form-control form-control-sm"
+                                           th:name="|cirugias[${iterStat.index}].fechaCirugia|"
+                                           th:value="${cirugia.fechaCirugia}"
+                                           th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" /> </div>
                                 <div class="col-md-3">
                                     <label th:for="|cirugia-obs-${iterStat.index}|" class="form-label">Observaciones:</label>
                                     <input type="text" th:id="|cirugia-obs-${iterStat.index}|" class="form-control form-control-sm" th:name="|cirugias[${iterStat.index}].observaciones|" th:value="${cirugia.observaciones}" />
@@ -190,16 +194,35 @@
                                     <label th:for="|med-frec-${iterStat.index}|" class="form-label">
                                         Frecuencia <span class="text-danger">*</span>
                                     </label>
-                                    <input type="text"
-                                           th:id="|med-frec-${iterStat.index}|"
-                                           class="form-control form-control-sm"
-                                           th:name="|medicamentos[${iterStat.index}].frecuencia|"
-                                           th:value="${med.frecuencia}"
-                                           placeholder="Ej: c/8h"
-                                           required /> <div class="text-danger small"
-                                                            th:if="${#fields.hasErrors('medicamentos[' + iterStat.index + '].frecuencia')}"
-                                                            th:errors="*{medicamentos[__${iterStat.index}__].frecuencia}">
-                                </div>
+
+                                    <select th:id="|med-frec-${iterStat.index}|"
+                                            class="form-select form-select-sm"
+                                            th:name="|medicamentos[${iterStat.index}].frecuencia|"
+                                            required>
+                                        <option value="" disabled th:selected="${med.frecuencia == null}">Seleccione...</option>
+
+                                        <option value="Cada 4 horas" th:selected="${med.frecuencia == 'Cada 4 horas'}">Cada 4 horas</option>
+                                        <option value="Cada 6 horas" th:selected="${med.frecuencia == 'Cada 6 horas'}">Cada 6 horas</option>
+                                        <option value="Cada 8 horas" th:selected="${med.frecuencia == 'Cada 8 horas'}">Cada 8 horas</option>
+                                        <option value="Cada 12 horas" th:selected="${med.frecuencia == 'Cada 12 horas'}">Cada 12 horas</option>
+                                        <option value="Cada 24 horas" th:selected="${med.frecuencia == 'Cada 24 horas'}">Cada 24 horas (1 vez al día)</option>
+                                        <option value="Cada 48 horas" th:selected="${med.frecuencia == 'Cada 48 horas'}">Cada 48 horas</option>
+
+                                        <option disabled>Comidas</option>
+                                        <option value="En ayunas" th:selected="${med.frecuencia == 'En ayunas'}">En ayunas</option>
+                                        <option value="Antes de cada comida" th:selected="${med.frecuencia == 'Antes de cada comida'}">Antes de cada comida</option>
+                                        <option value="Después de cada comida" th:selected="${med.frecuencia == 'Después de cada comida'}">Después de cada comida</option>
+                                        <option value="Al acostarse" th:selected="${med.frecuencia == 'Al acostarse'}">Al acostarse</option>
+
+                                        <option disabled>Otros</option>
+                                        <option value="Según necesidad" th:selected="${med.frecuencia == 'Según necesidad'}">Según necesidad (Dolor/Fiebre)</option>
+                                        <option value="Dosis única" th:selected="${med.frecuencia == 'Dosis única'}">Dosis única</option>
+                                    </select>
+
+                                    <div class="text-danger small"
+                                         th:if="${#fields.hasErrors('medicamentos[' + iterStat.index + '].frecuencia')}"
+                                         th:errors="*{medicamentos[__${iterStat.index}__].frecuencia}">
+                                    </div>
                                 </div>
                                 <div class="col-md-3">
                                     <label th:for="|med-inst-${iterStat.index}|" class="form-label">Instrucciones:</label>
@@ -229,8 +252,12 @@
                                 </div>
                                 <div class="col-md-3">
                                     <label th:for="|enf-fecha-${iterStat.index}|" class="form-label">Fecha Diagnóstico:</label>
-                                    <input type="date" th:id="|enf-fecha-${iterStat.index}|" class="form-control form-control-sm" th:name="|enfermedades[${iterStat.index}].fechaDiagnostico|" th:value="${enf.fechaDiagnostico}" />
-                                </div>
+                                    <input type="date"
+                                           th:id="|enf-fecha-${iterStat.index}|"
+                                           class="form-control form-control-sm"
+                                           th:name="|enfermedades[${iterStat.index}].fechaDiagnostico|"
+                                           th:value="${enf.fechaDiagnostico}"
+                                           th:max="${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" /> </div>
                                 <div class="col-md-3">
                                     <label th:for="|enf-obs-${iterStat.index}|" class="form-label">Observaciones:</label>
                                     <input type="text" th:id="|enf-obs-${iterStat.index}|" class="form-control form-control-sm" th:name="|enfermedades[${iterStat.index}].observaciones|" th:value="${enf.observaciones}" />

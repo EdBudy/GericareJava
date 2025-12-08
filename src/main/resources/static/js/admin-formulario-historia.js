@@ -49,46 +49,35 @@ function reindexItems(wrapperId, baseName) {
     }
 }
 
-// Funciones para Cirugías
-function addCirugiaItem() {
-    const wrapper = document.getElementById('cirugias-wrapper');
-    const index = wrapper.children.length;
-    const newItem = document.createElement('div');
-    newItem.className = 'row dynamic-item-row cirugia-item align-items-end';
-    newItem.innerHTML = `
-        <input type="hidden" name="cirugias[${index}].idCirugia" value="" />
-        <div class="col-md-5">
-            <label for="cirugia-desc-${index}" class="form-label small">Descripción:</label>
-            <input type="text" id="cirugia-desc-${index}" class="form-control form-control-sm" name="cirugias[${index}].descripcionCirugia" required />
-        </div>
-        <div class="col-md-3">
-            <label for="cirugia-fecha-${index}" class="form-label small">Fecha:</label>
-            <input type="date" id="cirugia-fecha-${index}" class="form-control form-control-sm" name="cirugias[${index}].fechaCirugia" />
-        </div>
-        <div class="col-md-3">
-            <label for="cirugia-obs-${index}" class="form-label small">Observaciones:</label>
-            <input type="text" id="cirugia-obs-${index}" class="form-control form-control-sm" name="cirugias[${index}].observaciones" />
-        </div>
-        <div class="col-md-1">
-            <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Cirugía">
-                <i class="bi bi-trash"></i>
-            </button>
-        </div>
-    `;
-    wrapper.appendChild(newItem);
-}
-
 // Funciones para Medicamentos
+// Define opciones de frecuencia en una constante para reutilizar
+const opcionesFrecuencia = `
+    <option value="" disabled selected>Seleccione...</option>
+    <option value="Cada 4 horas">Cada 4 horas</option>
+    <option value="Cada 6 horas">Cada 6 horas</option>
+    <option value="Cada 8 horas">Cada 8 horas</option>
+    <option value="Cada 12 horas">Cada 12 horas</option>
+    <option value="Cada 24 horas">Cada 24 horas (1 vez al día)</option>
+    <option value="Cada 48 horas">Cada 48 horas</option>
+    <option disabled>Comidas:</option>
+    <option value="En ayunas">En ayunas</option>
+    <option value="Antes de cada comida">Antes de cada comida</option>
+    <option value="Después de cada comida">Después de cada comida</option>
+    <option value="Al acostarse">Al acostarse</option>
+    <option disabled>Otros:</option>
+    <option value="Según necesidad">Según necesidad (Dolor/Fiebre)</option>
+    <option value="Dosis única">Dosis única</option>
+`;
+
 function addMedicamentoItem() {
-    // Calcula índice contando cuantos elementos con clase .medicamento-item hay
+    // Calcula índice
     var index = document.querySelectorAll('.medicamento-item').length;
     var wrapper = document.getElementById('medicamentos-wrapper');
 
-    // Crea div contenedor de la fila
+    // Crea div contenedor
     var newRow = document.createElement('div');
     newRow.className = 'row dynamic-item-row medicamento-item align-items-end mb-3';
 
-    // Construir HTML (igual al que esta en el Thymeleaf)
     newRow.innerHTML = `
         <div class="col-md-3">
             <label class="form-label">Medicamento:</label>
@@ -100,7 +89,7 @@ function addMedicamentoItem() {
         </div>
 
         <div class="col-md-2">
-            <label class="form-label">Dosis:</label>
+            <label class="form-label">Dosis (mg):</label>
             <div class="input-group input-group-sm">
                 <input type="number" step="any" min="0" class="form-control" name="medicamentos[${index}].dosis" placeholder="0" required />
                 <span class="input-group-text">mg</span>
@@ -109,9 +98,9 @@ function addMedicamentoItem() {
 
         <div class="col-md-2">
             <label class="form-label">Frecuencia:</label>
-            <input type="text" class="form-control form-control-sm"
-                   name="medicamentos[${index}].frecuencia"
-                   placeholder="Ej: c/8h" required />
+            <select class="form-select form-select-sm" name="medicamentos[${index}].frecuencia" required>
+                ${opcionesFrecuencia}
+            </select>
         </div>
 
         <div class="col-md-3">
@@ -246,12 +235,46 @@ function guardarNuevoMedicamento() {
     });
 }
 
+// Obtener la fecha de hoy en formato YYYY-MM-DD para usar como max en los inputs
+const today = new Date().toISOString().split('T')[0];
+
+// Funciones para Cirugías
+function addCirugiaItem() {
+    const wrapper = document.getElementById('cirugias-wrapper');
+    const index = wrapper.children.length;
+    const newItem = document.createElement('div');
+    newItem.className = 'row dynamic-item-row cirugia-item align-items-end';
+
+    newItem.innerHTML = `
+        <input type="hidden" name="cirugias[${index}].idCirugia" value="" />
+        <div class="col-md-5">
+            <label for="cirugia-desc-${index}" class="form-label small">Descripción:</label>
+            <input type="text" id="cirugia-desc-${index}" class="form-control form-control-sm" name="cirugias[${index}].descripcionCirugia" required />
+        </div>
+        <div class="col-md-3">
+            <label for="cirugia-fecha-${index}" class="form-label small">Fecha:</label>
+            <input type="date" id="cirugia-fecha-${index}" class="form-control form-control-sm" name="cirugias[${index}].fechaCirugia" max="${today}" />
+        </div>
+        <div class="col-md-3">
+            <label for="cirugia-obs-${index}" class="form-label small">Observaciones:</label>
+            <input type="text" id="cirugia-obs-${index}" class="form-control form-control-sm" name="cirugias[${index}].observaciones" />
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-danger btn-sm w-100" onclick="removeItem(this)" title="Eliminar Cirugía">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    wrapper.appendChild(newItem);
+}
+
 // Funciones para Enfermedades
 function addEnfermedadItem() {
     const wrapper = document.getElementById('enfermedades-wrapper');
     const index = wrapper.getElementsByClassName('enfermedad-item').length;
     const newItem = document.createElement('div');
     newItem.className = 'row dynamic-item-row enfermedad-item align-items-end';
+
     newItem.innerHTML = `
         <input type="hidden" name="enfermedades[${index}].idHcEnfermedad" value="" />
         <div class="col-md-5">
@@ -260,7 +283,7 @@ function addEnfermedadItem() {
         </div>
         <div class="col-md-3">
             <label for="enf-fecha-${index}" class="form-label small">Fecha Diagnóstico:</label>
-            <input type="date" id="enf-fecha-${index}" class="form-control form-control-sm" name="enfermedades[${index}].fechaDiagnostico" />
+            <input type="date" id="enf-fecha-${index}" class="form-control form-control-sm" name="enfermedades[${index}].fechaDiagnostico" max="${today}" />
         </div>
         <div class="col-md-3">
             <label for="enf-obs-${index}" class="form-label small">Observaciones:</label>
