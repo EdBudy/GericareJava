@@ -33,40 +33,49 @@ public class PerfilController {
     }
 
     @PostMapping
-    public String actualizarPerfil(Authentication authentication, @ModelAttribute("usuario") UsuarioDTO usuarioDTO) {
+    public String actualizarPerfil(Authentication authentication,
+                                   @ModelAttribute("usuario") UsuarioDTO usuarioDTO,
+                                   RedirectAttributes redirectAttributes) { // Agregamos RedirectAttributes
 
         String oldEmail = authentication.getName();
-
-        // Obtener el ID del usuario actual (basado en el email de la sesión)
         Optional<Long> usuarioIdOpt = usuarioService.findByEmail(oldEmail).map(UsuarioDTO::getIdUsuario);
 
         if (usuarioIdOpt.isPresent()) {
+            try {
+                // Intentar actualizar el usuario. Si el correo existe, lanzará la IllegalStateException.
+                Optional<UsuarioDTO> usuarioActualizadoOpt = usuarioService.actualizarUsuario(usuarioIdOpt.get(), usuarioDTO);
 
-            // Realizar la actualización y capturar el resultado del servicio
-            Optional<UsuarioDTO> usuarioActualizadoOpt = usuarioService.actualizarUsuario(usuarioIdOpt.get(), usuarioDTO);
+                if (usuarioActualizadoOpt.isPresent()) {
+                    String newEmail = usuarioActualizadoOpt.get().getCorreoElectronico();
 
-            if (usuarioActualizadoOpt.isPresent()) {
-                String newEmail = usuarioActualizadoOpt.get().getCorreoElectronico();
+                    // Comprobar si correo electrónico cambió y actualizar la sesión (Auth)
+                    if (newEmail != null && !newEmail.equals(oldEmail)) {
+                        UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
+                                newEmail,
+                                null,
+                                authentication.getAuthorities()
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(newAuth);
+                    }
 
-                // Comprobar si correo electrónico cambió
-                if (newEmail != null && !newEmail.equals(oldEmail)) {
-
-                    // Si si, crea nuevo token de autenticación
-                    UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
-                            newEmail,                     // El nuevo principal (username)
-                            null,                         // Las credenciales (password, no las tiene y no son necesarias aquí)
-                            authentication.getAuthorities()
-                    );
-
-                    // Establecer la nueva autenticación en el contexto de seguridad ("refresca" la sesión del usuario con el nuevo email)
-                    SecurityContextHolder.getContext().setAuthentication(newAuth);
+                    // Mensaje éxito
+                    redirectAttributes.addFlashAttribute("successMessage", "¡Tu perfil ha sido actualizado con éxito!");
                 }
+
+            } catch (IllegalStateException e) {
+                // Captura excepción y extrae mensaje correo en uso
+                redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+
+                // Redirigir de vuelta al formulario de perfil, para que muestre el error
+                return "redirect:/perfil";
             }
 
         } else {
-            return "redirect:/login?error=userNotFound";
+            // usuario no encontrado en sesión
+            redirectAttributes.addFlashAttribute("errorMessage", "Error de sesión: Usuario no encontrado.");
+            return "redirect:/login";
         }
-        return "redirect:/dashboard?perfilActualizado=true";
+        return "redirect:/perfil";
     }
 
     // PerfilController
