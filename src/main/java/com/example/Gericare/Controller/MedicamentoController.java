@@ -120,7 +120,7 @@ public class MedicamentoController {
     }
 
     @PostMapping("/nuevo-ajax")
-    @ResponseBody // Importante: indica que la respuesta es el cuerpo, no una vista
+    @ResponseBody // la respuesta es el cuerpo no una vista
     public ResponseEntity<?> guardarMedicamentoAjax(@RequestBody MedicamentoDTO medicamentoDTO) {
         log.info("Recibida petición AJAX para guardar nuevo medicamento: {}", medicamentoDTO.getNombreMedicamento());
         // Validación simple aquí (podrías usar @Valid si configuras manejo de errores para @RequestBody)
@@ -175,20 +175,25 @@ public class MedicamentoController {
         }
     }
 
-    // Carga masiva de datos medicamentos
+    // Carga masiva de datos (medicamentos)
+    // Endpoint para recibir el archivo. Usa MultipartFile (es la interfaz de Spring para inputs tipo 'file')
     @PostMapping("/cargar-excel")
     public String cargarMedicamentosExcel(@RequestParam("file") MultipartFile file, RedirectAttributes redirectAttributes) {
 
+        // Si el archivo llega vacío, rechaza la petición antes de procesar
         if (file.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Por favor, seleccione un archivo Excel para cargar.");
             return "redirect:/medicamentos";
         }
 
+        // (Try-with-resources) Java abre el InputStream y lo cierra automáticamente al terminar el bloque (evita fugas de memoria)
         try (InputStream inputStream = file.getInputStream()) {
-            // Llamar al servicio que devuelve estadísticas
+
+            // Llamar al servicio que devuelve estadísticas:
+            // Delega la lógica de negocio al servicio. Le pasa el flujo de bytes, no el archivo en disco.
             Map<String, Integer> resultado = medicamentoService.cargarDesdeExcel(inputStream);
 
-            // Mensaje de éxito informativo
+            // Construye el feedback para el usuario basado en el mapa de resultados
             String successMsg = String.format(
                     "Carga completada. Filas procesadas: %d. Nuevos guardados: %d. Duplicados omitidos: %d.",
                     resultado.get("total"),
@@ -196,11 +201,12 @@ public class MedicamentoController {
                     resultado.get("omitidos")
             );
 
+            // FlashAttribute sobrevive al redirect para mostrar el mensaje 1 sola vez
             redirectAttributes.addFlashAttribute("successMessage", successMsg);
 
         } catch (Exception e) {
             log.error("Error al cargar archivo Excel de medicamentos", e);
-            // Mensaje de error para formato de archivo incorrecto/otros problemas
+            // Mensaje de error para formato de archivo incorrecto o otros problemas
             redirectAttributes.addFlashAttribute("errorMessage", "Error al procesar el archivo: " + e.getMessage());
         }
         return "redirect:/medicamentos";

@@ -139,13 +139,16 @@ public class MedicamentoServiceImpl implements MedicamentoService {
 
     //Carga masiva de datos (medicamentos)
     @Override
-    @Transactional
+    @Transactional // Si algo falla = Rollback
     public Map<String, Integer> cargarDesdeExcel(InputStream inputStream) throws Exception {
-        Map<String, Integer> resultado = new HashMap<>();
+        // Map = estructura de datos que guarda info en parejas de Clave->Valor (Key-Value)
+        Map<String, Integer> resultado = new HashMap<>(); // Permite devolver múltiples datos etiquetados en un solo objeto
+
+        // Contadores para el reporte final
         int totalProcesados = 0;
         int nuevosGuardados = 0;
         int duplicadosOmitidos = 0;
-
+        // Lista temporal (Buffer) aqui se guarda los medicamentos en memoria RAM antes de enviarlos a la BD
         List<Medicamento> medicamentosParaGuardar = new ArrayList<>();
 
         // Obtener todos los nombres existentes de la BD y normalizarlos (trim + lowercase)
@@ -154,54 +157,60 @@ public class MedicamentoServiceImpl implements MedicamentoService {
                 .collect(Collectors.toSet());
 
         log.info("Iniciando carga masiva. Nombres existentes en BD: {}", nombresExistentes.size());
-
-        Workbook workbook = new XSSFWorkbook(inputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-        Iterator<Row> rowIterator = sheet.iterator();
+        // XSSFWorkbook = Apache POI
+        Workbook workbook = new XSSFWorkbook(inputStream); // Abre el archivo (.xlsx)
+        Sheet sheet = workbook.getSheetAt(0); // Toma la primera hoja
+        Iterator<Row> rowIterator = sheet.iterator(); // Prepara el cursor para recorrer filas
 
         if (rowIterator.hasNext()) {
-            rowIterator.next(); // Omitir fila de encabezado
+            rowIterator.next(); // Omitir fila de encabezado (Títulos: "Nombre", "Descripción")
         }
 
-        while (rowIterator.hasNext()) {
+        while (rowIterator.hasNext()) { // Mientras haya filas
             Row row = rowIterator.next();
-            Cell cellNombre = row.getCell(0); // Columna A (Nombre)
+            Cell cellNombre = row.getCell(0); // Lee la Columna A (índice 0)
 
+            // Válida que la celda no sea nula y tenga texto
             if (cellNombre != null && !cellNombre.getStringCellValue().isBlank()) {
                 totalProcesados++;
                 String nombreExcel = cellNombre.getStringCellValue().trim();
-                String nombreNormalizado = nombreExcel.toLowerCase();
+                String nombreNormalizado = nombreExcel.toLowerCase(); // Normaliza para comparar
 
-                // Comprobar contra el Set de nombres existentes
+                // Comprobar contra el Set de nombres existentes (Búsqueda en RAM)
                 if (!nombresExistentes.contains(nombreNormalizado)) {
-                    // Si no existe lo prepara para guardar
+
+                    // Si no existe en el Set, crea el objeto Medicamento
                     Medicamento med = new Medicamento();
-                    med.setNombreMedicamento(nombreExcel); // Guarda el nombre original (solo con trim)
+                    med.setNombreMedicamento(nombreExcel); // Guarda el nombre original
 
                     Cell cellDescripcion = row.getCell(1); // Columna B (Descripción)
                     if (cellDescripcion != null) {
                         med.setDescripcionMedicamento(cellDescripcion.getStringCellValue().trim());
                     }
-                    med.setEstado(EstadoUsuario.Activo);
+                    med.setEstado(EstadoUsuario.Activo); // Pone el medicamento activo por defecto
 
+                    // Lo agrega a la lista temporal (buffer)
                     medicamentosParaGuardar.add(med);
 
-                    // Añadir el nuevo nombre al Set para evitar duplicados (dentro del mismo Excel)
+                    // Agrega el nombre al Set también por si el
+                    // Excel tiene "Aspirina" en la fila 2 y otra vez en la fila 50,
+                    // la segunda vez el Set verá que ya existe y no la duplica
                     nombresExistentes.add(nombreNormalizado);
                     nuevosGuardados++;
                 } else {
-                    // Si ya existe (en BD o en el Set) lo omite
+                    // Si ya existe (en BD o en el Set), lo ignora
                     duplicadosOmitidos++;
                 }
             }
         }
-
-        workbook.close();
+        workbook.close(); // Cierra el archivo para liberar memoria
 
         // Guarda todos los medicamentos nuevos en un solo lote
         if (!medicamentosParaGuardar.isEmpty()) {
             log.info("Guardando {} nuevos medicamentos de la carga masiva.", medicamentosParaGuardar.size());
             medicamentoRepository.saveAll(medicamentosParaGuardar);
+            // En lugar de llamar a "save()" 100 veces (ósea 100 inserts) llama a "saveAll()" con una lista
+            // JPA/Hibernate optimiza esto y hace una inserción masiva (Batch Insert), es más rápido y eficiente para el servidor
         }
 
         log.info("Carga masiva finalizada. Procesados: {}, Guardados: {}, Omitidos: {}", totalProcesados, nuevosGuardados, duplicadosOmitidos);
@@ -209,6 +218,6 @@ public class MedicamentoServiceImpl implements MedicamentoService {
         resultado.put("total", totalProcesados);
         resultado.put("guardados", nuevosGuardados);
         resultado.put("omitidos", duplicadosOmitidos);
-        return resultado;
+        return resultado; // Devuelve el mapa al Controlador
     }
 }

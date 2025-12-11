@@ -5,7 +5,7 @@ function confirmarEliminacion(button) {
     const warningText = button.getAttribute('data-warning-text'); // Texto para familiar asignado
 
     let title = '¿Estás seguro?';
-    let text = `¡El usuario ${nombreUsuario} será eliminado (lógicamente) y no podrás revertir esto!`;
+    let text = `¡El usuario ${nombreUsuario} será eliminado y no se podra revertir!`;
     let icon = 'warning';
     let confirmButtonText = 'Sí, ¡Eliminar!';
     let confirmButtonColor = '#d33';

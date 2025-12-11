@@ -5,7 +5,7 @@ function confirmarEliminacion(button) {
     const warningText = button.getAttribute('data-warning-text'); // Texto para familiar asignado
 
     let title = '¿Estás seguro?';
-    let text = `¡El usuario ${nombreUsuario} será eliminado (lógicamente) y no podrás revertir esto!`;
+    let text = `¡El usuario ${nombreUsuario} será eliminado y no se podra revertir!`;
     let icon = 'warning';
     let confirmButtonText = 'Sí, ¡Eliminar!';
     let confirmButtonColor = '#d33';
@@ -225,7 +225,7 @@ function confirmarCompletarActividad(btn) {
 
     Swal.fire({
         title: '¿Completar actividad?',
-        text: "¿Estás seguro de que deseas marcar esta actividad como realizada?",
+        text: "¿Estás seguro de que deseas marcar esta actividad como completada?",
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#198754',

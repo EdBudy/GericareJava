@@ -49,8 +49,8 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    // 2. Bienvenida
-    @Async
+    // Bienvenida
+    //@Async
     @Override
     public void sendWelcomeEmail(String to, String nombre, String documentoIdentificacion) {
         try {

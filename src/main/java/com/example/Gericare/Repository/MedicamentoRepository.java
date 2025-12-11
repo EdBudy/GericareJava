@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository
+@Repository // Indica a Spring que esto es un componente de acceso a datos
 public interface MedicamentoRepository extends JpaRepository<Medicamento, Long>, JpaSpecificationExecutor<Medicamento> {
 
     // Busca un medicamento por nombre ignorando mayúsculas y minúsculas
