@@ -1,4 +1,4 @@
-package com.example.Gericare.Config;
+package com.example.Gericare.config;
 
 import com.example.Gericare.DTO.UsuarioDTO;
 import com.example.Gericare.Service.UsuarioService;
