@@ -48,7 +48,12 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="estadoCivil" class="form-label">Estado Civil</label>
-                                <input type="text" id="estadoCivil" th:field="*{estadoCivil}" class="form-control" required />
+                                <select id="estadoCivil" th:field="*{estadoCivil}" class="form-select" required>
+                                    <option value="" disabled selected>Seleccione...</option>
+                                    <option th:each="ec : ${T(com.example.Gericare.Enums.EstadoCivil).values()}"
+                                            th:value="${ec}"
+                                            th:text="${ec.texto}"></option>
+                                </select>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="tipoSangre" class="form-label">Tipo de Sangre</label>
@@ -60,7 +65,9 @@
                             <div class="col-md-6 mb-3">
                                 <label for="contactoEmergencia" class="form-label">Contacto de Emergencia</label>
                                 <input type="text" id="contactoEmergencia" th:field="*{contactoEmergencia}" class="form-control"
-                                       pattern="[0-9]+" title="Este campo solo admite números." required />
+                                       pattern="[0-9]+" title="Este campo solo admite números."
+                                       onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                                       required />
                                 <div class="text-danger" th:if="${#fields.hasErrors('contactoEmergencia')}" th:errors="*{contactoEmergencia}"></div>
                             </div>
                             <div class="col-md-6 mb-3">

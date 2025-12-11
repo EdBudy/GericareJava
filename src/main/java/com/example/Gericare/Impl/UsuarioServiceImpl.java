@@ -25,6 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,6 +80,54 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public UsuarioDTO crearCuidador(Cuidador cuidador) {
+        // Verificar si ya existe (tmb inactivo) usando el método del repositorio
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByDocumentoOrEmailNative(
+                cuidador.getDocumentoIdentificacion(),
+                cuidador.getCorreoElectronico()
+        );
+
+        if (usuarioExistente.isPresent()) {
+            Usuario existente = usuarioExistente.get();
+
+            // Si existe y está act -> Error, ya existe.
+            if (existente.getEstado() == EstadoUsuario.Activo) {
+                throw new DataIntegrityViolationException("El usuario ya existe con ese documento o correo.");
+            }
+
+            // Si existe, está inactivo y es Cuidador lo recupera
+            if (existente instanceof Cuidador) {
+                Cuidador cuidadorRecuperado = (Cuidador) existente;
+
+                // Actualiza sus datos básicos
+                cuidadorRecuperado.setNombre(cuidador.getNombre());
+                cuidadorRecuperado.setApellido(cuidador.getApellido());
+                cuidadorRecuperado.setDireccion(cuidador.getDireccion());
+                cuidadorRecuperado.setCorreoElectronico(cuidador.getCorreoElectronico());
+
+                // Encripta la nueva contraseña
+                cuidadorRecuperado.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
+
+                // Actualiza datos específicos de Cuidador
+                cuidadorRecuperado.setFechaContratacion(cuidador.getFechaContratacion());
+                cuidadorRecuperado.setTipoContrato(cuidador.getTipoContrato());
+                cuidadorRecuperado.setContactoEmergencia(cuidador.getContactoEmergencia());
+                cuidadorRecuperado.setFechaNacimiento(cuidador.getFechaNacimiento());
+
+                // Actualiza teléfonos (usando método auxiliar)
+                actualizarTelefonos(cuidadorRecuperado, cuidador.getTelefonos());
+
+                // Reactiva el usuario
+                cuidadorRecuperado.setEstado(EstadoUsuario.Activo);
+                cuidadorRecuperado.setNecesitaCambioContrasena(true);
+
+                return toDTO(usuarioRepository.save(cuidadorRecuperado));
+            } else {
+                // Existe pero era Familiar y ahora intenta ser Cuidador (conflicto de roles)
+                throw new DataIntegrityViolationException("El documento ya existe registrado con otro rol y no se puede recuperar.");
+            }
+        }
+
+        // Flujo normal de creación
         cuidador.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
         Rol rolCuidador = rolRepository.findByRolNombre(RolNombre.Cuidador)
                 .orElseThrow(() -> new RuntimeException("Error: Rol 'Cuidador' no encontrado."));
@@ -100,6 +149,50 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (familiar.getTelefonos() != null && familiar.getTelefonos().size() > 3) {
             throw new IllegalStateException("Un familiar no puede tener más de 3 teléfonos.");
         }
+
+        // Verificar si ya existe (tmb inactivo)
+        Optional<Usuario> usuarioExistente = usuarioRepository.findByDocumentoOrEmailNative(
+                familiar.getDocumentoIdentificacion(),
+                familiar.getCorreoElectronico()
+        );
+
+        if (usuarioExistente.isPresent()) {
+            Usuario existente = usuarioExistente.get();
+
+            if (existente.getEstado() == EstadoUsuario.Activo) {
+                throw new DataIntegrityViolationException("El usuario ya existe con ese documento o correo.");
+            }
+
+            // Si existe, está inactivo y es Familiar recupera
+            if (existente instanceof Familiar) {
+                Familiar familiarRecuperado = (Familiar) existente;
+
+                // Actualiza datos básicos
+                familiarRecuperado.setNombre(familiar.getNombre());
+                familiarRecuperado.setApellido(familiar.getApellido());
+                familiarRecuperado.setDireccion(familiar.getDireccion());
+                familiarRecuperado.setCorreoElectronico(familiar.getCorreoElectronico());
+
+                // Encripta la nueva contraseña
+                familiarRecuperado.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
+
+                // Datos específicos
+                familiarRecuperado.setParentesco(familiar.getParentesco());
+
+                // Actualiza teléfonos
+                actualizarTelefonos(familiarRecuperado, familiar.getTelefonos());
+
+                // Reactiva
+                familiarRecuperado.setEstado(EstadoUsuario.Activo);
+                familiarRecuperado.setNecesitaCambioContrasena(true);
+
+                return toDTO(usuarioRepository.save(familiarRecuperado));
+            } else {
+                throw new DataIntegrityViolationException("El documento ya existe registrado con otro rol.");
+            }
+        }
+
+        // flujo creación normal
         familiar.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
         Rol rolFamiliar = rolRepository.findByRolNombre(RolNombre.Familiar)
                 .orElseThrow(() -> new RuntimeException("Error: Rol 'Familiar' no encontrado."));
@@ -113,6 +206,24 @@ public class UsuarioServiceImpl implements UsuarioService {
             familiar.setEstado(EstadoUsuario.Activo);
         }
         return toDTO(usuarioRepository.save(familiar));
+    }
+
+    // método auxiliar actualizar tel
+    private void actualizarTelefonos(Usuario usuarioExistente, List<Telefono> nuevosTelefonos) {
+        // Limpia la lista actual de teléfonos
+        if (usuarioExistente.getTelefonos() == null) {
+            usuarioExistente.setTelefonos(new ArrayList<>());
+        } else {
+            usuarioExistente.getTelefonos().clear();
+        }
+
+        // Asigna los nuevos (si hay) y vincula
+        if (nuevosTelefonos != null) {
+            nuevosTelefonos.forEach(tel -> {
+                tel.setUsuario(usuarioExistente);
+                usuarioExistente.getTelefonos().add(tel);
+            });
+        }
     }
 
     @Override

@@ -37,8 +37,8 @@ public class Paciente {
     @Column(name = "contacto_emergencia", nullable = false, length = 20)
     private String contactoEmergencia;
 
-    @Column(name = "estado_civil", nullable = false, length = 30)
-    private String estadoCivil;
+    @Column(name = "estado_civil", nullable = false)
+    private EstadoCivil estadoCivil;
 
     @Convert(converter = TipoSangreConverter.class)
     @Column(name = "tipo_sangre", nullable = false)

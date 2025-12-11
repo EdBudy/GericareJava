@@ -108,7 +108,7 @@ public class UsuarioController {
 
     @PostMapping("/crear")
     public String crearUsuario(@Valid @ModelAttribute("usuario") UsuarioDTO usuarioDTO, BindingResult bindingResult,
-                               RedirectAttributes redirectAttributes) {
+                               Model model, RedirectAttributes redirectAttributes) {
 
         // Validar si hay errores (excluyendo contraseña)
         if (bindingResult.hasErrors()) {
@@ -119,10 +119,8 @@ public class UsuarioController {
             // Si hay otros errores o si hay errores de contraseña y más errores
             if (!onlyPasswordErrors || bindingResult.getErrorCount() > bindingResult.getFieldErrorCount("contrasena")) {
 
-                // Sí hay un error no redirigir. Devolver la vista directamente
-                // Recargar el modelo con los roles para que el <select> funcione
-                redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
-                return "redirect:/usuarios/nuevo";
+                model.addAttribute("roles", new RolNombre[]{RolNombre.Cuidador, RolNombre.Familiar});
+                return "usuario/admin-formulario-usuario";
             }
         }
 
@@ -195,14 +193,14 @@ public class UsuarioController {
             return "redirect:/dashboard";
 
         } catch (DataIntegrityViolationException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Ya existe un usuario con el mismo documento o correo electrónico.");
-            redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
-            return "redirect:/usuarios/nuevo";
+            model.addAttribute("errorMessage", "Ya existe un usuario con el mismo documento o correo electrónico.");
+            model.addAttribute("roles", new RolNombre[]{RolNombre.Cuidador, RolNombre.Familiar});
+            return "usuario/admin-formulario-usuario";
         } catch (Exception e) {
-            System.err.println("Error general creando usuario: " + e.getMessage()); // Loggear error
-            redirectAttributes.addFlashAttribute("errorMessage", "Error al crear el usuario: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("usuario", usuarioDTO);
-            return "redirect:/usuarios/nuevo";
+            System.err.println("Error general creando usuario: " + e.getMessage());
+            model.addAttribute("errorMessage", "Error al crear el usuario: " + e.getMessage());
+            model.addAttribute("roles", new RolNombre[]{RolNombre.Cuidador, RolNombre.Familiar});
+            return "usuario/admin-formulario-usuario";
         }
     }
 }

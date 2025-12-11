@@ -4,8 +4,7 @@ public enum TipoContrato {
     TERMINO_INDEFINIDO("Término Indefinido"),
     TERMINO_FIJO("Término Fijo"),
     OBRA_LABOR("Obra o Labor"),
-    PRESTACION_DE_SERVICIOS("Prestación de Servicios"),
-    APRENDIZAJE("Contrato de Aprendizaje");
+    PRESTACION_DE_SERVICIOS("Prestación de Servicios");
 
     private final String descripcion;
 

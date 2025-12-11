@@ -141,7 +141,7 @@ public class DataInitializer {
                 paciente1.setFechaNacimiento(LocalDate.of(1940, 10, 20));
                 paciente1.setGenero(Genero.Masculino);
                 paciente1.setContactoEmergencia("3001234567");
-                paciente1.setEstadoCivil("Viudo(a)");
+                paciente1.setEstadoCivil(EstadoCivil.VIUDO);
                 paciente1.setTipoSangre(TipoSangre.O_POSITIVO);
                 paciente1.setEstado(EstadoPaciente.Activo);
                 paciente1.setSeguroMedico("Famisanar");
@@ -163,7 +163,7 @@ public class DataInitializer {
                 paciente2.setFechaNacimiento(LocalDate.of(1952, 5, 15));
                 paciente2.setGenero(Genero.Femenino);
                 paciente2.setContactoEmergencia("3001234568");
-                paciente2.setEstadoCivil("Casado(a)");
+                paciente2.setEstadoCivil(EstadoCivil.CASADO);
                 paciente2.setTipoSangre(TipoSangre.A_NEGATIVO);
                 paciente2.setEstado(EstadoPaciente.Activo);
                 paciente2.setSeguroMedico("Sura EPS");
@@ -184,7 +184,7 @@ public class DataInitializer {
                 paciente3.setFechaNacimiento(LocalDate.of(1948, 2, 10));
                 paciente3.setGenero(Genero.Masculino);
                 paciente3.setContactoEmergencia("3001234569");
-                paciente3.setEstadoCivil("Soltero(a)");
+                paciente3.setEstadoCivil(EstadoCivil.SOLTERO);
                 paciente3.setTipoSangre(TipoSangre.B_POSITIVO);
                 paciente3.setEstado(EstadoPaciente.Activo);
                 paciente3.setSeguroMedico("Compensar EPS");
@@ -205,7 +205,7 @@ public class DataInitializer {
                 p.setFechaNacimiento(LocalDate.of(1935, 3, 12));
                 p.setGenero(Genero.Femenino);
                 p.setContactoEmergencia("3112345678");
-                p.setEstadoCivil("Divorciado(a)");
+                p.setEstadoCivil(EstadoCivil.DIVORCIADO);
                 p.setTipoSangre(TipoSangre.A_POSITIVO);
                 p.setEstado(EstadoPaciente.Activo);
                 p.setSeguroMedico("Sanitas");
@@ -223,7 +223,7 @@ public class DataInitializer {
                 p.setFechaNacimiento(LocalDate.of(1942, 11, 30));
                 p.setGenero(Genero.Masculino);
                 p.setContactoEmergencia("3123456789");
-                p.setEstadoCivil("Viudo(a)");
+                p.setEstadoCivil(EstadoCivil.VIUDO);
                 p.setTipoSangre(TipoSangre.B_NEGATIVO);
                 p.setEstado(EstadoPaciente.Activo);
                 p.setSeguroMedico("Nueva EPS");
@@ -240,7 +240,7 @@ public class DataInitializer {
                 p.setFechaNacimiento(LocalDate.of(1955, 7, 25));
                 p.setGenero(Genero.Femenino);
                 p.setContactoEmergencia("3134567890");
-                p.setEstadoCivil("Soltero(a)");
+                p.setEstadoCivil(EstadoCivil.SOLTERO);
                 p.setTipoSangre(TipoSangre.O_NEGATIVO);
                 p.setEstado(EstadoPaciente.Activo);
                 p.setSeguroMedico("Salud Total");
@@ -258,7 +258,7 @@ public class DataInitializer {
                 p.setFechaNacimiento(LocalDate.of(1938, 9, 5));
                 p.setGenero(Genero.Masculino);
                 p.setContactoEmergencia("3145678901");
-                p.setEstadoCivil("Casado(a)");
+                p.setEstadoCivil(EstadoCivil.CASADO);
                 p.setTipoSangre(TipoSangre.AB_POSITIVO);
                 p.setEstado(EstadoPaciente.Activo);
                 p.setSeguroMedico("Coomeva EPS");
