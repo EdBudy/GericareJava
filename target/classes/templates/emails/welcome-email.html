@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bienvenido a Gericare Connect</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f7f6; font-family: 'Poppins', Arial, sans-serif;">
+<center style="width: 100%; background-color: #f4f7f6; padding: 50px 0;">
+
+    <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff; border-radius: 20px; box-shadow: 0 15px 35px rgba(50,50,93,0.1), 0 5px 15px rgba(0,0,0,0.07); overflow: hidden;">
+
+        <tr>
+            <td style="background: #007bff; padding: 30px; text-align: center;">
+                <img th:src="|cid:geriLogo|" alt="Gericare Logo" width="100" style="background: #fff; padding: 10px; border-radius: 50%;">
+            </td>
+        </tr>
+
+        <tr>
+            <td style="padding: 40px 30px; text-align: center;">
+                <h1 style="color: #32325d; font-size: 22px; font-weight: 700; margin-bottom: 20px;">
+                    ¡Bienvenido, <span th:text="${nombreUsuario}">Usuario</span>!
+                </h1>
+
+                <p style="color: #6b7c93; font-size: 15px; line-height: 1.6; margin-bottom: 20px;">
+                    Tu cuenta en <strong>Gericare Connect</strong> ha sido creada exitosamente. Nos alegra tenerte con nosotros.
+                </p>
+
+                <p style="color: #6b7c93; font-size: 14px; margin-bottom: 5px;">
+                    Tu correo registrado es:
+                </p>
+                <p style="color: #32325d; font-weight: 600; margin-top: 0; margin-bottom: 25px;">
+                    <span th:text="${email}">correo@ejemplo.com</span>
+                </p>
+
+                <div style="background-color: #f0f5ff; border: 1px solid #c2d3ff; border-radius: 10px; padding: 20px; margin-bottom: 30px;">
+                    <p style="color: #007bff; font-size: 14px; margin: 0 0 10px 0; font-weight: bold;">
+                        Para tu primer ingreso:
+                    </p>
+                    <p style="color: #6b7c93; font-size: 14px; margin: 0;">
+                        Usa tu número de documento como contraseña:
+                    </p>
+                    <div style="font-size: 24px; font-weight: 700; color: #32325d; margin-top: 10px; letter-spacing: 1px;">
+                        <span th:text="${documentoIdentificacion}">123456789</span>
+                    </div>
+                </div>
+
+                <table width="100%" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td align="center">
+                            <a th:href="${loginUrl}" style="background-color: #007bff; color: #ffffff; padding: 14px 35px; border-radius: 50px; text-decoration: none; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);">
+                                Iniciar Sesión
+                            </a>
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="color: #999; font-size: 13px; margin-top: 30px;">
+                    Por motivos de seguridad, te sugerimos cambiar tu contraseña una vez inicies sesión.
+                </p>
+            </td>
+        </tr>
+
+        <tr>
+            <td style="background-color: #f7fafc; padding: 15px; text-align: center; color: #8898aa; font-size: 12px;">
+                <p style="margin: 0;">Equipo Gericare Connect © <span th:text="${#dates.year(#dates.createNow())}">2025</span></p>
+                <p style="margin: 5px 0 0 0;">Este es un mensaje automático, por favor no responder.</p>
+            </td>
+        </tr>
+    </table>
+
+</center>
+</body>
+</html>
