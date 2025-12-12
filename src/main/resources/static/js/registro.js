@@ -1,7 +1,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. Cargar Partículas del Fondo ---
+    //  Cargar Partículas del Fondo 
     if (document.getElementById('particles-js-background')) {
         particlesJS('particles-js-background', {
             "particles": {
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. Cargar Partículas de la Tarjeta (Azul y Morado) ---
+    //  Cargar Partículas de la Tarjeta (Azul y Morado) 
     if (document.getElementById('particles-js-card')) {
         particlesJS('particles-js-card', {
             "particles": {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. Lógica del Stepper (Formulario Multi-paso) ---
+    //  Lógica del Stepper (Formulario Multi-paso) 
     const steps = document.querySelectorAll('.form-step');
     const nextButtons = document.querySelectorAll('.btn-next');
     const prevButtons = document.querySelectorAll('.btn-prev');

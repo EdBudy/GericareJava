@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const matchFeedback = document.getElementById('match-feedback');
     const submitBtn = document.getElementById('btn-submit');
 
-    // --- A. Mostrar/Ocultar Contraseña ---
+    // Mostrar/Ocultar Contraseña 
     toggleButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const targetId = btn.getAttribute('data-target');
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- B. Cálculo de Fuerza de Contraseña ---
+    //   Cálculo de Fuerza de Contraseña 
     function calculateStrength(password) {
         let strength = 0;
 
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- C. Validación de Coincidencia ---
+    //   Validación de Coincidencia 
     function checkMatch() {
         const pass = passwordInput.value;
         const confirm = confirmInput.value;
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- D. Validación Global para el Botón ---
+    // Validación Global para el Botón
     function validateForm() {
         const isStrongEnough = calculateStrength(passwordInput.value) >= 50; // Al menos "Débil" (longitud + letras)
         const isMatch = passwordInput.value === confirmInput.value && confirmInput.value !== '';
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Listeners ---
+    //  Listeners 
     passwordInput.addEventListener('input', () => {
         updateStrengthMeter();
         if(confirmInput.value !== '') checkMatch(); // Re-validar coincidencia si cambia la original

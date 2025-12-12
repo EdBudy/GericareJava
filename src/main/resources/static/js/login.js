@@ -1,9 +1,7 @@
-/*
- * Este archivo INICIA las partículas.
- */
+/*Este archivo inicia las partículas.*/
 document.addEventListener('DOMContentLoaded', function() {
 
-    /* --- Configuración de Partículas del FONDO (BLANCAS) --- */
+    /* --- Configuración de Partículas del fondo (BLANCAS) --- */
     if(document.getElementById('particles-js-background')){
         particlesJS('particles-js-background', {
             "particles": {
@@ -24,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    /* --- Configuración de Partículas de la TARJETA (Negro y Azul) --- */
+    /* --- Configuración de Partículas de la tarjeta (Negro y Azul) --- */
     if(document.getElementById('particles-js-card')){
         particlesJS('particles-js-card', {
             "particles": {

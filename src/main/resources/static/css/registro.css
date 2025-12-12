@@ -1,7 +1,6 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-/* --- FONDO Y PARTÍCULAS --- */
+/* fondo y partículas */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #212529;
@@ -10,10 +9,10 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    overflow: hidden; /* Evita scroll en el body */
+    overflow: hidden; /* evita scroll en el body */
 }
 
-/* Partículas del Fondo (Blancas) */
+/* partículas del fondo (blancas) */
 #particles-js-background {
     position: fixed;
     width: 100%;
@@ -22,29 +21,29 @@ body {
     left: 0;
     z-index: 1;
 
-    /* CAMBIO DE IMAGEN: Usamos la otra foto (loginimg.jpg) */
+    /* cambio de imagen: usamos la otra foto (loginimg.jpg) */
     background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('../images/loginimg.jpg');
     background-size: cover;
     background-position: center center;
     animation: fadeIn 1.5s ease-in-out;
 }
 
-/* --- TARJETA DE REGISTRO (STEPPER) --- */
+/* tarjeta de registro (stepper) */
 .card {
     position: relative;
     z-index: 10;
     width: 100%;
-    max-width: 800px; /* Más ancha para el stepper */
+    max-width: 800px; /* más ancha para el stepper */
     background-color: #ffffff;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 
-    /* Scroll interno si el contenido es muy alto */
+    /* scroll interno si el contenido es muy alto */
     max-height: 90vh;
     overflow-y: auto;
 }
 
-/* Partículas de la Tarjeta (Azules y Morados) */
+/* partículas de la tarjeta (azules y morados) */
 #particles-js-card {
     position: absolute;
     width: 100%;
@@ -61,7 +60,7 @@ body {
     padding: 2.5rem 3rem;
 }
 
-/* --- TÍTULOS Y PROGRESO --- */
+/* títulos y progreso */
 .card-title-container {
     text-align: center;
     margin-bottom: 2rem;
@@ -75,7 +74,7 @@ body {
     color: #555;
 }
 
-/* Barra de Progreso del Stepper */
+/* barra de progreso del stepper */
 .progress-bar-container {
     width: 100%;
     display: flex;
@@ -116,19 +115,19 @@ body {
     position: absolute;
     height: 4px;
     background-color: #007bff;
-    width: 0%; /* Se actualiza con JS */
+    width: 0%; /* se actualiza con js */
     top: 50%;
     transform: translateY(-50%);
     z-index: 1;
     transition: width 0.4s ease;
 }
 
-/* --- PASOS DEL FORMULARIO --- */
+/* pasos del formulario */
 .form-step {
-    display: none; /* Ocultos por defecto */
+    display: none; /* ocultos por defecto */
 }
 .form-step.active {
-    display: block; /* Mostramos solo el activo */
+    display: block; /* mostramos solo el activo */
 }
 
 .form-group {
@@ -145,7 +144,7 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
 }
 
-/* Clases de validación de Bootstrap */
+/* clases de validación de bootstrap */
 .form-control.is-invalid, .form-select.is-invalid {
     border-color: #dc3545;
 }
@@ -157,14 +156,14 @@ body {
 }
 
 
-/* --- BOTONES DE NAVEGACIÓN (STEPPER) --- */
+/* botones de navegación (stepper) */
 .form-navigation {
     display: flex;
     justify-content: space-between;
     margin-top: 2rem;
 }
 .btn-next, .btn-submit {
-    background-color: #6200ea; /* Morado */
+    background-color: #6200ea; /* morado */
     border: none;
     color: white;
     font-weight: 600;
@@ -176,7 +175,7 @@ body {
     transform: translateY(-2px);
 }
 .btn-prev {
-    background-color: #6c757d; /* Gris */
+    background-color: #6c757d; /* gris */
     border: none;
     color: white;
     font-weight: 600;
@@ -188,7 +187,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Alertas */
+/* alertas */
 .alert-danger {
     color: #721c24;
     background-color: #f8d7da;

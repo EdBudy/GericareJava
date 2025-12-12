@@ -1,9 +1,7 @@
-/*
- * JS PARA EL LAYOUT PRINCIPAL (MAIN.JS)
- */
+/*JS PARA EL LAYOUT PRINCIPAL (MAIN.JS)*/
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- Carga las partículas del Header ---
+    // Carga las partículas del Header
     if (document.getElementById('particles-js-header')) {
         particlesJS('particles-js-header', {
             "particles": {
@@ -24,9 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ---
-    // NUEVO: Lógica para el botón flotante de Reportes (Stats)
-    // ---
+    // Lógica para el botón flotante de Reportes (Stats)
     const reportButton = document.getElementById('fab-report-button');
     if (reportButton) {
         reportButton.addEventListener('click', function() {
@@ -63,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 document.addEventListener('DOMContentLoaded', function() {
 
-    // --- Lógica FAB (Floating Action Button) ---
+    // Lógica FAB
     const fabMain = document.querySelector('.fab-main');
     const fabContainer = document.querySelector('.fab-container');
 
@@ -81,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- Partículas (si existen) ---
+    // Partículas
     if(document.getElementById('particles-js-header')){
         // Asegúrate de que la ruta sea correcta para tu proyecto
         particlesJS.load('particles-js-header', '/js/particles.min.js', function() {

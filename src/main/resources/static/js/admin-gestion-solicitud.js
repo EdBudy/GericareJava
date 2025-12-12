@@ -46,7 +46,7 @@ function confirmarAprobar(solicitudId) {
     });
 }
 
-/* RECHAZAR una solicitud.*/
+/* rechazar una solicitud.*/
 function confirmarRechazar(solicitudId) {
     Swal.fire({
         title: '¿Rechazar Solicitud?',

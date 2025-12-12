@@ -30,14 +30,14 @@ public class GlobalControllerAdvice {
 
             String userEmail = authentication.getName();
 
-            // 1. Lógica de Colores Global por Rol
+            // Lógica de Colores Global por Rol
             if ("ROLE_Cuidador".equals(userRole)) {
                 headerClass = "bg-role-cuidador";
             } else if ("ROLE_Familiar".equals(userRole)) {
                 headerClass = "bg-role-familiar";
             }
 
-            // 2. Alerta de cambio de contraseña (Global)
+            // Alerta de cambio de contraseña (Global)
             if ("ROLE_Cuidador".equals(userRole) || "ROLE_Familiar".equals(userRole)) {
                 Optional<UsuarioDTO> usuarioOpt = usuarioService.findByEmail(userEmail);
                 if (usuarioOpt.isPresent() && usuarioOpt.get().isNecesitaCambioContrasena()) {
@@ -46,7 +46,7 @@ public class GlobalControllerAdvice {
             }
         }
 
-        // Inyectamos la clase CSS al modelo globalmente
+        // Inyecta la clase CSS al modelo globalmente
         model.addAttribute("headerClass", headerClass);
     }
 }

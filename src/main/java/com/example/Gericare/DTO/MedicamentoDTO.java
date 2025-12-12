@@ -13,9 +13,9 @@ import jakarta.validation.constraints.NotBlank;
 public class MedicamentoDTO {
     private Long idMedicamento;
 
-    @NotBlank(message = "El nombre no puede estar vacío") // Es buena práctica añadirlo aquí también
+    @NotBlank(message = "El nombre no puede estar vacío")
     private String nombreMedicamento;
 
-    @NotBlank(message = "La descripción no puede estar vacía") // Añadir esta anotación
+    @NotBlank(message = "La descripción no puede estar vacía")
     private String descripcionMedicamento;
 }

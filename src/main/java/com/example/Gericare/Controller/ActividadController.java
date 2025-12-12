@@ -27,7 +27,7 @@ public class ActividadController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // --- VISTA ADMINISTRADOR ---
+    // vista admin
     @GetMapping
     public String listarActividades(Model model,
                                     @RequestParam(required = false) String nombrePaciente,
@@ -106,7 +106,7 @@ public class ActividadController {
         return "redirect:/actividades";
     }
 
-    // --- VISTA CUIDADOR ---
+    // vista cuidador
     @PostMapping("/completar/{id}")
     public String completarActividad(@PathVariable("id") Long actividadId, Authentication authentication, RedirectAttributes redirectAttributes) {
         try {
