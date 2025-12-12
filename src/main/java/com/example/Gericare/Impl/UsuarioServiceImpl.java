@@ -59,20 +59,29 @@ public class UsuarioServiceImpl implements UsuarioService {
     // Envío de correos masivos por Rol
     @Override
     public void sendCustomBulkEmailToRole(RolNombre role, String subject, String body) {
+
+        // crea una lista vacía que almacena los usuarios a los que se les enviará correo
         List<Usuario> targetUsers = new ArrayList<>();
 
+        // valida si el rol recibido es null, lo que indica que se envía a familiares y cuidadores
         if (role == null) {
+            // obtiene todos los usuarios con rol familiar y los agrega a la lista
             targetUsers.addAll(usuarioRepository.findByRol_RolNombre(RolNombre.Familiar));
+            // obtiene todos los usuarios con rol cuidador y los agrega a la lista
             targetUsers.addAll(usuarioRepository.findByRol_RolNombre(RolNombre.Cuidador));
         } else {
+            // cuando se recibe un rol específico, obtiene solo los usuarios de ese rol
             targetUsers = usuarioRepository.findByRol_RolNombre(role);
         }
 
+        // convierte la lista de usuarios en una lista de correos electrónicos usando stream
         List<String> recipientEmails = targetUsers.stream()
-                .map(Usuario::getCorreoElectronico)
-                .collect(Collectors.toList());
+                .map(Usuario::getCorreoElectronico) // obtiene el correo de cada usuario
+                .collect(Collectors.toList()); // convierte en lista de strings
 
+        // verifica que exista al menos un correo antes de proceder
         if (!recipientEmails.isEmpty()) {
+            // llama al servicio de correo para que ejecute el envío masivo en modo bcc
             emailService.sendBulkEmail(recipientEmails, subject, body);
         }
     }
@@ -406,7 +415,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    // --- EXPORTACIÓN EXCEL (FUNCIONARÁ CON EL NUEVO POM) ---
+    // exportacion excel
     public void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) { // XSSFWorkbook requiere poi-ooxml
             Sheet sheet = workbook.createSheet("Usuarios");
@@ -440,7 +449,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
     }
 
-    // --- EXPORTACIÓN PDF (FUNCIONARÁ CON EL NUEVO POM) ---
+    // exportacion pdf
     public void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
         Document document = new Document();
         PdfWriter.getInstance(document, outputStream);

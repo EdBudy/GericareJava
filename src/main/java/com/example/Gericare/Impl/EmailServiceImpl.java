@@ -20,17 +20,21 @@ public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+    // componente que ejecuta el envío a través de smtp
 
     @Autowired
     private TemplateEngine templateEngine;
+    // motor que procesa plantillas html
 
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
+    // url base usada dentro de los correos
 
     @Value("${spring.mail.from:gericareconnect@gmail.com}")
     private String fromEmail;
+    // correo remitente configurado en application.properties
 
-    // 1. Reseteo de Contraseña
+    // Reseteo de Contraseña
     @Async
     @Override
     public void sendPasswordResetEmail(String to, String token) {
@@ -69,40 +73,44 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    // 3. Correo Masivo
+    // Correo Masivo
     @Async
     @Override
     public void sendBulkEmail(List<String> recipients, String subject, String body) {
+        // evita continuar si no hay destinatarios
         if (recipients == null || recipients.isEmpty()) return;
 
         try {
+            // convierte el texto plano a html con estilos básicos
             String formattedBody = formatTextToHtml(body);
+
+            // crea un contexto con los datos que se insertan en la plantilla
             Context context = new Context();
             context.setVariable("subject", subject);
             context.setVariable("body", formattedBody);
 
-            String htmlContent = templateEngine.process("emails/bulk-email", context);
+            String htmlContent = templateEngine.process("emails/bulk-email", context); // procesa la plantilla thymeleaf para generar el html final
+            MimeMessage mimeMessage = mailSender.createMimeMessage(); // crea un objeto mime que soporta html, adjuntos y multiformato
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // helper que facilita la configuración del mensaje
+            helper.setSubject(subject); // asigna asunto
+            helper.setText(htmlContent, true); // asigna el html generado
+            helper.setFrom(fromEmail); // asigna remitente
+            helper.setTo(fromEmail); // asigna el campo to al remitente para ocultar destinatarios (correo se envía a sí mismo)
+            helper.setBcc(recipients.toArray(new String[0])); // asigna los destinatarios reales en copia oculta (verdaderos destinatarios están ocultos)
 
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            helper.setFrom(fromEmail);
-            helper.setTo(fromEmail); // Se envía a sí mismo para ocultar destinatarios
-            helper.setBcc(recipients.toArray(new String[0])); // Destinatarios en copia oculta
-
+            // agrega los logos inline si existen
             agregarLogosInline(helper);
 
+            // ejecuta el envío a través del servidor smtp
             mailSender.send(mimeMessage);
-            System.out.println("Correo masivo enviado a " + recipients.size() + " destinatarios.");
 
         } catch (MessagingException e) {
+            // registra un error si falla el envío
             System.err.println("Error al enviar correo masivo: " + e.getMessage());
         }
     }
 
-    // 4. Notificación Cambio de Correo
+    // Notificación Cambio de Correo
     @Async
     @Override
     public void sendEmailChangeNotification(String newEmail, String userName) {
@@ -120,7 +128,7 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
-    // --- Métodos Auxiliares Privados para evitar código repetido ---
+    // Métodos Auxiliares Privados (pa evitar repetir cod)
 
     private void enviarCorreoBase(String to, String subject, String htmlContent) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -147,15 +155,22 @@ public class EmailServiceImpl implements EmailService {
 
 
 
+    // convierte un texto plano en un bloque html con estilos simples
     private String formatTextToHtml(String text) {
         String pStyle = "style=\"font-family: 'Poppins', Arial, sans-serif; font-size: 16px; color: #444444; line-height: 1.7; margin: 0 0 15px 0; text-align: center;\"";
-        if (text == null || text.isBlank()) return "<p " + pStyle + ">Sin contenido.</p>";
 
+        if (text == null || text.isBlank())
+            return "<p " + pStyle + ">Sin contenido.</p>";
+
+        // escapa caracteres para evitar errores html
         String safeText = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+
+        // reemplaza saltos de línea por etiquetas html
         String html = safeText.trim()
                 .replaceAll("\r\n", "\n")
                 .replaceAll("\n{2,}", "</p><p " + pStyle + ">")
                 .replaceAll("\n", "<br>");
+
         return "<p " + pStyle + ">" + html + "</p>";
     }
 }
