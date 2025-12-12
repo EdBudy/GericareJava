@@ -59,8 +59,8 @@ public class EstadisticaServiceImpl implements EstadisticaService {
                 Cuidador cuidador = (Cuidador) u;
 
                 // Usa las queries que filtran por fecha (Hoy)
-                Long totalHoy = actividadRepository.countActividadesAsignadasPorFecha(cuidador, hoy);
-                Long completadasHoy = actividadRepository.countActividadesCompletadasPorFecha(cuidador, EstadoActividad.Completada, hoy);
+                Long totalHoy = actividadRepository.countActividadesAsignadasPorFecha(cuidador, hoy); // solo hoy
+                Long completadasHoy = actividadRepository.countActividadesCompletadasPorFecha(cuidador, EstadoActividad.Completada, hoy); // solo hoy
 
                 dtos.add(new EstadisticaActividadDTO(
                         cuidador.getNombre(),
@@ -81,8 +81,8 @@ public class EstadisticaServiceImpl implements EstadisticaService {
             if (u instanceof Cuidador) {
                 Cuidador cuidador = (Cuidador) u;
 
-                Long total = actividadRepository.countTotalActividadesAsignadas(cuidador);
-                Long completadas = actividadRepository.countActividadesByCuidadorAndEstado(cuidador, EstadoActividad.Completada);
+                Long total = actividadRepository.countTotalActividadesAsignadas(cuidador); // todo el historial
+                Long completadas = actividadRepository.countActividadesByCuidadorAndEstado(cuidador, EstadoActividad.Completada); // todo el historial
 
                 dtos.add(new EstadisticaActividadDTO(
                         cuidador.getNombre(),
