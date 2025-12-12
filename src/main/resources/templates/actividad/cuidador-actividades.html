@@ -49,47 +49,28 @@
 
                         <td class="text-center">
 
-                            <!-- Api Calendar: Solo se muestra si la actividad está Pendiente. -->
-                            <a  th:if="${actividad.estadoActividad.toString() == 'Pendiente'}">
-
-                            <!-- Construcción del enlace con la API Render de Google Calendar. -->
-                            th:href="@{https://www.google.com/calendar/render(
-
-                            action='TEMPLATE', <!-- Define la acción de crear plantilla de evento. -->
-
-                            text='Actividad: ' + ${actividad.tipoActividad} + ' - (' + ${actividad.nombrePaciente} + ')', <!-- Define el Título del evento. -->
-
-                            details=${actividad.descripcionActividad}, <!-- Define la Descripción del evento. -->
-
-                            <!-- Define el rango de tiempo en formato YYYYMMDDTHHmmss/YYYYMMDDTHHmmss (Inicio/Fin). -->
-                            dates=${
-                            #temporals.format(actividad.fechaActividad, 'yyyyMMdd')
-                            + 'T'
-                            + #temporals.format(actividad.horaInicio, 'HHmmss')
-                            + '/'
-                            + #temporals.format(actividad.fechaActividad, 'yyyyMMdd')
-                            + 'T'
-                            + #temporals.format(actividad.horaFin, 'HHmmss')
-                            }
-                            )}"
-
-                            target="_blank" <!-- Abre el enlace de Calendar en una nueva pestaña. -->
-
-                            <!-- genera una URL ya lista con los datos: href="https://www.google.com/calendar/render?action=TEMPLATE&text=Actividad%3A%20Terapia%20-%20(Paciente%20X)&details=Ejercicios&dates=20251215T100000/20251215T110000" target="_blank"-->
-                            class="btn btn-sm btn-outline-primary"
-                            title="Añadir a Google Calendar">
-                            <i class="bi bi-calendar-plus"></i>
+                            <a th:if="${actividad.estadoActividad.toString() == 'Pendiente'}"
+                               th:href="@{https://www.google.com/calendar/render(
+                                   action='TEMPLATE',
+                                   text='Actividad: ' + ${actividad.tipoActividad} + ' - (' + ${actividad.nombrePaciente} + ')',
+                                   details=${actividad.descripcionActividad},
+                                   dates=${#temporals.format(actividad.fechaActividad, 'yyyyMMdd') + 'T' +
+                                           #temporals.format(actividad.horaInicio, 'HHmmss') + '/' +
+                                           #temporals.format(actividad.fechaActividad, 'yyyyMMdd') + 'T' +
+                                           #temporals.format(actividad.horaFin, 'HHmmss')}
+                               )}"
+                               target="_blank"
+                               class="btn btn-sm btn-outline-primary"
+                               title="Añadir a Google Calendar">
+                                <i class="bi bi-calendar-plus"></i>
                             </a>
-                            <!-- Fin de la construcción del enlace con la API Render de Google Calendar. -->
-
-
-                            <!-- Botón deshabilitado: Se muestra si la actividad ya está Completada. -->
-                            <a  th:unless="${actividad.estadoActividad.toString() == 'Pendiente'}"
-                                class="btn btn-sm btn-danger disabled"
-                                title="Actividad ya completada"
-                                aria-disabled="true">
+                            <a th:unless="${actividad.estadoActividad.toString() == 'Pendiente'}"
+                               class="btn btn-sm btn-danger disabled"
+                               title="Actividad ya completada"
+                               aria-disabled="true">
                                 <i class="bi bi-calendar-x"></i>
                             </a>
+
                         </td>
                         <!-- Fin de la sección de Google Calendar. -->
 
