@@ -27,12 +27,14 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long>, Jpa
             "WHERE pa.cuidador.idUsuario = :cuidadorId AND a.estadoActividad IN (com.example.Gericare.Enums.EstadoActividad.Pendiente, com.example.Gericare.Enums.EstadoActividad.Completada)")
     List<ActividadDTO> findActividadesByCuidador(@Param("cuidadorId") Long cuidadorId);
 
-    // métodos para estadísticas
+    // métodos para estadísticas:
 
     // cuenta el total de actividades asignadas a un cuidador (sin filtro fecha)
     // (para el pdf que muestra totales)
     @Query("SELECT COUNT(a) FROM Actividad a JOIN a.paciente p JOIN PacienteAsignado pa ON pa.paciente = p " +
-            "WHERE pa.cuidador = :cuidador AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo")
+            "WHERE pa.cuidador = :cuidador " +
+            "AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo " +
+            "AND a.estadoActividad <> com.example.Gericare.Enums.EstadoActividad.Inactivo")
     Long countTotalActividadesAsignadas(@Param("cuidador") Cuidador cuidador);
 
     // cuenta actividades de un cuidador por estado (sin filtro fecha)
@@ -48,7 +50,8 @@ public interface ActividadRepository extends JpaRepository<Actividad, Long>, Jpa
             "JOIN PacienteAsignado pa ON pa.paciente = p " +
             "WHERE pa.cuidador = :cuidador " +
             "AND a.fechaActividad = :fecha " +
-            "AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo")
+            "AND pa.estado = com.example.Gericare.Enums.EstadoAsignacion.Activo " +
+            "AND a.estadoActividad <> com.example.Gericare.Enums.EstadoActividad.Inactivo")
     Long countActividadesAsignadasPorFecha(@Param("cuidador") Cuidador cuidador, @Param("fecha") LocalDate fecha);
 
     // cuenta actividades completadas por un cuidador en una fecha específica
