@@ -160,100 +160,107 @@ public class MedicamentoServiceImpl implements MedicamentoService {
 
     // metodo para cargar medicamentos desde un archivo excel
     @Override
-    @Transactional // Si algo falla = Rollback
+    @Transactional
     public Map<String, Integer> cargarDesdeExcel(InputStream inputStream) throws Exception {
-        // Map = estructura de datos que guarda info en parejas de Clave->Valor (Key-Value)
-        Map<String, Integer> resultado = new HashMap<>(); // Permite devolver múltiples datos etiquetados en un solo objeto
+        // crea un mapa para retornar los resultados del proceso
+        Map<String, Integer> resultado = new HashMap<>();
 
-        // contador para el total de filas procesadas
+        // inicializa contadores para el reporte
         int totalProcesados = 0;
-        // contador para los nuevos medicamentos guardados
         int nuevosGuardados = 0;
-        // contador para los duplicados omitidos
         int duplicadosOmitidos = 0;
-        // lista temporal para almacenar los medicamentos antes de guardarlos
+
+        // crea una lista para agrupar los medicamentos que se guardaran
         List<Medicamento> medicamentosParaGuardar = new ArrayList<>();
 
-        // obtiene todos los nombres de medicamentos existentes en la base de datos
-        Set<String> nombresExistentes = medicamentoRepository.findAll().stream()
-                // normaliza los nombres (minusculas y sin espacios)
-                .map(med -> med.getNombreMedicamento().trim().toLowerCase())
-                // los recoge en un conjunto para busqueda rapida
-                .collect(Collectors.toSet());
+        // carga todos los medicamentos de la base de datos en un mapa para acceso rapido
+        // usa el nombre normalizado como clave y el objeto entidad como valor
+        Map<String, Medicamento> mapaExistentes = medicamentoRepository.findAll().stream()
+                .collect(Collectors.toMap(
+                        m -> m.getNombreMedicamento().trim().toLowerCase(),
+                        m -> m,
+                        (m1, m2) -> m1
+                ));
 
-        log.info("Iniciando carga masiva. Nombres existentes en BD: {}", nombresExistentes.size());
-        // XSSFWorkbook = Apache POI
-        Workbook workbook = new XSSFWorkbook(inputStream); // Abre el archivo (.xlsx)
-        Sheet sheet = workbook.getSheetAt(0); // Toma la primera hoja
-        Iterator<Row> rowIterator = sheet.iterator(); // Prepara el cursor para recorrer filas
+        log.info("Iniciando carga masiva. Registros en BD: {}", mapaExistentes.size());
 
-        // si hay filas, omite la primera (encabezados)
-        if (rowIterator.hasNext()) {
-            rowIterator.next();
-        }
+        // abre el archivo excel usando apache poi
+        Workbook workbook = new XSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        Iterator<Row> rowIterator = sheet.iterator();
 
-        while (rowIterator.hasNext()) { // Mientras haya filas
+        // salta la primera fila si contiene encabezados
+        if (rowIterator.hasNext()) rowIterator.next();
+
+        // recorre cada fila del archivo excel
+        while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            Cell cellNombre = row.getCell(0); // Lee la Columna A (índice 0)
+            Cell cellNombre = row.getCell(0);
 
-            // valida que la celda no sea nula y no este vacia
+            // procesa la fila solo si la celda del nombre tiene contenido
             if (cellNombre != null && !cellNombre.getStringCellValue().isBlank()) {
-                // incrementa el contador de procesados
                 totalProcesados++;
-                // obtiene el nombre de la celda y le quita espacios
                 String nombreExcel = cellNombre.getStringCellValue().trim();
-                // normaliza el nombre a minusculas para comparar
                 String nombreNormalizado = nombreExcel.toLowerCase();
 
-                // verifica si el nombre ya existe en el conjunto
-                if (!nombresExistentes.contains(nombreNormalizado)) {
+                // verifica si el medicamento ya existe en el mapa de memoria
+                if (mapaExistentes.containsKey(nombreNormalizado)) {
+                    // recupera la entidad existente del mapa
+                    Medicamento existente = mapaExistentes.get(nombreNormalizado);
 
-                    // Si no existe en el Set, crea el nuevo objeto Medicamento
+                    // revisa si el medicamento estaba inactivo
+                    if (existente.getEstado() == EstadoUsuario.Inactivo) {
+                        // reactiva el medicamento cambiando su estado a activo
+                        existente.setEstado(EstadoUsuario.Activo);
+
+                        // actualiza la descripcion si existe en el excel
+                        Cell cellDesc = row.getCell(1);
+                        if (cellDesc != null) {
+                            existente.setDescripcionMedicamento(cellDesc.getStringCellValue().trim());
+                        }
+
+                        // agrega el medicamento reactivado a la lista de guardado
+                        medicamentosParaGuardar.add(existente);
+                        nuevosGuardados++;
+                    } else {
+                        // cuenta como duplicado si ya existe y esta activo
+                        duplicadosOmitidos++;
+                    }
+                } else {
+                    // crea una nueva entidad si no existe en el mapa
                     Medicamento med = new Medicamento();
-                    // asigna el nombre original
                     med.setNombreMedicamento(nombreExcel);
 
-                    // obtiene la celda de la columna b (descripcion)
                     Cell cellDescripcion = row.getCell(1);
-                    // si tiene descripcion, la asigna
                     if (cellDescripcion != null) {
                         med.setDescripcionMedicamento(cellDescripcion.getStringCellValue().trim());
                     }
-                    // establece el estado como activo
                     med.setEstado(EstadoUsuario.Activo);
 
-                    // agrega el medicamento a la lista temporal
+                    // agrega el nuevo medicamento a la lista
                     medicamentosParaGuardar.add(med);
 
-                    // Agrega el nombre al Set también por si el
-                    // Excel tiene "Aspirina" en la fila 2 y otra vez en la fila 50,
-                    // la segunda vez el Set verá que ya existe y no la duplica
-                    nombresExistentes.add(nombreNormalizado);
-                    // incrementa el contador de guardados
+                    // actualiza el mapa temporal para evitar duplicados dentro del mismo archivo
+                    mapaExistentes.put(nombreNormalizado, med);
                     nuevosGuardados++;
-                } else {
-                    // Si ya existe (en BD o en el Set), lo ignora
-                    duplicadosOmitidos++;
                 }
             }
         }
-        workbook.close(); // Cierra el archivo para liberar memoria
+        // cierra el recurso del workbook para liberar memoria
+        workbook.close();
 
-        // Guarda todos los medicamentos nuevos en un solo lote
+        // guarda o actualiza todos los registros acumulados en un solo lote
         if (!medicamentosParaGuardar.isEmpty()) {
-            log.info("Guardando {} nuevos medicamentos de la carga masiva.", medicamentosParaGuardar.size());
+            log.info("Guardando/Reactivando {} medicamentos.", medicamentosParaGuardar.size());
             medicamentoRepository.saveAll(medicamentosParaGuardar);
-            // En lugar de llamar a "save()" 100 veces (ósea 100 inserts) llama a "saveAll()" con una lista
-            // JPA/Hibernate optimiza esto y hace una inserción masiva (Batch Insert), es más rápido y eficiente para el servidor
         }
 
-        log.info("Carga masiva finalizada. Procesados: {}, Guardados: {}, Omitidos: {}", totalProcesados, nuevosGuardados, duplicadosOmitidos);
+        log.info("Carga finalizada. Total: {}, Guardados: {}, Omitidos: {}", totalProcesados, nuevosGuardados, duplicadosOmitidos);
 
-        // agrega los resultados al mapa
+        // prepara el mapa de resultados final
         resultado.put("total", totalProcesados);
         resultado.put("guardados", nuevosGuardados);
         resultado.put("omitidos", duplicadosOmitidos);
-        // retorna el mapa con los resultados
         return resultado;
     }
 }
