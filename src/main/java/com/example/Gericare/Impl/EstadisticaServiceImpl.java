@@ -48,20 +48,22 @@ public class EstadisticaServiceImpl implements EstadisticaService {
     // grafica diaria
     @Override
     public List<EstadisticaActividadDTO> obtenerEstadisticasActividadesCompletadas() {
+        // prepara la lista de datos que se enviara al navegador para la grafica web
         List<EstadisticaActividadDTO> dtos = new ArrayList<>();
         List<Usuario> cuidadores = usuarioRepository.findByRol_RolNombre(RolNombre.Cuidador);
 
-        // Fija la fecha a HOY
+        // fija la fecha actual para filtrar solo las act de hoy
         LocalDate hoy = LocalDate.now();
 
         for (Usuario u : cuidadores) {
             if (u instanceof Cuidador) {
                 Cuidador cuidador = (Cuidador) u;
 
-                // Usa las queries que filtran por fecha (Hoy)
+                // consulta la bd filtrando por fecha y excluyendo eliminados
                 Long totalHoy = actividadRepository.countActividadesAsignadasPorFecha(cuidador, hoy); // solo hoy
                 Long completadasHoy = actividadRepository.countActividadesCompletadasPorFecha(cuidador, EstadoActividad.Completada, hoy); // solo hoy
 
+                // agrega el resultado a la lista (sin generar imagen, el navegador dibuja la grafica)
                 dtos.add(new EstadisticaActividadDTO(
                         cuidador.getNombre(),
                         cuidador.getApellido(),
@@ -74,6 +76,7 @@ public class EstadisticaServiceImpl implements EstadisticaService {
     }
 
     private List<EstadisticaActividadDTO> obtenerDatosHistoricos() {
+        // prepara los datos acumulados para el reporte en pdf
         List<EstadisticaActividadDTO> dtos = new ArrayList<>();
         List<Usuario> cuidadores = usuarioRepository.findByRol_RolNombre(RolNombre.Cuidador);
 
@@ -81,8 +84,9 @@ public class EstadisticaServiceImpl implements EstadisticaService {
             if (u instanceof Cuidador) {
                 Cuidador cuidador = (Cuidador) u;
 
-                Long total = actividadRepository.countTotalActividadesAsignadas(cuidador); // todo el historial
-                Long completadas = actividadRepository.countActividadesByCuidadorAndEstado(cuidador, EstadoActividad.Completada); // todo el historial
+                // consulta el total de act (sin filtrar por fecha)
+                Long total = actividadRepository.countTotalActividadesAsignadas(cuidador); // todo
+                Long completadas = actividadRepository.countActividadesByCuidadorAndEstado(cuidador, EstadoActividad.Completada); // todo
 
                 dtos.add(new EstadisticaActividadDTO(
                         cuidador.getNombre(),
@@ -95,8 +99,9 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         return dtos;
     }
 
-    // pdfs
+    // PDFs
 
+    // llama internamente a generarPdfGenerico (true). El true indica usar datos pacientes y no actividades
     @Override
     public byte[] generarReportePdf() throws IOException {
         return generarPdfGenerico(obtenerEstadisticasCuidadores(), true);
@@ -104,57 +109,71 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 
     @Override
     public byte[] generarReporteActividadesPdf() throws IOException {
-        // llama método total (historico)
+        // obtiene los datos totales para pasarlos al generador del pdf
         List<EstadisticaActividadDTO> datosHistoricos = obtenerDatosHistoricos();
         return generarPdfGenerico(datosHistoricos, false);
     }
 
     private byte[] generarPdfGenerico(List<?> datos, boolean esReportePacientes) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            // crea el documento pdf en memoria con tamaño a4
             Document document = new Document(PageSize.A4);
+            // asocia el escritor del pdf al flujo de salida de bytes
             PdfWriter.getInstance(document, out);
+            // abre el documento para empezar a escribir contenido
             document.open();
 
-            // Títulos dinámicos
+            // define la fuente y el color para el titulo principal
             Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18, Color.DARK_GRAY);
-            String titulo = esReportePacientes ? "Reporte de Carga Laboral (Pacientes)" : "Reporte Histórico de Eficiencia";
+            String titulo = esReportePacientes ? "Reporte de Carga Laboral (Pacientes)" : "Reporte Total de Eficiencia";
+
+            // crea el parrafo del titulo y lo alinea al centro
             Paragraph pTitulo = new Paragraph(titulo, fontTitulo);
             pTitulo.setAlignment(Element.ALIGN_CENTER);
             document.add(pTitulo);
 
+            // agrega descripcion extra si es el reporte de actividades
             if (!esReportePacientes) {
                 Font fontDesc = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.GRAY);
-                Paragraph pDesc = new Paragraph("Desempeño acumulado histórico de los cuidadores.", fontDesc);
+                Paragraph pDesc = new Paragraph("Desempeño acumulado total de los cuidadores.", fontDesc);
                 pDesc.setAlignment(Element.ALIGN_CENTER);
                 pDesc.setSpacingBefore(10);
                 pDesc.setSpacingAfter(10);
                 document.add(pDesc);
             }
+            // salto linea vacio
             document.add(Chunk.NEWLINE);
 
+            // genera grafica usando libreria de java jfreechart
             JFreeChart chart = esReportePacientes
                     ? crearGraficoPacientes((List<EstadisticaCuidadorDTO>) datos)
                     : crearGraficoActividades((List<EstadisticaActividadDTO>) datos);
 
+            // convierte la grafica generada en java a una imagen png en memoria
             BufferedImage chartImage = chart.createBufferedImage(500, 300);
+            // crea el objeto imagen de pdf a partir de la imagen en memoria
             Image pdfImage = Image.getInstance(chartImage, null);
             pdfImage.setAlignment(Element.ALIGN_CENTER);
             document.add(pdfImage);
             document.add(Chunk.NEWLINE);
 
+            // crea la tabla pdf definiendo el numero de columnas segun el reporte
             PdfPTable table = new PdfPTable(esReportePacientes ? 2 : 4);
             table.setWidthPercentage(100);
 
             if (esReportePacientes) {
+                // agrega los encabezados de la tabla
                 agregarCeldaHeader(table, "Cuidador");
                 agregarCeldaHeader(table, "Pacientes Asignados");
+                // recorre los datos y llena las filas de la tabla
                 for (EstadisticaCuidadorDTO d : (List<EstadisticaCuidadorDTO>) datos) {
                     table.addCell(new Phrase(d.getNombreCuidador() + " " + d.getApellidoCuidador()));
                     agregarCeldaCentro(table, d.getCantidadPacientes().toString());
                 }
             } else {
+                // agrega encabezados para el reporte de actividades
                 agregarCeldaHeader(table, "Cuidador");
-                agregarCeldaHeader(table, "Actividades (Total)"); // Etiqueta total
+                agregarCeldaHeader(table, "Actividades (Total)");
                 agregarCeldaHeader(table, "Completadas");
                 agregarCeldaHeader(table, "Efectividad");
 
@@ -163,11 +182,14 @@ public class EstadisticaServiceImpl implements EstadisticaService {
                     agregarCeldaCentro(table, d.getActividadesAsignadas().toString());
                     agregarCeldaCentro(table, d.getActividadesCompletadas().toString());
 
+                    // calcula el porcentaje de efectividad para mostrar en la tabla
                     double ratio = d.getActividadesAsignadas() > 0 ? (double) d.getActividadesCompletadas() / d.getActividadesAsignadas() * 100 : 0;
                     agregarCeldaCentro(table, String.format("%.0f%%", ratio));
                 }
             }
+            // agrega la tabla finalizada al documento
             document.add(table);
+            // cierra el documento para finalizar la escritura
             document.close();
             return out.toByteArray();
         }
@@ -175,8 +197,11 @@ public class EstadisticaServiceImpl implements EstadisticaService {
 
     // Helpers JFreeChart
     private JFreeChart crearGraficoPacientes(List<EstadisticaCuidadorDTO> datos) {
+        // inicializa el conjunto de datos vacio para categorias
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        // llena el dataset con los nombres y cantidades de pacientes
         datos.forEach(d -> dataset.addValue(d.getCantidadPacientes(), "Pacientes", d.getNombreCuidador() + " " + d.getApellidoCuidador()));
+        // crea y devuelve el grafico de barras 3d o estandar usando la fabrica de charts
         return ChartFactory.createBarChart("Pacientes por Cuidador", "Cuidador", "Cantidad", dataset, PlotOrientation.VERTICAL, false, true, false);
     }
 
@@ -184,34 +209,48 @@ public class EstadisticaServiceImpl implements EstadisticaService {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         for (EstadisticaActividadDTO d : datos) {
             String nombre = d.getNombreCuidador() + " " + d.getApellidoCuidador();
-            // Etiquetas
+            // agrega la serie de actividades asignadas
             dataset.addValue(d.getActividadesAsignadas(), "Asignadas", nombre);
+            // agrega la serie de actividades completadas
             dataset.addValue(d.getActividadesCompletadas(), "Realizadas", nombre);
         }
+        // genera el grafico de barras agrupadas vertical
         JFreeChart chart = ChartFactory.createBarChart("Eficiencia de Actividades", "Cuidador", "Cantidad", dataset, PlotOrientation.VERTICAL, true, true, false);
 
+        // obtiene el area de dibujo (para personalizar colores)
         CategoryPlot plot = chart.getCategoryPlot();
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        // elimina espacio entre barras de la misma categoria
         renderer.setItemMargin(0.0);
+        // asigna color azul a la primera y verde segunda
         renderer.setSeriesPaint(0, new Color(13, 110, 253));
         renderer.setSeriesPaint(1, new Color(25, 135, 84));
 
+        // fondo blanco y lineas grises
         plot.setBackgroundPaint(Color.white);
         plot.setRangeGridlinePaint(Color.gray);
         return chart;
     }
 
     private void agregarCeldaHeader(PdfPTable table, String text) {
+        // crea celda de pdf
         PdfPCell c = new PdfPCell(new Phrase(text, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
+        // color de fondo gris oscuro para encabezado
         c.setBackgroundColor(Color.DARK_GRAY);
+        // alinea el texto al centro horizontalmente
         c.setHorizontalAlignment(Element.ALIGN_CENTER);
+        // agrega espacio interno a la celda (pa que no se vea apretado)
         c.setPadding(5);
+        // añade la celda configurada a la tabla
         table.addCell(c);
     }
 
     private void agregarCeldaCentro(PdfPTable table, String text) {
+        // crea una celda estandar con el texto proporcionado
         PdfPCell c = new PdfPCell(new Phrase(text));
+        // fuerza la alineacion del contenido al centro
         c.setHorizontalAlignment(Element.ALIGN_CENTER);
+        // añade la celda a la tabla
         table.addCell(c);
     }
 }
