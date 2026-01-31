@@ -3,8 +3,6 @@ package com.example.Gericare.Impl;
 import com.example.Gericare.Service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -20,54 +18,43 @@ import java.util.List;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    // Logger profesional para monitoreo en Azure
-    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
-
     @Autowired
     private JavaMailSender mailSender;
+    // componente que ejecuta el envío a través de smtp
 
     @Autowired
     private TemplateEngine templateEngine;
+    // motor que procesa plantillas html
 
-    // 🟢 URL DINÁMICA:
-    // Lee 'app.base-url' (Azure). Si no existe, usa localhost (Tu PC).
     @Value("${app.base-url:http://localhost:8080}")
     private String baseUrl;
+    // url base usada dentro de los correos
 
-    @Value("${spring.mail.from:connectgericare@gmail.com}")
+    @Value("${spring.mail.from:gericareconnect@gmail.com}")
     private String fromEmail;
+    // correo remitente configurado en application.properties
 
-    /**
-     * Envía el correo de recuperación de contraseña.
-     */
+    // Reseteo de Contraseña
     @Async
     @Override
     public void sendPasswordResetEmail(String to, String token) {
         try {
-            // Construimos la URL completa dinámica
             String resetUrl = baseUrl + "/reset-password?token=" + token;
-            
             Context context = new Context();
             context.setVariable("resetUrl", resetUrl);
             context.setVariable("email", to);
             context.setVariable("appBaseUrl", baseUrl);
 
-            // Procesamos la plantilla HTML
             String htmlContent = templateEngine.process("emails/password-reset-email", context);
-            
-            // Enviamos
-            enviarCorreoBase(to, "Restablecer Contraseña - Gericare Connect", htmlContent);
-            logger.info("✅ Correo de recuperación enviado exitosamente a: {}", to);
+            enviarCorreoBase(to, "Solicitud de Cambio de Contraseña - Gericare Connect", htmlContent);
 
-        } catch (Exception e) {
-            logger.error("❌ Error CRÍTICO enviando recuperación a {}: {}", to, e.getMessage());
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Fallo al enviar el correo de reseteo.", e);
         }
     }
 
-    /**
-     * Envía correo de bienvenida.
-     */
-    @Async
+    // Bienvenida
+    //@Async
     @Override
     public void sendWelcomeEmail(String to, String nombre, String documentoIdentificacion) {
         try {
@@ -80,56 +67,50 @@ public class EmailServiceImpl implements EmailService {
 
             String htmlContent = templateEngine.process("emails/welcome-email", context);
             enviarCorreoBase(to, "¡Bienvenido a Gericare Connect!", htmlContent);
-            
-            logger.info("✅ Correo de bienvenida enviado a: {}", to);
 
-        } catch (Exception e) {
-            logger.error("❌ Error enviando bienvenida a {}: {}", to, e.getMessage());
+        } catch (MessagingException e) {
+            throw new IllegalStateException("Fallo al enviar el correo de bienvenida.", e);
         }
     }
 
-    /**
-     * Envía correos masivos (Bulk).
-     */
+    // Correo Masivo
     @Async
     @Override
     public void sendBulkEmail(List<String> recipients, String subject, String body) {
+        // evita continuar si no hay destinatarios
         if (recipients == null || recipients.isEmpty()) return;
 
         try {
+            // convierte el texto plano a html con estilos básicos
             String formattedBody = formatTextToHtml(body);
 
+            // crea un contexto con los datos que se insertan en la plantilla
             Context context = new Context();
             context.setVariable("subject", subject);
             context.setVariable("body", formattedBody);
-            context.setVariable("appBaseUrl", baseUrl);
 
-            String htmlContent = templateEngine.process("emails/bulk-email", context);
-            
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-            
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            helper.setFrom(fromEmail);
-            
-            // Truco: Enviamos a nosotros mismos y ponemos a los destinatarios en BCC (Privacidad)
-            helper.setTo(fromEmail); 
-            helper.setBcc(recipients.toArray(new String[0]));
+            String htmlContent = templateEngine.process("emails/bulk-email", context); // procesa la plantilla thymeleaf para generar el html final
+            MimeMessage mimeMessage = mailSender.createMimeMessage(); // crea un objeto mime que soporta html, adjuntos y multiformato
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8"); // helper que facilita la configuración del mensaje
+            helper.setSubject(subject); // asigna asunto
+            helper.setText(htmlContent, true); // asigna el html generado
+            helper.setFrom(fromEmail); // asigna remitente
+            helper.setTo(fromEmail); // asigna el campo to al remitente para ocultar destinatarios (correo se envía a sí mismo)
+            helper.setBcc(recipients.toArray(new String[0])); // asigna los destinatarios reales en copia oculta (verdaderos destinatarios están ocultos)
 
-            agregarLogosInline(helper); // Intenta poner logo, si falla no importa
+            // agrega los logos inline si existen
+            agregarLogosInline(helper);
 
+            // ejecuta el envío a través del servidor smtp
             mailSender.send(mimeMessage);
-            logger.info("✅ Correo masivo enviado a {} destinatarios.", recipients.size());
 
-        } catch (Exception e) {
-            logger.error("❌ Error enviando correo masivo: {}", e.getMessage());
+        } catch (MessagingException e) {
+            // registra un error si falla el envío
+            System.err.println("Error al enviar correo masivo: " + e.getMessage());
         }
     }
 
-    /**
-     * Notificación de cambio de correo.
-     */
+    // Notificación Cambio de Correo
     @Async
     @Override
     public void sendEmailChangeNotification(String newEmail, String userName) {
@@ -140,16 +121,14 @@ public class EmailServiceImpl implements EmailService {
             context.setVariable("appBaseUrl", baseUrl);
 
             String htmlContent = templateEngine.process("emails/email-change-notification", context);
-            enviarCorreoBase(newEmail, "Aviso de Seguridad: Correo Actualizado", htmlContent);
+            enviarCorreoBase(newEmail, "Tu correo en Gericare ha sido actualizado", htmlContent);
 
-        } catch (Exception e) {
-            logger.error("❌ Error enviando notificación de cambio de email: {}", e.getMessage());
+        } catch (MessagingException e) {
+            System.err.println("Fallo al enviar notificación de cambio de email: " + e.getMessage());
         }
     }
 
-    // ==========================================
-    // MÉTODOS PRIVADOS (HELPER METHODS)
-    // ==========================================
+    // Métodos Auxiliares Privados (pa evitar repetir cod)
 
     private void enviarCorreoBase(String to, String subject, String htmlContent) throws MessagingException {
         MimeMessage mimeMessage = mailSender.createMimeMessage();
@@ -160,7 +139,6 @@ public class EmailServiceImpl implements EmailService {
         helper.setText(htmlContent, true);
         helper.setFrom(fromEmail);
 
-        // Intentamos adjuntar el logo, pero si falla, el correo sale igual
         agregarLogosInline(helper);
 
         mailSender.send(mimeMessage);
@@ -168,28 +146,26 @@ public class EmailServiceImpl implements EmailService {
 
     private void agregarLogosInline(MimeMessageHelper helper) {
         try {
-            // RUTA DEL LOGO: Asegúrate que coincida EXACTAMENTE con tu archivo en resources
             ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-..png");
-            
-            if (logo.exists()) {
-                helper.addInline("geriLogo", logo);
-            } else {
-                logger.warn("⚠️ ADVERTENCIA: No se encontró el logo en 'static/images/Geri_Logo-..png'. El correo se enviará sin imagen.");
-            }
+            if (logo.exists()) helper.addInline("geriLogo", logo);
         } catch (Exception e) {
-            // Si hay error con el logo, solo lo registramos y dejamos que el correo continúe
-            logger.warn("⚠️ No se pudo adjuntar el logo (Error no crítico): {}", e.getMessage());
+
         }
     }
 
+
+
+    // convierte un texto plano en un bloque html con estilos simples
     private String formatTextToHtml(String text) {
-        String pStyle = "style=\"font-family: 'Poppins', Arial, sans-serif; font-size: 16px; color: #444444; line-height: 1.7; margin: 0 0 15px 0; text-align: left;\"";
+        String pStyle = "style=\"font-family: 'Poppins', Arial, sans-serif; font-size: 16px; color: #444444; line-height: 1.7; margin: 0 0 15px 0; text-align: center;\"";
 
         if (text == null || text.isBlank())
             return "<p " + pStyle + ">Sin contenido.</p>";
 
+        // escapa caracteres para evitar errores html
         String safeText = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
 
+        // reemplaza saltos de línea por etiquetas html
         String html = safeText.trim()
                 .replaceAll("\r\n", "\n")
                 .replaceAll("\n{2,}", "</p><p " + pStyle + ">")
