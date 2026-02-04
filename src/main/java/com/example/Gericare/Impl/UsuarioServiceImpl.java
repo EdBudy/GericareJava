@@ -345,16 +345,22 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    @Override
-    public void createPasswordResetTokenForUser(String email) {
-        Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
-                .orElseThrow(() -> new RuntimeException("No se encontró usuario con correo: " + email));
-        String token = UUID.randomUUID().toString();
-        usuario.setResetPasswordToken(token);
-        usuario.setResetPasswordTokenExpiryDate(LocalDateTime.now().plusHours(1));
-        usuarioRepository.save(usuario);
-        emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), token);
-    }
+   @Override
+public void createPasswordResetTokenForUser(String email) {
+    // Usamos el repositorio que ya tienes
+    Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
+            .orElseThrow(() -> new RuntimeException("No se encontró usuario con correo: " + email));
+    
+    String token = UUID.randomUUID().toString();
+    usuario.setResetPasswordToken(token);
+    usuario.setResetPasswordTokenExpiryDate(LocalDateTime.now().plusHours(1));
+    
+    usuarioRepository.save(usuario);
+
+    // IMPORTANTE: El emailService debe recibir el link completo para el HTML
+    String resetUrl = "http://localhost:8080/reset-password?token=" + token;
+    emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), resetUrl);
+}
 
     @Override
     public String validatePasswordResetToken(String token) {
@@ -365,19 +371,21 @@ public class UsuarioServiceImpl implements UsuarioService {
         return null;
     }
 
-    @Override
-    public void changeUserPassword(String token, String newPassword) {
-        Usuario usuario = usuarioRepository.findByResetPasswordToken(token)
-                .orElseThrow(() -> new RuntimeException("Token inválido."));
-        if (passwordEncoder.matches(newPassword, usuario.getContrasena())) {
-            throw new IllegalStateException("La nueva contraseña no puede ser igual a la anterior.");
-        }
-        usuario.setContrasena(passwordEncoder.encode(newPassword));
-        usuario.setResetPasswordToken(null);
-        usuario.setResetPasswordTokenExpiryDate(null);
-        usuario.setNecesitaCambioContrasena(false);
-        usuarioRepository.save(usuario);
-    }
+   @Override
+public void changeUserPassword(String token, String newPassword) {
+    Usuario usuario = usuarioRepository.findByResetPasswordToken(token)
+            .orElseThrow(() -> new RuntimeException("Token inválido."));
+
+    // Hasheamos y quitamos la bandera de "primera vez"
+    usuario.setContrasena(passwordEncoder.encode(newPassword));
+    usuario.setResetPasswordToken(null);
+    usuario.setResetPasswordTokenExpiryDate(null);
+    
+    // AQUÍ ESTÁ LA MAGIA: Ya no le pedirá cambiarla al entrar
+    usuario.setNecesitaCambioContrasena(false); 
+    
+    usuarioRepository.save(usuario);
+}
 
     private UsuarioDTO toDTO(Usuario usuario) {
         UsuarioDTO dto = new UsuarioDTO();
