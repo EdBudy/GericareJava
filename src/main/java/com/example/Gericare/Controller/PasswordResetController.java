@@ -26,18 +26,18 @@ public class PasswordResetController {
     public String processForgotPassword(@RequestParam("email") String email, RedirectAttributes redirectAttributes) {
         try {
             usuarioService.createPasswordResetTokenForUser(email);
-            // Mensaje genérico por seguridad, o específico si prefieres
-            redirectAttributes.addFlashAttribute("successMessage", "Si el correo existe, recibirás un enlace para restablecer tu clave.");
+            // Mensaje de éxito siempre (por seguridad)
+            redirectAttributes.addFlashAttribute("successMessage", "Si el correo está registrado, recibirás un enlace.");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("successMessage", "Si el correo existe, recibirás un enlace para restablecer tu clave.");
+            redirectAttributes.addFlashAttribute("successMessage", "Si el correo está registrado, recibirás un enlace.");
         }
         return "redirect:/forgot-password";
     }
 
-    // 3. Mostrar el formulario para escribir la NUEVA clave (usa el token de la URL)
+    // 3. Mostrar el formulario para escribir la NUEVA clave
     @GetMapping("/reset-password")
     public String showResetPasswordForm(@RequestParam("token") String token, Model model, RedirectAttributes redirectAttributes) {
-        // Validar token antes de mostrar el form
+        // Validar si el token sirve
         String result = usuarioService.validatePasswordResetToken(token);
 
         if (result != null) {
@@ -45,8 +45,11 @@ public class PasswordResetController {
             return "redirect:/login";
         }
 
-        // IMPORTANTE: Pasamos el token al HTML para que el input type="hidden" lo capture
+        // Pasamos el token al HTML para que el input hidden lo coja
         model.addAttribute("token", token);
+        
+        // ESTA RUTA DEBE COINCIDIR CON DONDE GUARDAS TU HTML QUE ME PASASTE
+        // Asumo que está en src/main/resources/templates/correo/reset-password-form.html
         return "correo/reset-password-form";
     }
 
@@ -57,10 +60,9 @@ public class PasswordResetController {
                                       @RequestParam("confirmPassword") String confirmPassword,
                                       RedirectAttributes redirectAttributes) {
 
-        // Validar token de nuevo por seguridad
         String result = usuarioService.validatePasswordResetToken(token);
         if (result != null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Sesión de recuperación expirada.");
+            redirectAttributes.addFlashAttribute("errorMessage", "El enlace ya caducó.");
             return "redirect:/login";
         }
 
@@ -76,7 +78,7 @@ public class PasswordResetController {
 
         try {
             usuarioService.changeUserPassword(token, password);
-            redirectAttributes.addFlashAttribute("successMessage", "Contraseña cambiada con éxito. Ya puedes iniciar sesión.");
+            redirectAttributes.addFlashAttribute("successMessage", "Contraseña cambiada exitosamente. Inicia sesión.");
             return "redirect:/login";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
