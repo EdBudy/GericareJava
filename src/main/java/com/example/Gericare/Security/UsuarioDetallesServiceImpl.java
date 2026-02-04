@@ -42,3 +42,5 @@ public class UsuarioDetallesServiceImpl implements UserDetailsService {
         return new User(usuario.getCorreoElectronico(), usuario.getContrasena(), authorities);
     } // Spring Security compara contraseñas, si coinciden va a /dashboard, si no va a /login?error
 }
+
+.requestMatchers("/forgot-password", "/reset-password", "/css/**", "/js/**").permitAll()
