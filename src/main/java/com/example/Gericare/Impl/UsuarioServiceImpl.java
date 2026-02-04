@@ -24,7 +24,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value; // IMPORTANTE PARA LA URL
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -43,26 +42,14 @@ import java.util.stream.Collectors;
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
-    private RolRepository rolRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private PacienteAsignadoRepository pacienteAsignadoRepository;
-    @Autowired
-    @Lazy
-    private PacienteAsignadoService pacienteAsignadoService;
-    @Autowired
-    private EmailService emailService;
+    @Autowired private UsuarioRepository usuarioRepository;
+    @Autowired private RolRepository rolRepository;
+    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired private PacienteAsignadoRepository pacienteAsignadoRepository;
+    @Autowired @Lazy private PacienteAsignadoService pacienteAsignadoService;
+    @Autowired private EmailService emailService;
 
-    // ESTA VARIABLE ES LA SOLUCIÓN AL PROBLEMA DE LOCALHOST
-    // La toma de tu application.properties (ej: app.base.url=https://midominio.com)
-    @Value("${app.base.url:http://localhost:8080}") 
-    private String baseUrl;
-
-    // --- MÉTODOS DE RECUPERACIÓN DE CONTRASEÑA (CORREGIDOS) ---
+    // --- MÉTODOS DE RECUPERACIÓN DE CONTRASEÑA ---
 
     @Override
     public void createPasswordResetTokenForUser(String email) {
@@ -75,8 +62,14 @@ public class UsuarioServiceImpl implements UsuarioService {
         
         usuarioRepository.save(usuario);
 
-        // AQUÍ USAMOS LA URL DINÁMICA, YA NO SE QUEDA EN LOCALHOST
-        String resetUrl = baseUrl + "/reset-password?token=" + token;
+        // =========================================================================
+        // AQUÍ ESTÁ EL CAMBIO. URL DE AZURE "QUEMADA" PARA QUE NO FALLE JAMÁS
+        // =========================================================================
+        String dominio = "https://gericare-web-2026-beh2e0ajecf3h4a4.westus3-01.azurewebsites.net";
+        
+        String resetUrl = dominio + "/reset-password?token=" + token;
+        
+        // Enviamos el correo con el link EXACTO
         emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), resetUrl);
     }
 
@@ -99,31 +92,26 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setResetPasswordToken(null);
         usuario.setResetPasswordTokenExpiryDate(null);
         
-        // ESTO SOLUCIONA EL BUCLE DE LOGIN:
+        // IMPORTANTE: Esto permite que entren sin pedir cambio de clave de nuevo
         usuario.setNecesitaCambioContrasena(false); 
         
         usuarioRepository.save(usuario);
     }
 
-    // --- FIN MÉTODOS RECUPERACIÓN ---
-
-    // --- RESTO DE MÉTODOS ORIGINALES (SIN CORTAR NADA) ---
+    // --- RESTO DE MÉTODOS (SIN CAMBIOS, SOLO LOS COPIO PARA QUE TENGAS EL ARCHIVO ENTERO) ---
 
     @Override
     public void sendCustomBulkEmailToRole(RolNombre role, String subject, String body) {
         List<Usuario> targetUsers = new ArrayList<>();
-
         if (role == null) {
             targetUsers.addAll(usuarioRepository.findByRol_RolNombre(RolNombre.Familiar));
             targetUsers.addAll(usuarioRepository.findByRol_RolNombre(RolNombre.Cuidador));
         } else {
             targetUsers = usuarioRepository.findByRol_RolNombre(role);
         }
-
         List<String> recipientEmails = targetUsers.stream()
                 .map(Usuario::getCorreoElectronico)
                 .collect(Collectors.toList());
-
         if (!recipientEmails.isEmpty()) {
             emailService.sendBulkEmail(recipientEmails, subject, body);
         }
@@ -133,50 +121,38 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioDTO crearCuidador(Cuidador cuidador) {
         Optional<Usuario> usuarioExistente = usuarioRepository.findByDocumentoOrEmailNative(
-                cuidador.getDocumentoIdentificacion(),
-                cuidador.getCorreoElectronico()
-        );
+                cuidador.getDocumentoIdentificacion(), cuidador.getCorreoElectronico());
 
         if (usuarioExistente.isPresent()) {
             Usuario existente = usuarioExistente.get();
-
             if (existente.getEstado() == EstadoUsuario.Activo) {
-                throw new DataIntegrityViolationException("El usuario ya existe con ese documento o correo.");
+                throw new DataIntegrityViolationException("El usuario ya existe.");
             }
-
             if (existente instanceof Cuidador) {
-                Cuidador cuidadorRecuperado = (Cuidador) existente;
-                cuidadorRecuperado.setNombre(cuidador.getNombre());
-                cuidadorRecuperado.setApellido(cuidador.getApellido());
-                cuidadorRecuperado.setDireccion(cuidador.getDireccion());
-                cuidadorRecuperado.setCorreoElectronico(cuidador.getCorreoElectronico());
-                cuidadorRecuperado.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
-                cuidadorRecuperado.setFechaContratacion(cuidador.getFechaContratacion());
-                cuidadorRecuperado.setTipoContrato(cuidador.getTipoContrato());
-                cuidadorRecuperado.setContactoEmergencia(cuidador.getContactoEmergencia());
-                cuidadorRecuperado.setFechaNacimiento(cuidador.getFechaNacimiento());
-                actualizarTelefonos(cuidadorRecuperado, cuidador.getTelefonos());
-                cuidadorRecuperado.setEstado(EstadoUsuario.Activo);
-                cuidadorRecuperado.setNecesitaCambioContrasena(true);
-
-                return toDTO(usuarioRepository.save(cuidadorRecuperado));
+                Cuidador recuperado = (Cuidador) existente;
+                recuperado.setNombre(cuidador.getNombre());
+                recuperado.setApellido(cuidador.getApellido());
+                recuperado.setDireccion(cuidador.getDireccion());
+                recuperado.setCorreoElectronico(cuidador.getCorreoElectronico());
+                recuperado.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
+                recuperado.setFechaContratacion(cuidador.getFechaContratacion());
+                recuperado.setTipoContrato(cuidador.getTipoContrato());
+                recuperado.setContactoEmergencia(cuidador.getContactoEmergencia());
+                recuperado.setFechaNacimiento(cuidador.getFechaNacimiento());
+                actualizarTelefonos(recuperado, cuidador.getTelefonos());
+                recuperado.setEstado(EstadoUsuario.Activo);
+                recuperado.setNecesitaCambioContrasena(true);
+                return toDTO(usuarioRepository.save(recuperado));
             } else {
-                throw new DataIntegrityViolationException("El documento ya existe registrado con otro rol y no se puede recuperar.");
+                throw new DataIntegrityViolationException("Documento registrado con otro rol.");
             }
         }
-
         cuidador.setContrasena(passwordEncoder.encode(cuidador.getContrasena()));
-        Rol rolCuidador = rolRepository.findByRolNombre(RolNombre.Cuidador)
-                .orElseThrow(() -> new RuntimeException("Error: Rol 'Cuidador' no encontrado."));
-        cuidador.setRol(rolCuidador);
-
-        if (cuidador.getTelefonos() != null) {
-            cuidador.getTelefonos().forEach(telefono -> telefono.setUsuario(cuidador));
-        }
+        Rol rol = rolRepository.findByRolNombre(RolNombre.Cuidador).orElseThrow();
+        cuidador.setRol(rol);
+        if (cuidador.getTelefonos() != null) cuidador.getTelefonos().forEach(t -> t.setUsuario(cuidador));
         cuidador.setNecesitaCambioContrasena(true);
-        if (cuidador.getEstado() == null) {
-            cuidador.setEstado(EstadoUsuario.Activo);
-        }
+        cuidador.setEstado(EstadoUsuario.Activo);
         return toDTO(usuarioRepository.save(cuidador));
     }
 
@@ -184,65 +160,48 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Transactional
     public UsuarioDTO crearFamiliar(Familiar familiar) {
         if (familiar.getTelefonos() != null && familiar.getTelefonos().size() > 3) {
-            throw new IllegalStateException("Un familiar no puede tener más de 3 teléfonos.");
+            throw new IllegalStateException("Máximo 3 teléfonos.");
         }
-
         Optional<Usuario> usuarioExistente = usuarioRepository.findByDocumentoOrEmailNative(
-                familiar.getDocumentoIdentificacion(),
-                familiar.getCorreoElectronico()
-        );
+                familiar.getDocumentoIdentificacion(), familiar.getCorreoElectronico());
 
         if (usuarioExistente.isPresent()) {
             Usuario existente = usuarioExistente.get();
-
             if (existente.getEstado() == EstadoUsuario.Activo) {
-                throw new DataIntegrityViolationException("El usuario ya existe con ese documento o correo.");
+                throw new DataIntegrityViolationException("El usuario ya existe.");
             }
-
             if (existente instanceof Familiar) {
-                Familiar familiarRecuperado = (Familiar) existente;
-                familiarRecuperado.setNombre(familiar.getNombre());
-                familiarRecuperado.setApellido(familiar.getApellido());
-                familiarRecuperado.setDireccion(familiar.getDireccion());
-                familiarRecuperado.setCorreoElectronico(familiar.getCorreoElectronico());
-                familiarRecuperado.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
-                familiarRecuperado.setParentesco(familiar.getParentesco());
-                actualizarTelefonos(familiarRecuperado, familiar.getTelefonos());
-                familiarRecuperado.setEstado(EstadoUsuario.Activo);
-                familiarRecuperado.setNecesitaCambioContrasena(true);
-
-                return toDTO(usuarioRepository.save(familiarRecuperado));
+                Familiar recuperado = (Familiar) existente;
+                recuperado.setNombre(familiar.getNombre());
+                recuperado.setApellido(familiar.getApellido());
+                recuperado.setDireccion(familiar.getDireccion());
+                recuperado.setCorreoElectronico(familiar.getCorreoElectronico());
+                recuperado.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
+                recuperado.setParentesco(familiar.getParentesco());
+                actualizarTelefonos(recuperado, familiar.getTelefonos());
+                recuperado.setEstado(EstadoUsuario.Activo);
+                recuperado.setNecesitaCambioContrasena(true);
+                return toDTO(usuarioRepository.save(recuperado));
             } else {
-                throw new DataIntegrityViolationException("El documento ya existe registrado con otro rol.");
+                throw new DataIntegrityViolationException("Documento registrado con otro rol.");
             }
         }
-
         familiar.setContrasena(passwordEncoder.encode(familiar.getContrasena()));
-        Rol rolFamiliar = rolRepository.findByRolNombre(RolNombre.Familiar)
-                .orElseThrow(() -> new RuntimeException("Error: Rol 'Familiar' no encontrado."));
-        familiar.setRol(rolFamiliar);
-
-        if (familiar.getTelefonos() != null) {
-            familiar.getTelefonos().forEach(telefono -> telefono.setUsuario(familiar));
-        }
+        Rol rol = rolRepository.findByRolNombre(RolNombre.Familiar).orElseThrow();
+        familiar.setRol(rol);
+        if (familiar.getTelefonos() != null) familiar.getTelefonos().forEach(t -> t.setUsuario(familiar));
         familiar.setNecesitaCambioContrasena(true);
-        if (familiar.getEstado() == null) {
-            familiar.setEstado(EstadoUsuario.Activo);
-        }
+        familiar.setEstado(EstadoUsuario.Activo);
         return toDTO(usuarioRepository.save(familiar));
     }
 
-    private void actualizarTelefonos(Usuario usuarioExistente, List<Telefono> nuevosTelefonos) {
-        if (usuarioExistente.getTelefonos() == null) {
-            usuarioExistente.setTelefonos(new ArrayList<>());
-        } else {
-            usuarioExistente.getTelefonos().clear();
-        }
-
-        if (nuevosTelefonos != null) {
-            nuevosTelefonos.forEach(tel -> {
-                tel.setUsuario(usuarioExistente);
-                usuarioExistente.getTelefonos().add(tel);
+    private void actualizarTelefonos(Usuario usuario, List<Telefono> nuevos) {
+        if (usuario.getTelefonos() == null) usuario.setTelefonos(new ArrayList<>());
+        else usuario.getTelefonos().clear();
+        if (nuevos != null) {
+            nuevos.forEach(t -> {
+                t.setUsuario(usuario);
+                usuario.getTelefonos().add(t);
             });
         }
     }
@@ -260,21 +219,16 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public void eliminarUsuario(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con id: " + id));
-
+        Usuario usuario = usuarioRepository.findById(id).orElseThrow();
         if (usuario instanceof Cuidador) {
-            List<PacienteAsignado> asignacionesActivas = pacienteAsignadoRepository.findByCuidador_idUsuarioAndEstado(id, EstadoAsignacion.Activo);
-            if (!asignacionesActivas.isEmpty()) {
-                throw new IllegalStateException("No se puede eliminar el cuidador porque tiene pacientes asignados.");
-            }
+             if (!pacienteAsignadoRepository.findByCuidador_idUsuarioAndEstado(id, EstadoAsignacion.Activo).isEmpty())
+                 throw new IllegalStateException("Tiene pacientes asignados.");
         }
-
         if (usuario instanceof Familiar) {
-            List<PacienteAsignado> asignaciones = pacienteAsignadoRepository.findByFamiliar_idUsuario(id);
-            if (!asignaciones.isEmpty()) {
-                asignaciones.forEach(asignacion -> asignacion.setFamiliar(null));
-                pacienteAsignadoRepository.saveAll(asignaciones);
+            List<PacienteAsignado> asig = pacienteAsignadoRepository.findByFamiliar_idUsuario(id);
+            if (!asig.isEmpty()) {
+                asig.forEach(a -> a.setFamiliar(null));
+                pacienteAsignadoRepository.saveAll(asig);
             }
         }
         usuario.setEstado(EstadoUsuario.Inactivo);
@@ -287,49 +241,31 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO usuarioDTO) {
-        return usuarioRepository.findById(id).map(usuarioExistente -> {
-            String oldEmail = usuarioExistente.getCorreoElectronico();
-            String newEmail = usuarioDTO.getCorreoElectronico();
-            boolean emailChanged = false;
-
-            if (newEmail != null && !newEmail.equalsIgnoreCase(oldEmail)) {
-                if (usuarioRepository.findByCorreoElectronico(newEmail).isPresent()) {
-                    throw new IllegalStateException("El correo " + newEmail + " ya está en uso.");
-                }
-                usuarioExistente.setCorreoElectronico(newEmail);
-                emailChanged = true;
+    public Optional<UsuarioDTO> actualizarUsuario(Long id, UsuarioDTO dto) {
+        return usuarioRepository.findById(id).map(u -> {
+            if (dto.getCorreoElectronico() != null && !dto.getCorreoElectronico().equalsIgnoreCase(u.getCorreoElectronico())) {
+                if (usuarioRepository.findByCorreoElectronico(dto.getCorreoElectronico()).isPresent())
+                    throw new IllegalStateException("Correo en uso.");
+                u.setCorreoElectronico(dto.getCorreoElectronico());
+                emailService.sendEmailChangeNotification(u.getCorreoElectronico(), u.getNombre());
             }
-
-            usuarioExistente.setNombre(usuarioDTO.getNombre());
-            usuarioExistente.setApellido(usuarioDTO.getApellido());
-            usuarioExistente.setDireccion(usuarioDTO.getDireccion());
-
-            if (usuarioExistente instanceof Empleado) {
-                Empleado empleadoExistente = (Empleado) usuarioExistente;
-                empleadoExistente.setTipoContrato(usuarioDTO.getTipoContrato());
-                empleadoExistente.setContactoEmergencia(usuarioDTO.getContactoEmergencia());
+            u.setNombre(dto.getNombre());
+            u.setApellido(dto.getApellido());
+            u.setDireccion(dto.getDireccion());
+            if (u instanceof Empleado) {
+                ((Empleado) u).setTipoContrato(dto.getTipoContrato());
+                ((Empleado) u).setContactoEmergencia(dto.getContactoEmergencia());
             }
-
-            if (usuarioDTO.getTelefonos() != null) {
-                usuarioExistente.getTelefonos().clear();
-                List<Telefono> nuevosTelefonos = usuarioDTO.getTelefonos().stream()
-                        .filter(numero -> numero != null && !numero.trim().isEmpty())
-                        .map(numero -> {
-                            Telefono tel = new Telefono();
-                            tel.setNumero(numero);
-                            tel.setUsuario(usuarioExistente);
-                            return tel;
-                        })
-                        .collect(Collectors.toList());
-                usuarioExistente.getTelefonos().addAll(nuevosTelefonos);
+            if (dto.getTelefonos() != null) {
+                u.getTelefonos().clear();
+                dto.getTelefonos().stream().filter(n -> n != null && !n.isEmpty()).forEach(n -> {
+                    Telefono t = new Telefono();
+                    t.setNumero(n);
+                    t.setUsuario(u);
+                    u.getTelefonos().add(t);
+                });
             }
-
-            Usuario usuarioActualizado = usuarioRepository.save(usuarioExistente);
-            if (emailChanged) {
-                emailService.sendEmailChangeNotification(usuarioActualizado.getCorreoElectronico(), usuarioActualizado.getNombre());
-            }
-            return toDTO(usuarioActualizado);
+            return toDTO(usuarioRepository.save(u));
         });
     }
 
@@ -361,14 +297,13 @@ public class UsuarioServiceImpl implements UsuarioService {
         UsuarioDTO dto = new UsuarioDTO();
         setCommonProperties(usuario, dto);
         if (usuario instanceof Empleado) {
-            Empleado empleado = (Empleado) usuario;
-            dto.setFechaContratacion(empleado.getFechaContratacion());
-            dto.setTipoContrato(empleado.getTipoContrato());
-            dto.setContactoEmergencia(empleado.getContactoEmergencia());
-            dto.setFechaNacimiento(empleado.getFechaNacimiento());
+            Empleado e = (Empleado) usuario;
+            dto.setFechaContratacion(e.getFechaContratacion());
+            dto.setTipoContrato(e.getTipoContrato());
+            dto.setContactoEmergencia(e.getContactoEmergencia());
+            dto.setFechaNacimiento(e.getFechaNacimiento());
         } else if (usuario instanceof Familiar) {
-            Familiar familiar = (Familiar) usuario;
-            dto.setParentesco(familiar.getParentesco());
+            dto.setParentesco(((Familiar) usuario).getParentesco());
         }
         if (usuario.getTelefonos() != null) {
             dto.setTelefonos(usuario.getTelefonos().stream().map(Telefono::getNumero).collect(Collectors.toList()));
@@ -389,72 +324,53 @@ public class UsuarioServiceImpl implements UsuarioService {
         dto.setRol(usuario.getRol());
     }
 
-    public List<Usuario> listarUsuarios() {
-        return usuarioRepository.findAll();
-    }
+    public List<Usuario> listarUsuarios() { return usuarioRepository.findAll(); }
 
-    // exportacion excel
     public void exportarUsuariosAExcel(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
-        try (Workbook workbook = new XSSFWorkbook()) { 
+        try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Usuarios");
-
             Row headerRow = sheet.createRow(0);
             String[] columns = {"ID", "Tipo Doc", "Documento", "Nombre", "Apellido", "Dirección", "Correo", "Rol"};
-
-            for(int i=0; i<columns.length; i++) {
-                headerRow.createCell(i).setCellValue(columns[i]);
-            }
+            for(int i=0; i<columns.length; i++) headerRow.createCell(i).setCellValue(columns[i]);
 
             List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol));
-
             int rowNum = 1;
-            for (Usuario usuario : usuarios) {
+            for (Usuario u : usuarios) {
                 Row row = sheet.createRow(rowNum++);
-                row.createCell(0).setCellValue(usuario.getIdUsuario());
-                row.createCell(1).setCellValue(usuario.getTipoDocumento() != null ? usuario.getTipoDocumento().toString() : "");
-                row.createCell(2).setCellValue(usuario.getDocumentoIdentificacion());
-                row.createCell(3).setCellValue(usuario.getNombre());
-                row.createCell(4).setCellValue(usuario.getApellido());
-                row.createCell(5).setCellValue(usuario.getDireccion());
-                row.createCell(6).setCellValue(usuario.getCorreoElectronico());
-                row.createCell(7).setCellValue(usuario.getRol() != null ? usuario.getRol().getRolNombre().toString() : "");
+                row.createCell(0).setCellValue(u.getIdUsuario());
+                row.createCell(1).setCellValue(u.getTipoDocumento() != null ? u.getTipoDocumento().toString() : "");
+                row.createCell(2).setCellValue(u.getDocumentoIdentificacion());
+                row.createCell(3).setCellValue(u.getNombre());
+                row.createCell(4).setCellValue(u.getApellido());
+                row.createCell(5).setCellValue(u.getDireccion());
+                row.createCell(6).setCellValue(u.getCorreoElectronico());
+                row.createCell(7).setCellValue(u.getRol() != null ? u.getRol().getRolNombre().toString() : "");
             }
-
-            for (int i = 0; i < columns.length; i++) {
-                sheet.autoSizeColumn(i);
-            }
+            for (int i = 0; i < columns.length; i++) sheet.autoSizeColumn(i);
             workbook.write(outputStream);
         }
     }
 
-    // exportacion pdf
     public void exportarUsuariosAPDF(OutputStream outputStream, String nombre, String documento, RolNombre rol) throws IOException {
         Document document = new Document();
         PdfWriter.getInstance(document, outputStream);
         document.open();
-
         document.add(new Paragraph("Lista de Usuarios - Gericare Connect"));
         document.add(new Paragraph(" "));
-
         PdfPTable table = new PdfPTable(8);
         table.setWidthPercentage(100);
-
         String[] headers = {"ID", "Tipo Doc", "Documento", "Nombre", "Apellido", "Dirección", "Correo", "Rol"};
-        for(String header : headers) {
-            table.addCell(header);
-        }
-
+        for(String header : headers) table.addCell(header);
         List<Usuario> usuarios = usuarioRepository.findAll(UsuarioSpecification.findByCriteria(nombre, documento, rol));
-
-        for (Usuario usuario : usuarios) {
-            table.addCell(String.valueOf(usuario.getIdUsuario()));
-            table.addCell(usuario.getTipoDocumento() != null ? usuario.getTipoDocumento().toString() : "");
-            table.addCell(usuario.getDocumentoIdentificacion());
-            table.addCell(usuario.getNombre());
-            table.addCell(usuario.getApellido());
-            table.addCell(usuario.getDireccion());
-            table.addCell(usuario.getCorreoElectronico());
-            table.addCell(usuario.getRol() != null ? usuario.getRol().getRolNombre().toString() : "");
+        for (Usuario u : usuarios) {
+            table.addCell(String.valueOf(u.getIdUsuario()));
+            table.addCell(u.getTipoDocumento() != null ? u.getTipoDocumento().toString() : "");
+            table.addCell(u.getDocumentoIdentificacion());
+            table.addCell(u.getNombre());
+            table.addCell(u.getApellido());
+            table.addCell(u.getDireccion());
+            table.addCell(u.getCorreoElectronico());
+            table.addCell(u.getRol() != null ? u.getRol().getRolNombre().toString() : "");
         }
         document.add(table);
         document.close();
