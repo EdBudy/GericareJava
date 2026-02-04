@@ -18,7 +18,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long>, JpaSpec
     // Spring Data JPA crea la consulta automáticamente por el nombre del metodo
     Optional<Usuario> findByCorreoElectronico(String correoElectronico);
     List<Usuario> findByRol_RolNombre(RolNombre rolNombre);
-    Optional<Usuario> findByResetPasswordToken(String token);
+   Optional<Usuario> findByResetPasswordToken(String token);
 
     // Busca usuarios ignorando el filtro de "Activo"
     @Query(value = "SELECT * FROM usuarios WHERE documento_identificacion = :doc OR correo_electronico = :email LIMIT 1", nativeQuery = true)
