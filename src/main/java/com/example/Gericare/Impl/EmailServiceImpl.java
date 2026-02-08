@@ -26,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
     private TemplateEngine templateEngine;
     // motor que procesa plantillas html
 
-    @Value("${app.base-url:http://localhost:8080}")
+    @Value("${app.base-url:https://gericare-web-2026-beh2e0ajecf3h4a4.westus3-01.azurewebsites.net}")
     private String baseUrl;
     // url base usada dentro de los correos
 
