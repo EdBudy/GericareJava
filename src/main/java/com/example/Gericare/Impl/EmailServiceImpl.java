@@ -1,6 +1,7 @@
 package com.example.Gericare.Impl;
 
 import com.example.Gericare.Service.EmailService;
+import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
@@ -33,6 +34,18 @@ public class EmailServiceImpl implements EmailService {
     @Value("${app.base-url:https://gericare-web-2026-beh2e0ajecf3h4a4.westus3-01.azurewebsites.net}")
     private String baseUrl;
     // url base usada dentro de los correos
+
+    @PostConstruct
+    public void init() {
+        // elimina espacios y barra final para evitar URLs malformadas
+        if (baseUrl != null) {
+            baseUrl = baseUrl.trim();
+            if (baseUrl.endsWith("/")) {
+                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+            }
+        }
+        logger.info("EmailServiceImpl inicializado con base URL: {}", baseUrl);
+    }
 
     @Value("${spring.mail.from:gericareconnect@gmail.com}")
     private String fromEmail;
