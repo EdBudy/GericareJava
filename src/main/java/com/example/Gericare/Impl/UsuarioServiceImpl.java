@@ -62,15 +62,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         
         usuarioRepository.save(usuario);
 
-        // =========================================================================
-        // AQUÍ ESTÁ EL CAMBIO. URL DE AZURE "QUEMADA" PARA QUE NO FALLE JAMÁS
-        // =========================================================================
-        String dominio = "https://gericare-web-2026-beh2e0ajecf3h4a4.westus3-01.azurewebsites.net";
-        
-        String resetUrl = dominio + "/reset-password?token=" + token;
-        
-        // Enviamos el correo con el link EXACTO
-        emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), resetUrl);
+        // El token UUID es pasado al servicio de email, que construye la URL completa
+        emailService.sendPasswordResetEmail(usuario.getCorreoElectronico(), token);
     }
 
     @Override

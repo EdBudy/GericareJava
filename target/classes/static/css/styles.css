@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #007bff;
+    --background-color: #f4f7f6;
+    --text-color: #333;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.page-content, main {
+    flex: 1 0 auto;
+    width: 100%;
+    padding-bottom: 50px;
+}
+
+footer {
+    flex-shrink: 0;
+    width: 100%;
+    margin-top: auto;
+}
+
+.navbar {
+    position: relative;
+    z-index: 1050;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    min-height: 80px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+#particles-js-header {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.header-content {
+    position: relative;
+    z-index: 2;
+}
+
+.bg-role-admin {
+    background-color: #000000 !important;
+    background-image: none !important;
+}
+
+.bg-role-cuidador {
+    background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%) !important;
+}
+
+.bg-role-familiar {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+}
+
+.header-logo {
+    height: 45px;
+    width: auto;
+    filter: drop-shadow(0px 0px 5px rgba(255,255,255,0.6));
+    transition: transform 0.3s ease;
+}
+.header-logo:hover { transform: scale(1.05); }
+
+.dropdown-menu {
+    z-index: 10000 !important;
+    position: absolute;
+    background-color: rgba(20, 20, 20, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 10px;
+    margin-top: 10px;
+    padding: 0.5rem 0;
+}
+
+.dropdown-item {
+    color: rgba(255,255,255,0.8);
+    padding: 10px 20px;
+    transition: all 0.2s;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: #fff;
+    transform: translateX(5px);
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 8px 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+}
+
+.btn-success {
+    background: linear-gradient(45deg, #28a745, #218838);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+}
+
+.card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    background: white;
+}
+.card:hover { transform: translateY(-5px); }
