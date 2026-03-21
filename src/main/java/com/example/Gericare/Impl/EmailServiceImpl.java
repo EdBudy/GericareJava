@@ -3,6 +3,8 @@ package com.example.Gericare.Impl;
 import com.example.Gericare.Service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -17,6 +19,8 @@ import java.util.List;
 
 @Service
 public class EmailServiceImpl implements EmailService {
+
+    private static final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
     @Autowired
     private JavaMailSender mailSender;
@@ -47,9 +51,14 @@ public class EmailServiceImpl implements EmailService {
 
             String htmlContent = templateEngine.process("emails/password-reset-email", context);
             enviarCorreoBase(to, "Solicitud de Cambio de Contraseña - Gericare Connect", htmlContent);
+            logger.info("Correo de reseteo de contraseña enviado a: {}", to);
 
         } catch (MessagingException e) {
+            logger.error("Fallo al enviar el correo de reseteo a {}: {}", to, e.getMessage(), e);
             throw new IllegalStateException("Fallo al enviar el correo de reseteo.", e);
+        } catch (Exception e) {
+            logger.error("Error inesperado al enviar correo de reseteo a {}: {}", to, e.getMessage(), e);
+            throw new IllegalStateException("Error inesperado al enviar el correo de reseteo.", e);
         }
     }
 
@@ -67,9 +76,14 @@ public class EmailServiceImpl implements EmailService {
 
             String htmlContent = templateEngine.process("emails/welcome-email", context);
             enviarCorreoBase(to, "¡Bienvenido a Gericare Connect!", htmlContent);
+            logger.info("Correo de bienvenida enviado a: {}", to);
 
         } catch (MessagingException e) {
+            logger.error("Fallo al enviar el correo de bienvenida a {}: {}", to, e.getMessage(), e);
             throw new IllegalStateException("Fallo al enviar el correo de bienvenida.", e);
+        } catch (Exception e) {
+            logger.error("Error inesperado al enviar correo de bienvenida a {}: {}", to, e.getMessage(), e);
+            throw new IllegalStateException("Error inesperado al enviar el correo de bienvenida.", e);
         }
     }
 
@@ -103,10 +117,11 @@ public class EmailServiceImpl implements EmailService {
 
             // ejecuta el envío a través del servidor smtp
             mailSender.send(mimeMessage);
+            logger.info("Correo masivo enviado a {} destinatarios", recipients.size());
 
         } catch (MessagingException e) {
             // registra un error si falla el envío
-            System.err.println("Error al enviar correo masivo: " + e.getMessage());
+            logger.error("Error al enviar correo masivo: {}", e.getMessage(), e);
         }
     }
 
@@ -122,9 +137,10 @@ public class EmailServiceImpl implements EmailService {
 
             String htmlContent = templateEngine.process("emails/email-change-notification", context);
             enviarCorreoBase(newEmail, "Tu correo en Gericare ha sido actualizado", htmlContent);
+            logger.info("Notificación de cambio de correo enviada a: {}", newEmail);
 
         } catch (MessagingException e) {
-            System.err.println("Fallo al enviar notificación de cambio de email: " + e.getMessage());
+            logger.error("Fallo al enviar notificación de cambio de email a {}: {}", newEmail, e.getMessage(), e);
         }
     }
 
@@ -149,7 +165,7 @@ public class EmailServiceImpl implements EmailService {
             ClassPathResource logo = new ClassPathResource("static/images/Geri_Logo-..png");
             if (logo.exists()) helper.addInline("geriLogo", logo);
         } catch (Exception e) {
-
+            logger.warn("No se pudo adjuntar el logo inline: {}", e.getMessage());
         }
     }
 

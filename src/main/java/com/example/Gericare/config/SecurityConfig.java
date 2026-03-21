@@ -26,7 +26,9 @@ public class SecurityConfig {
                 // Configuración de autorización de peticiones HTTP
                 .authorizeHttpRequests(authorize -> authorize
                         // Permisos públicos (no requieren login)
-                        .requestMatchers("/", "/login", "/registro", "/reset-password", "/css/**", "/js/**", "/images/**", "/forgot-password")
+                        .requestMatchers("/", "/login", "/registro", "/reset-password", "/reset-password/**",
+                                "/css/**", "/js/**", "/images/**", "/img/**", "/assets/**", "/vendor/**",
+                                "/forgot-password", "/forgot-password/**", "/favicon.ico", "/error")
                         .permitAll()
 
                         // Reglas cuidador
